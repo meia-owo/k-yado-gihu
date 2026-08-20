@@ -1,0 +1,517 @@
+<!-- Version: 1.0.0 | Standalone Hotel Search App (No CDN, Self-contained) -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>岐阜車体周辺ホテル検索</title>
+  <style>
+    /* CSS Variables for Light/Dark Theme */
+    :root {
+      --bg-base: #f3f4f6;
+      --bg-app: #f9fafb;
+      --bg-card: #ffffff;
+      --bg-input: #ffffff;
+      --bg-hover: #f3f4f6;
+      --text-main: #1f2937;
+      --text-sub: #6b7280;
+      --border: #e5e7eb;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --primary-light: #eff6ff;
+      --pink: #ec4899;
+      --pink-light: #fdf2f8;
+      --green: #10b981;
+      --green-hover: #059669;
+      --yellow: #f59e0b;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    [data-theme="dark"] {
+      --bg-base: #030712;
+      --bg-app: #111827;
+      --bg-card: #1f2937;
+      --bg-input: #374151;
+      --bg-hover: #374151;
+      --text-main: #f9fafb;
+      --text-sub: #9ca3af;
+      --border: #374151;
+      --primary: #3b82f6;
+      --primary-hover: #60a5fa;
+      --primary-light: rgba(59, 130, 246, 0.2);
+      --pink: #f43f5e;
+      --pink-light: rgba(244, 63, 94, 0.2);
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Reset & Base Styles */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-base); color: var(--text-main); display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; transition: background-color 0.3s, color 0.3s; }
+    button { cursor: pointer; border: none; background: none; color: inherit; font-family: inherit; }
+    input, select { font-family: inherit; color: inherit; }
+    a { color: inherit; text-decoration: none; }
+    
+    /* Layout Utilities */
+    .app-container { width: 100%; max-width: 480px; height: 100%; max-height: 850px; background-color: var(--bg-app); display: flex; flex-direction: column; position: relative; overflow: hidden; box-shadow: var(--shadow); transition: background-color 0.3s; }
+    @media (min-width: 481px) { .app-container { height: 95vh; border-radius: 40px; border: 8px solid var(--border); } }
+    .header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--border); background-color: var(--bg-card); z-index: 10; }
+    .content-area { flex: 1; position: relative; overflow: hidden; }
+    .scroll-y { overflow-y: auto; height: 100%; padding: 16px; padding-bottom: 80px; }
+    .flex { display: flex; }
+    .flex-col { display: flex; flex-direction: column; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+    .justify-center { justify-content: center; }
+    .gap-1 { gap: 4px; } .gap-2 { gap: 8px; } .gap-3 { gap: 12px; } .gap-4 { gap: 16px; }
+    .mt-2 { margin-top: 8px; } .mt-4 { margin-top: 16px; } .mb-2 { margin-bottom: 8px; } .mb-4 { margin-bottom: 16px; }
+    .p-3 { padding: 12px; } .p-4 { padding: 16px; } .p-5 { padding: 20px; }
+    .w-full { width: 100%; } .h-full { height: 100%; }
+    
+    /* Typography */
+    .text-xs { font-size: 11px; } .text-sm { font-size: 13px; } .text-base { font-size: 15px; } .text-lg { font-size: 18px; } .text-2xl { font-size: 24px; }
+    .font-bold { font-weight: 700; } .font-extrabold { font-weight: 800; }
+    .text-sub { color: var(--text-sub); } .text-primary { color: var(--primary); } .text-pink { color: var(--pink); } .text-green { color: var(--green); } .text-yellow { color: var(--yellow); }
+    
+    /* UI Components */
+    .card { background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+    .btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; border-radius: 12px; font-weight: bold; transition: opacity 0.2s, transform 0.1s; }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background-color: var(--primary); color: white; }
+    .btn-green { background-color: var(--green); color: white; }
+    .btn-outline { border: 1px solid var(--border); background-color: var(--bg-input); }
+    
+    /* Tabs & Toggles */
+    .tab-bar { display: flex; padding: 4px; background-color: var(--bg-hover); border-radius: 12px; margin: 16px; flex-shrink: 0; }
+    .tab-btn { flex: 1; padding: 10px; text-align: center; font-size: 12px; font-weight: bold; border-radius: 8px; color: var(--text-sub); display: flex; justify-content: center; align-items: center; gap: 4px; }
+    .tab-btn.active { background-color: var(--bg-card); color: var(--text-main); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    
+    .toggle-group { display: flex; padding: 4px; background-color: var(--bg-hover); border-radius: 8px; margin-bottom: 16px; }
+    .toggle-btn { flex: 1; padding: 8px; font-size: 12px; font-weight: bold; border-radius: 6px; color: var(--text-sub); }
+    .toggle-btn.active { background-color: var(--text-main); color: var(--bg-card); }
+    
+    /* Forms */
+    .form-label { display: block; font-size: 11px; font-weight: bold; color: var(--text-sub); margin-bottom: 6px; }
+    .form-input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--border); background-color: var(--bg-input); font-size: 15px; appearance: none; }
+    .form-input:focus { outline: 2px solid var(--primary); }
+    
+    /* Icons */
+    svg.icon { width: 18px; height: 18px; flex-shrink: 0; }
+    svg.icon-sm { width: 14px; height: 14px; }
+    
+    /* Specific Layouts */
+    .view-panel { position: absolute; inset: 0; display: flex; flex-direction: column; transition: transform 0.3s ease, opacity 0.3s ease; }
+    .view-hidden-left { transform: translateX(-100%); opacity: 0; pointer-events: none; }
+    .view-hidden-right { transform: translateX(100%); opacity: 0; pointer-events: none; }
+    
+    .hotel-card { position: relative; padding: 16px; }
+    .fav-btn { position: absolute; top: 12px; right: 12px; padding: 8px; border-radius: 50%; background-color: var(--bg-hover); transition: background-color 0.2s; }
+    .fav-btn.is-fav { color: var(--pink); }
+    .fav-btn.is-fav svg { fill: var(--pink); }
+    
+    .badge { padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; }
+    .badge-primary { background-color: var(--primary-light); color: var(--primary); }
+    .badge-pink { background-color: var(--pink-light); color: var(--pink); }
+    
+    .action-links { display: flex; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+    .action-links a { flex: 1; text-align: center; padding: 8px; border-radius: 8px; font-size: 11px; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 4px; }
+    .link-map { background-color: var(--bg-hover); color: var(--text-main); }
+    .link-book { background-color: var(--green); color: white; }
+
+    /* Split View for Simulation */
+    .split-view { display: flex; gap: 12px; height: 100%; align-items: flex-start; }
+    .split-col { flex: 1; width: 50%; display: flex; flex-direction: column; gap: 8px; }
+    .timeline-item { position: relative; padding-left: 24px; padding-bottom: 12px; }
+    .timeline-line { position: absolute; left: 9px; top: 14px; bottom: -6px; width: 2px; background-color: var(--border); }
+    .timeline-dot { position: absolute; left: 5px; top: 10px; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--bg-card); z-index: 2; }
+    
+    .color-blue { background-color: #3b82f6; } .color-indigo { background-color: #6366f1; } .color-teal { background-color: #14b8a6; }
+    .color-orange { background-color: #f97316; } .color-purple { background-color: #a855f7; } .color-pink { background-color: #ec4899; }
+    .text-color-blue { color: #3b82f6; } .text-color-indigo { color: #6366f1; } .text-color-teal { color: #14b8a6; }
+    
+    .loading-overlay { position: absolute; inset: 0; background-color: rgba(255,255,255,0.7); display: flex; justify-content: center; align-items: center; z-index: 50; flex-direction: column; gap: 12px; font-weight: bold; }
+    [data-theme="dark"] .loading-overlay { background-color: rgba(17,24,39,0.7); }
+    .spinner { width: 32px; height: 32px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .disclaimer { text-align: center; font-size: 10px; color: var(--text-sub); margin-top: 16px; padding: 0 12px; line-height: 1.4; }
+  </style>
+</head>
+<body>
+
+  <div class="app-container" id="app">
+    <!-- UI is rendered here via JavaScript -->
+  </div>
+
+  <script>
+    // === SVG Icons ===
+    const ICONS = {
+      sun: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>`,
+      moon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`,
+      search: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>`,
+      calendar: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>`,
+      sparkles: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>`,
+      heart: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>`,
+      mapPin: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon icon-sm"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>`,
+      clock: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon icon-sm"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+      external: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon icon-sm"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>`,
+      share: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon icon-sm"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>`,
+      building: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M12 6h.01M12 10h.01M12 14h.01M16 10h.01M16 14h.01M8 10h.01M8 14h.01"/></svg>`
+    };
+
+    // === Mock Data ===
+    const HOTELS = [
+      { id: 1, name: 'ABホテル犬山', distance: '4.0km', time: '10分', basePrice: 4000, rakuten: 'https://travel.rakuten.co.jp/HOTEL/166547/166547.html', features: '朝食無料・大浴場', area: '愛知県犬山市', color: 'blue' },
+      { id: 2, name: 'ホテルミュースタイル犬山', distance: '3.5km', time: '10分', basePrice: 5500, rakuten: 'https://travel.rakuten.co.jp/HOTEL/181665/181665.html', features: '距離最短・綺麗', area: '愛知県犬山市', color: 'indigo' },
+      { id: 3, name: 'ホテルルートイン各務原', distance: '6.5km', time: '15分', basePrice: 7250, rakuten: 'https://travel.rakuten.co.jp/HOTEL/68612/68612.html', features: '大浴場・安定感', area: '岐阜県各務原市', color: 'teal' },
+      { id: 4, name: 'ビジネスホテル観月', distance: '7.0km', time: '15分', basePrice: 4500, rakuten: 'https://travel.rakuten.co.jp/HOTEL/68412/68412.html', features: '格安・昔ながら', area: '岐阜県各務原市', color: 'orange' },
+      { id: 5, name: '犬山セントラルホテル', distance: '4.5km', time: '12分', basePrice: 4800, rakuten: 'https://travel.rakuten.co.jp/HOTEL/15000/15000.html', features: '駅近・利便性', area: '愛知県犬山市', color: 'purple' },
+      { id: 6, name: '旬樹庵 八勝閣みづのを', distance: '3.0km', time: '8分', basePrice: 8500, rakuten: 'https://travel.rakuten.co.jp/HOTEL/11261/11261.html', features: '温泉・リラックス', area: '愛知県犬山市', color: 'pink' },
+      { id: 7, name: 'ホテルインディゴ犬山', distance: '3.8km', time: '11分', basePrice: 18000, rakuten: 'https://travel.rakuten.co.jp/HOTEL/182607/182607.html', features: '高級・リゾート', area: '愛知県犬山市', color: 'blue' },
+      { id: 8, name: '犬山館', distance: '3.2km', time: '9分', basePrice: 7000, rakuten: 'https://travel.rakuten.co.jp/HOTEL/161869/161869.html', features: '和室・眺望', area: '愛知県犬山市', color: 'indigo' },
+      { id: 9, name: '灯屋 迎帆楼', distance: '3.5km', time: '10分', basePrice: 25000, rakuten: 'https://travel.rakuten.co.jp/HOTEL/161868/161868.html', features: '露天・ラグジュアリー', area: '愛知県犬山市', color: 'teal' },
+      { id: 10, name: 'サンパーク犬山', distance: '5.0km', time: '13分', basePrice: 5200, rakuten: 'https://travel.rakuten.co.jp/HOTEL/137682/137682.html', features: '大浴場・コスパ', area: '愛知県犬山市', color: 'orange' },
+      { id: 11, name: '犬山ミヤコホテル', distance: '4.2km', time: '11分', basePrice: 3800, rakuten: 'https://travel.rakuten.co.jp/HOTEL/180630/180630.html', features: '駅チカ・格安', area: '愛知県犬山市', color: 'purple' }
+    ].map(h => ({ ...h, mapLink: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(h.name)}` }));
+
+    // === Storage Handler (Error safe) ===
+    const Storage = {
+      get(key, fallback) {
+        try { const val = localStorage.getItem(key); return val ? JSON.parse(val) : fallback; } 
+        catch (e) { console.warn("Storage read error"); return fallback; }
+      },
+      set(key, value) {
+        try { localStorage.setItem(key, JSON.stringify(value)); } 
+        catch (e) { console.warn("Storage write error"); }
+      }
+    };
+
+    // === Date Utilities ===
+    const addDays = (dateStr, days) => {
+      const d = new Date(dateStr);
+      d.setDate(d.getDate() + days);
+      return d.toISOString().split('T')[0];
+    };
+    const formatDay = (dateStr) => {
+      if(!dateStr) return '';
+      const d = new Date(dateStr);
+      if(isNaN(d.getTime())) return '';
+      const days = ['日', '月', '火', '水', '木', '金', '土'];
+      return `${d.getMonth()+1}/${d.getDate()}(${days[d.getDay()]})`;
+    };
+    const todayStr = new Date().toISOString().split('T')[0];
+    const tomorrowStr = addDays(todayStr, 1);
+
+    // === State Management ===
+    window.AppState = {
+      theme: Storage.get('hotel_app_theme', 'light'),
+      activeTab: 'search',
+      searchTarget: 'all', // 'all' or 'favorites'
+      checkIn: todayStr,
+      checkOut: tomorrowStr,
+      favorites: Storage.get('hotel_app_favs', []),
+      isLoading: false,
+      results: [],
+      searchParams: null, // { nights, start, end }
+      combos: { fav: null, best: null }
+    };
+
+    // === Core Logic & Actions ===
+    const AppActions = {
+      toggleTheme() {
+        AppState.theme = AppState.theme === 'light' ? 'dark' : 'light';
+        Storage.set('hotel_app_theme', AppState.theme);
+        render();
+      },
+      setTab(tab) { AppState.activeTab = tab; render(); },
+      setSearchTarget(target) { AppState.searchTarget = target; render(); },
+      toggleFav(id) {
+        if(AppState.favorites.includes(id)) {
+          AppState.favorites = AppState.favorites.filter(fid => fid !== id);
+        } else {
+          AppState.favorites.push(id);
+        }
+        Storage.set('hotel_app_favs', AppState.favorites);
+        // シミュレーション再計算
+        if(AppState.results.length > 0) AppActions.calcCombos();
+        render();
+      },
+      executeSearch() {
+        const inDate = new Date(document.getElementById('input_in').value);
+        const outDate = new Date(document.getElementById('input_out').value);
+        
+        if (isNaN(inDate) || isNaN(outDate) || outDate <= inDate) {
+          alert('チェックアウト日はチェックイン日より後に設定してください。');
+          return;
+        }
+        
+        AppState.checkIn = inDate.toISOString().split('T')[0];
+        AppState.checkOut = outDate.toISOString().split('T')[0];
+        const nights = Math.ceil((outDate - inDate) / (1000 * 60 * 60 * 24));
+        
+        AppState.searchParams = { nights, start: AppState.checkIn, end: AppState.checkOut };
+        AppState.isLoading = true;
+        render();
+
+        setTimeout(() => {
+          let targetHotels = HOTELS;
+          if(AppState.searchTarget === 'favorites') {
+            targetHotels = HOTELS.filter(h => AppState.favorites.includes(h.id));
+          }
+          
+          if(targetHotels.length === 0) {
+            AppState.results = [];
+          } else {
+            AppState.results = targetHotels.map(h => {
+              const dailyPrices = [];
+              let totalPrice = 0;
+              for(let i=0; i<nights; i++) {
+                const fluctuation = 1 + (Math.random() * 0.4 - 0.2);
+                const price = Math.round((h.basePrice * fluctuation) / 100) * 100;
+                dailyPrices.push(price);
+                totalPrice += price;
+              }
+              return { ...h, dailyPrices, totalPrice };
+            }).sort((a,b) => a.totalPrice - b.totalPrice);
+          }
+          
+          AppActions.calcCombos();
+          AppState.isLoading = false;
+          AppState.activeTab = 'results';
+          render();
+        }, 1200);
+      },
+      calcCombos() {
+        if(AppState.results.length === 0 || !AppState.searchParams || AppState.searchParams.nights < 2) {
+          AppState.combos = { fav: null, best: null };
+          return;
+        }
+        const nights = AppState.searchParams.nights;
+        const calcBest = (sourceHotels) => {
+          if(sourceHotels.length === 0) return null;
+          const combo = [];
+          for(let i=0; i<nights; i++) {
+            let cheapest = sourceHotels.reduce((min, h) => h.dailyPrices[i] < min.dailyPrices[i] ? h : min, sourceHotels[0]);
+            combo.push({ ...cheapest, price: cheapest.dailyPrices[i], dayIndex: i });
+          }
+          const total = combo.reduce((sum, item) => sum + item.price, 0);
+          return { combo, total };
+        };
+
+        const standardBestPrice = AppState.results[0]?.totalPrice || 0;
+        const bestCombo = calcBest(AppState.results);
+        if(bestCombo) bestCombo.diff = standardBestPrice - bestCombo.total > 0 ? standardBestPrice - bestCombo.total : 0;
+        
+        const favHotels = AppState.results.filter(h => AppState.favorites.includes(h.id));
+        const favCombo = calcBest(favHotels);
+        
+        AppState.combos = { best: bestCombo, fav: favCombo };
+      },
+      shareLine(type) {
+        const data = type === 'fav' ? AppState.combos.fav : AppState.combos.best;
+        if(!data) return;
+        const title = type === 'fav' ? '💖 お気に入り厳選プラン' : '✨ 最安ホッピングプラン';
+        const txt = `🏨 岐阜車体出張 ${title}\n📅 ${formatDay(AppState.searchParams.start)}〜 (${AppState.searchParams.nights}泊)\n💰 合計: ¥${data.total.toLocaleString()}\n\n` + 
+          data.combo.map(item => `・${formatDay(addDays(AppState.searchParams.start, item.dayIndex))}\n　${item.name} (¥${item.price.toLocaleString()})`).join('\n') + 
+          `\n\n🔗 実際の料金はGoogleMap等で確認してね！`;
+        window.open(`https://line.me/R/msg/text/?${encodeURIComponent(txt)}`, '_blank');
+      }
+    };
+
+    // === Rendering ===
+    const render = () => {
+      document.documentElement.setAttribute('data-theme', AppState.theme);
+      const appEl = document.getElementById('app');
+      
+      const tabSearch = AppState.activeTab === 'search' ? 'active' : '';
+      const tabResults = AppState.activeTab === 'results' ? 'active' : '';
+      const tabSim = AppState.activeTab === 'simulation' ? 'active' : '';
+      
+      let viewContent = '';
+      if (AppState.activeTab === 'search') viewContent = renderSearchTab();
+      else if (AppState.activeTab === 'results') viewContent = renderResultsTab();
+      else if (AppState.activeTab === 'simulation') viewContent = renderSimTab();
+
+      appEl.innerHTML = `
+        <div class="header">
+          <div class="flex items-center gap-2">
+            <span class="text-primary">${ICONS.building}</span>
+            <h1 class="font-bold text-lg">岐阜車体 <span class="text-sm font-normal text-sub">周辺ステイ</span></h1>
+          </div>
+          <button onclick="AppActions.toggleTheme()" class="p-2" style="background:var(--bg-hover); border-radius:50%; color:var(--yellow)">
+            ${AppState.theme === 'dark' ? ICONS.sun : ICONS.moon}
+          </button>
+        </div>
+        
+        <div class="tab-bar">
+          <button class="tab-btn ${tabSearch}" onclick="AppActions.setTab('search')">${ICONS.search} 検索</button>
+          <button class="tab-btn ${tabResults}" onclick="AppActions.setTab('results')">${ICONS.calendar} 結果 ${AppState.results.length > 0 ? `<span class="badge badge-primary">${AppState.results.length}</span>` : ''}</button>
+          <button class="tab-btn ${tabSim}" onclick="AppActions.setTab('simulation')">${ICONS.sparkles} 組合せ</button>
+        </div>
+        
+        <div class="content-area">
+          ${viewContent}
+          ${AppState.isLoading ? `
+            <div class="loading-overlay">
+              <div class="spinner"></div>
+              <div>GoogleMap料金シミュレーション中...</div>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    };
+
+    const renderSearchTab = () => {
+      const isAll = AppState.searchTarget === 'all' ? 'active' : '';
+      const isFav = AppState.searchTarget === 'favorites' ? 'active' : '';
+      
+      return `
+        <div class="scroll-y flex-col justify-between" style="padding-bottom:16px;">
+          <div>
+            <h2 class="text-xl font-extrabold mb-2">条件を指定</h2>
+            <p class="text-sm text-sub mb-4">お気に入り銘柄に絞って検索も可能です</p>
+            
+            <div class="card p-4">
+              <label class="form-label">検索対象</label>
+              <div class="toggle-group">
+                <button class="toggle-btn ${isAll}" onclick="AppActions.setSearchTarget('all')">すべての宿から</button>
+                <button class="toggle-btn ${isFav}" onclick="AppActions.setSearchTarget('favorites')">お気に入り銘柄のみ</button>
+              </div>
+              
+              <label class="form-label mt-4">チェックイン</label>
+              <input type="date" id="input_in" class="form-input mb-3" value="${AppState.checkIn}">
+              
+              <label class="form-label">チェックアウト</label>
+              <input type="date" id="input_out" class="form-input" value="${AppState.checkOut}">
+            </div>
+          </div>
+          <button class="btn btn-primary w-full mt-4" style="padding:16px;" onclick="AppActions.executeSearch()">
+            ${ICONS.search} 料金シミュレーションを実行
+          </button>
+        </div>
+      `;
+    };
+
+    const renderResultsTab = () => {
+      if(AppState.results.length === 0) {
+        return `<div class="flex-col items-center justify-center h-full gap-3 text-sub"><div style="background:var(--bg-hover);padding:16px;border-radius:50%;">${ICONS.search}</div><p class="font-bold">条件に一致する宿がありません</p></div>`;
+      }
+      
+      let html = `<div class="scroll-y flex-col gap-3">
+        <div class="flex justify-between items-center text-sm mb-2 px-1">
+          <span class="font-bold">${formatDay(AppState.searchParams.start)} 〜 ${AppState.searchParams.nights}泊</span>
+        </div>
+      `;
+      
+      // お気に入りを上にするソート
+      const sorted = [...AppState.results].sort((a,b) => {
+        const aFav = AppState.favorites.includes(a.id);
+        const bFav = AppState.favorites.includes(b.id);
+        if(aFav && !bFav) return -1;
+        if(!aFav && bFav) return 1;
+        return 0;
+      });
+
+      const cheapestPrice = Math.min(...AppState.results.map(r => r.totalPrice));
+
+      sorted.forEach(hotel => {
+        const isFav = AppState.favorites.includes(hotel.id);
+        const isCheapest = hotel.totalPrice === cheapestPrice;
+        let cardStyle = isFav ? `border: 2px solid var(--pink);` : ``;
+        if(isCheapest) cardStyle += `border-left: 6px solid var(--yellow);`;
+        
+        html += `
+          <div class="card hotel-card" style="${cardStyle}">
+            <button class="fav-btn ${isFav ? 'is-fav' : ''}" onclick="AppActions.toggleFav(${hotel.id})">
+              ${ICONS.heart}
+            </button>
+            <div class="flex gap-1 mb-2">
+              ${isCheapest ? `<span class="badge badge-primary" style="background:#fef3c7; color:#b45309;">🏆最安</span>` : ''}
+              <span class="badge ${isFav ? 'badge-pink' : 'badge-primary'}">${hotel.area}</span>
+            </div>
+            <h3 class="font-bold text-base pr-8 mb-2">${hotel.name}</h3>
+            <div class="flex gap-4 text-xs text-sub mb-3">
+              <span class="flex items-center gap-1">${ICONS.mapPin} ${hotel.distance}</span>
+              <span class="flex items-center gap-1">${ICONS.clock} 車:${hotel.time}</span>
+            </div>
+            <div class="flex justify-between items-end">
+              <span class="text-xs text-sub">${hotel.features}</span>
+              <div class="text-right">
+                <div class="text-xs text-sub mb-1">合計目安</div>
+                <div class="text-xl font-extrabold text-pink">¥${hotel.totalPrice.toLocaleString()}</div>
+              </div>
+            </div>
+            <div class="action-links">
+              <a href="${hotel.mapLink}" target="_blank" class="link-map">${ICONS.mapPin} Mapで見る</a>
+              <a href="${hotel.rakuten}" target="_blank" class="link-book">${ICONS.external} 予約へ</a>
+            </div>
+          </div>
+        `;
+      });
+      html += `<p class="disclaimer">※表示されている料金はGoogle Mapsの情報を目安としたシミュレーションです。実際の空室や料金はリンク先でご確認ください。</p></div>`;
+      return html;
+    };
+
+    const renderSimTab = () => {
+      if(AppState.results.length === 0 || !AppState.searchParams || AppState.searchParams.nights < 2) {
+        return `<div class="flex-col items-center justify-center h-full gap-3 text-sub text-center px-4"><div style="background:var(--bg-hover);padding:16px;border-radius:50%;">${ICONS.sparkles}</div><p class="font-bold">2泊以上で検索を実行すると<br>組合せシミュレーションが表示されます</p></div>`;
+      }
+      
+      const renderTL = (comboObj) => {
+        if(!comboObj) return `<div class="flex-col items-center justify-center h-full text-sub text-xs p-4 border rounded-lg border-dashed" style="background:var(--bg-card);"><span class="mb-2">${ICONS.heart}</span>結果タブでお気に入り登録してください</div>`;
+        
+        let tlHtml = `<div class="text-center mb-3">
+          <div class="text-xs font-bold text-sub mb-1">合計金額</div>
+          <div class="text-2xl font-extrabold text-main">¥${comboObj.total.toLocaleString()}</div>
+        </div>`;
+        
+        tlHtml += `<div class="flex-col gap-0">`;
+        comboObj.combo.forEach((item, idx) => {
+          const isLast = idx === comboObj.combo.length - 1;
+          const sameNext = !isLast && comboObj.combo[idx+1].id === item.id;
+          tlHtml += `
+            <div class="timeline-item">
+              ${!isLast ? `<div class="timeline-line" style="${sameNext ? 'background-color: var(--primary);' : ''}"></div>` : ''}
+              <div class="timeline-dot color-${item.color}"></div>
+              <div class="card p-2 border" style="background-color:var(--bg-input);">
+                <div class="flex flex-col mb-1">
+                  <span class="text-xs font-bold text-color-${item.color}">${formatDay(addDays(AppState.searchParams.start, item.dayIndex))}</span>
+                  <span class="font-bold text-sm">¥${item.price.toLocaleString()}</span>
+                </div>
+                <div class="font-bold text-xs mb-1" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.name}</div>
+              </div>
+            </div>
+          `;
+        });
+        tlHtml += `</div>`;
+        return tlHtml;
+      };
+
+      return `
+        <div class="scroll-y">
+          <p class="text-sm text-sub mb-4 font-bold text-center">お気に入りと最安を見比べられます</p>
+          <div class="split-view">
+            <div class="split-col">
+              <div class="text-center text-xs font-bold text-pink mb-2 flex items-center justify-center gap-1">${ICONS.heart} お気に入り</div>
+              <div class="card p-3" style="background:var(--pink-light); border-color:var(--pink);">
+                ${renderTL(AppState.combos.fav)}
+                ${AppState.combos.fav ? `<button class="btn btn-green w-full mt-3 text-xs p-2" onclick="AppActions.shareLine('fav')">${ICONS.share} 共有</button>` : ''}
+              </div>
+            </div>
+            <div class="split-col">
+              <div class="text-center text-xs font-bold text-primary mb-2 flex items-center justify-center gap-1">${ICONS.search} とにかく最安</div>
+              <div class="card p-3" style="background:var(--primary-light); border-color:var(--primary);">
+                ${renderTL(AppState.combos.best)}
+                <button class="btn btn-green w-full mt-3 text-xs p-2" onclick="AppActions.shareLine('best')">${ICONS.share} 共有</button>
+              </div>
+            </div>
+          </div>
+          <p class="disclaimer mt-4">※表示されている料金はGoogle Mapsの情報を目安としたシミュレーションです。</p>
+        </div>
+      `;
+    };
+
+    // Initial render
+    render();
+
+  </script>
+</body>
+</html>
