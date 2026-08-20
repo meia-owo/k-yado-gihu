@@ -1,4 +1,4 @@
-<!-- Version: 1.1.0 | Standalone Hotel Search App (UI Bugs Fixed & Patterns Restored) -->
+<!-- Version: 1.3.0 | Standalone Hotel Search App (Simulation Card Layout Update) -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -45,7 +45,6 @@
 
     /* Reset & Base Styles */
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    /* 100dvhを使用してスマホのURLバーによる見切れを防止 */
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-base); color: var(--text-main); display: flex; justify-content: center; align-items: center; height: 100dvh; overflow: hidden; transition: background-color 0.3s, color 0.3s; }
     button { cursor: pointer; border: none; background: none; color: inherit; font-family: inherit; }
     input, select { font-family: inherit; color: inherit; }
@@ -73,9 +72,9 @@
     .font-bold { font-weight: 700; } .font-extrabold { font-weight: 800; }
     .text-sub { color: var(--text-sub); } .text-primary { color: var(--primary); } .text-pink { color: var(--pink); } .text-green { color: var(--green); } .text-yellow { color: var(--yellow); }
     .tracking-tight { letter-spacing: -0.025em; }
+    .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
     
     /* UI Components */
-    /* flex-shrink: 0; を追加してカードが潰れて文字が見えなくなるバグを修正 */
     .card { background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; flex-shrink: 0; }
     .btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px; border-radius: 12px; font-weight: bold; transition: opacity 0.2s, transform 0.1s; }
     .btn:active { transform: scale(0.97); }
@@ -102,7 +101,7 @@
     
     /* Specific Layouts */
     .hotel-card { position: relative; padding: 16px; }
-    .fav-btn { position: absolute; top: 12px; right: 12px; padding: 8px; border-radius: 50%; background-color: var(--bg-hover); transition: background-color 0.2s; }
+    .fav-btn { position: absolute; top: 12px; right: 12px; padding: 8px; border-radius: 50%; background-color: var(--bg-hover); transition: background-color 0.2s; z-index: 5; }
     .fav-btn.is-fav { color: var(--pink); }
     .fav-btn.is-fav svg { fill: var(--pink); }
     
@@ -117,7 +116,7 @@
 
     /* Split View for Simulation */
     .split-view { display: flex; gap: 12px; height: 100%; align-items: flex-start; }
-    .split-col { flex: 1; width: 50%; display: flex; flex-direction: column; gap: 8px; }
+    .split-col { flex: 1; width: 50%; display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
     .timeline-item { position: relative; padding-left: 24px; padding-bottom: 12px; }
     .timeline-line { position: absolute; left: 9px; top: 14px; bottom: -6px; width: 2px; background-color: var(--border); }
     .timeline-dot { position: absolute; left: 5px; top: 10px; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--bg-card); z-index: 2; }
@@ -151,10 +150,11 @@
       heart: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>`,
       mapPin: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon icon-sm"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>`,
       clock: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon icon-sm"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
-      external: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon icon-sm"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>`,
+      external: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon icon-sm" style="width:10px; height:10px;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>`,
       share: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon icon-sm"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>`,
       building: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M12 6h.01M12 10h.01M12 14h.01M16 10h.01M16 14h.01M8 10h.01M8 14h.01"/></svg>`,
-      chevronDown: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon"><path d="m6 9 6 6 6-6"/></svg>`
+      chevronDown: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon"><path d="m6 9 6 6 6-6"/></svg>`,
+      chevronUp: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon"><path d="m18 15-6-6-6 6"/></svg>`
     };
 
     // === Mock Data ===
@@ -216,8 +216,8 @@
     window.AppState = {
       theme: Storage.get('hotel_app_theme', 'light'),
       activeTab: 'search',
-      searchTarget: 'all', // 'all' | 'favorites'
-      periodType: 'preset', // 'preset' | 'custom'
+      searchTarget: 'all',
+      periodType: 'preset',
       presetVal: "2026-08-24,2026-08-27,3",
       customIn: todayStr,
       customOut: tmrwStr,
@@ -225,7 +225,8 @@
       isLoading: false,
       results: [],
       searchParams: null, 
-      combos: { fav: null, best: null }
+      combos: { fav: null, best: null },
+      expandedHotelId: null
     };
 
     // === Core Logic & Actions ===
@@ -241,6 +242,10 @@
       setPresetVal(val) { AppState.presetVal = val; render(); },
       setCustomIn(val) { AppState.customIn = val; render(); },
       setCustomOut(val) { AppState.customOut = val; render(); },
+      toggleExpand(id) {
+        AppState.expandedHotelId = AppState.expandedHotelId === id ? null : id;
+        render();
+      },
       
       toggleFav(id) {
         if(AppState.favorites.includes(id)) {
@@ -302,6 +307,7 @@
           AppActions.calcCombos();
           AppState.isLoading = false;
           AppState.activeTab = 'results';
+          AppState.expandedHotelId = null;
           render();
         }, 1200);
       },
@@ -489,6 +495,8 @@
       sorted.forEach(hotel => {
         const isFav = AppState.favorites.includes(hotel.id);
         const isCheapest = hotel.totalPrice === cheapestPrice;
+        const isExpanded = AppState.expandedHotelId === hotel.id;
+        
         let cardStyle = isFav ? `border: 2px solid var(--pink);` : ``;
         if(isCheapest) cardStyle += `border-left: 6px solid var(--yellow);`;
         
@@ -510,9 +518,27 @@
               <span class="text-[10px] text-sub">${hotel.features}</span>
               <div class="text-right">
                 <div class="text-[10px] text-sub mb-0.5">${AppState.searchParams.nights}泊合計目安</div>
-                <div class="text-xl font-extrabold text-pink leading-none">¥${hotel.totalPrice.toLocaleString()}</div>
+                <div class="flex items-center gap-1 justify-end">
+                  <div class="text-xl font-extrabold text-pink leading-none">¥${hotel.totalPrice.toLocaleString()}</div>
+                  <button onclick="AppActions.toggleExpand(${hotel.id})" style="padding:4px; border-radius:50%; background:var(--bg-hover); transition:background 0.2s;">
+                    ${isExpanded ? ICONS.chevronUp : ICONS.chevronDown}
+                  </button>
+                </div>
               </div>
             </div>
+            
+            ${isExpanded ? `
+              <div class="mt-4 pt-3 text-xs" style="border-top: 1px solid var(--border);">
+                <p class="font-bold mb-1">日毎の金額内訳</p>
+                ${hotel.dailyPrices.map((price, i) => `
+                  <div class="flex justify-between items-center mb-1">
+                    <span>${formatDay(addDays(AppState.searchParams.start, i))}</span>
+                    <span class="font-mono font-bold">¥${price.toLocaleString()}</span>
+                  </div>
+                `).join('')}
+              </div>
+            ` : ''}
+
             <div class="action-links">
               <a href="${hotel.mapLink}" target="_blank" class="link-map">${ICONS.mapPin} Mapで見る</a>
               <a href="${hotel.rakuten}" target="_blank" class="link-book">${ICONS.external} 予約へ</a>
@@ -541,17 +567,21 @@
         comboObj.combo.forEach((item, idx) => {
           const isLast = idx === comboObj.combo.length - 1;
           const sameNext = !isLast && comboObj.combo[idx+1].id === item.id;
+          
           tlHtml += `
-            <div class="timeline-item" style="padding-left:20px; padding-bottom:8px;">
-              ${!isLast ? `<div class="timeline-line" style="left:7px; top:12px; bottom:-8px; width:2px; ${sameNext ? `background-color: var(--primary);` : ''}"></div>` : ''}
-              <div class="timeline-dot color-${item.color}" style="left:3.5px; top:8px; width:8px; height:8px;"></div>
-              <div class="card p-2 border shrink-0" style="background-color:var(--bg-input);">
-                <div class="flex flex-col mb-1">
-                  <span class="text-[9px] font-bold text-color-${item.color}">${formatDay(addDays(AppState.searchParams.start, item.dayIndex))}</span>
-                  <span class="font-bold text-xs leading-none mt-0.5">¥${item.price.toLocaleString()}</span>
+            <div class="timeline-item" style="padding-left:16px; padding-bottom:10px;">
+              ${!isLast ? `<div class="timeline-line" style="left:7px; top:12px; bottom:-10px; width:2px; ${sameNext ? `background-color: var(--primary);` : ''}"></div>` : ''}
+              <div class="timeline-dot color-${item.color}" style="left:4px; top:12px; width:8px; height:8px;"></div>
+              
+              <div class="card p-2 border shrink-0 flex-col gap-1" style="background-color:var(--bg-input);">
+                <div class="flex justify-between items-center mb-1">
+                  <span class="text-[10px] font-bold text-color-${item.color}">${formatDay(addDays(AppState.searchParams.start, item.dayIndex))}</span>
+                  <a href="${item.mapLink}" target="_blank" class="text-[9px] font-bold text-sub flex items-center gap-0.5 bg-gray-100 px-1 py-0.5 rounded border border-dashed border-gray-300" style="background:var(--bg-hover); border-color:var(--border);">
+                    MAPで見る <span style="transform:scale(0.8);">${ICONS.external}</span>
+                  </a>
                 </div>
-                <div class="font-bold text-[10px] leading-tight mb-1" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.name}</div>
-                <a href="${item.mapLink}" target="_blank" class="text-[9px] font-bold text-sub flex items-center gap-0.5">MAPで見る ${ICONS.external}</a>
+                <div class="font-bold text-[11px] leading-tight mb-1" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.name}</div>
+                <div class="font-extrabold text-xs text-main">¥${item.price.toLocaleString()}</div>
               </div>
             </div>
           `;
