@@ -1,4 +1,5 @@
-<!-- Version: 1.6.0 | Complete Standalone Hotel Search App with Multi-Site Booking & Full Features -->
+<!-- ファイル名: hotel_search_app.html -->
+<!-- バージョン: 2.0.0 (Premium Full Build) -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -6,125 +7,276 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>岐阜車体周辺ホテル検索</title>
   <style>
+    /* === CSS (シーエスエス) Variables === */
     :root {
-      --bg-base: #f3f4f6; --bg-app: #f9fafb; --bg-card: #ffffff; --bg-input: #ffffff; --bg-hover: #f3f4f6;
-      --text-main: #1f2937; --text-sub: #6b7280; --border: #e5e7eb; --primary: #3b82f6; --primary-light: #eff6ff;
-      --pink: #ec4899; --pink-light: #fdf2f8; --green: #10b981; --yellow: #f59e0b;
-      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      --bg-base: #f3f4f6;
+      --bg-app: #f9fafb;
+      --bg-card: #ffffff;
+      --bg-input: #ffffff;
+      --bg-hover: #f3f4f6;
+      --text-main: #1f2937;
+      --text-sub: #6b7280;
+      --border: #e5e7eb;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --primary-light: #eff6ff;
+      --pink: #ec4899;
+      --pink-light: #fdf2f8;
+      --green: #10b981;
+      --green-hover: #059669;
+      --yellow: #f59e0b;
+      --rakuten: #bf0000;
+      --jalan: #ff7a00;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
     }
+    
     [data-theme="dark"] {
-      --bg-base: #030712; --bg-app: #111827; --bg-card: #1f2937; --bg-input: #374151; --bg-hover: #374151;
-      --text-main: #f9fafb; --text-sub: #9ca3af; --border: #374151; --primary: #3b82f6;
-      --primary-light: rgba(59, 130, 246, 0.2); --pink: #f43f5e; --pink-light: rgba(244, 63, 94, 0.2);
+      --bg-base: #030712;
+      --bg-app: #111827;
+      --bg-card: #1f2937;
+      --bg-input: #374151;
+      --bg-hover: #374151;
+      --text-main: #f9fafb;
+      --text-sub: #9ca3af;
+      --border: #374151;
+      --primary: #3b82f6;
+      --primary-light: rgba(59, 130, 246, 0.15);
+      --pink: #f43f5e;
+      --pink-light: rgba(244, 63, 94, 0.15);
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
     }
+
+    /* === Reset & Base === */
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg-base); color: var(--text-main); display: flex; justify-content: center; align-items: center; height: 100dvh; overflow: hidden; }
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+      background-color: var(--bg-base); 
+      color: var(--text-main); 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      height: 100dvh; /* スマホのURLバー対応 */
+      overflow: hidden; 
+      transition: background-color 0.3s, color 0.3s; 
+    }
     button { cursor: pointer; border: none; background: none; color: inherit; font-family: inherit; }
     input, select { font-family: inherit; color: inherit; }
     a { color: inherit; text-decoration: none; }
     
-    .app-container { width: 100%; max-width: 480px; height: 100%; max-height: 850px; background-color: var(--bg-app); display: flex; flex-direction: column; position: relative; overflow: hidden; box-shadow: var(--shadow); }
-    @media (min-width: 481px) { .app-container { height: 95dvh; border-radius: 40px; border: 8px solid var(--border); } }
-    .header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--border); background-color: var(--bg-card); z-index: 10; flex-shrink: 0; }
+    /* === Layout === */
+    .app-container { 
+      width: 100%; 
+      max-width: 480px; 
+      height: 100%; 
+      max-height: 850px; 
+      background-color: var(--bg-app); 
+      display: flex; 
+      flex-direction: column; 
+      position: relative; 
+      overflow: hidden; 
+      box-shadow: var(--shadow); 
+    }
+    @media (min-width: 481px) { 
+      .app-container { height: 95dvh; border-radius: 40px; border: 8px solid var(--border); } 
+    }
+    
+    .header { 
+      display: flex; justify-content: space-between; align-items: center; 
+      padding: 16px 20px; border-bottom: 1px solid var(--border); 
+      background-color: var(--bg-card); z-index: 10; flex-shrink: 0; 
+    }
     .content-area { flex: 1; position: relative; overflow: hidden; }
-    .scroll-y { overflow-y: auto; height: 100%; padding: 16px; padding-bottom: 80px; }
+    .scroll-y { overflow-y: auto; height: 100%; padding: 16px; padding-bottom: 40px; }
     
-    .flex { display: flex; } .flex-col { display: flex; flex-direction: column; }
-    .items-center { align-items: center; } .justify-between { justify-content: space-between; } .justify-center { justify-content: center; }
+    /* === Utility Classes === */
+    .flex { display: flex; } 
+    .flex-col { display: flex; flex-direction: column; }
+    .items-center { align-items: center; } 
+    .justify-between { justify-content: space-between; } 
+    .justify-center { justify-content: center; }
     .gap-1 { gap: 4px; } .gap-2 { gap: 8px; } .gap-3 { gap: 12px; } .gap-4 { gap: 16px; }
-    .mt-2 { margin-top: 8px; } .mt-4 { margin-top: 16px; } .mb-2 { margin-bottom: 8px; } .mb-4 { margin-bottom: 16px; }
-    .p-2 { padding: 8px; } .p-3 { padding: 12px; } .p-4 { padding: 16px; } .p-5 { padding: 20px; }
-    .w-full { width: 100%; } .h-full { height: 100%; } .shrink-0 { flex-shrink: 0; }
+    .mt-2 { margin-top: 8px; } .mt-4 { margin-top: 16px; } 
+    .mb-2 { margin-bottom: 8px; } .mb-4 { margin-bottom: 16px; }
+    .p-2 { padding: 8px; } .p-3 { padding: 12px; } .p-4 { padding: 16px; }
+    .w-full { width: 100%; } .shrink-0 { flex-shrink: 0; } .flex-1 { flex: 1; }
     
-    .text-xs { font-size: 11px; } .text-sm { font-size: 13px; } .text-base { font-size: 15px; } .text-lg { font-size: 18px; } .text-2xl { font-size: 24px; }
+    .text-xs { font-size: 11px; } .text-sm { font-size: 13px; } .text-base { font-size: 15px; } 
+    .text-lg { font-size: 18px; } .text-xl { font-size: 20px; } .text-2xl { font-size: 24px; }
     .font-bold { font-weight: 700; } .font-extrabold { font-weight: 800; }
-    .text-sub { color: var(--text-sub); } .text-primary { color: var(--primary); } .text-pink { color: var(--pink); } .text-green { color: var(--green); } .text-yellow { color: var(--yellow); }
-    .font-mono { font-family: monospace; }
+    .text-sub { color: var(--text-sub); } .text-primary { color: var(--primary); } 
+    .text-pink { color: var(--pink); } .text-yellow { color: var(--yellow); }
+    .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
     
-    .card { background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; flex-shrink: 0; }
-    .btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px; border-radius: 12px; font-weight: bold; }
+    /* === UI (ユーアイ) Components === */
+    .card { 
+      background-color: var(--bg-card); border: 1px solid var(--border); 
+      border-radius: var(--radius-lg); overflow: hidden; flex-shrink: 0; 
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+    
+    .btn { 
+      display: flex; align-items: center; justify-content: center; gap: 8px; 
+      padding: 14px; border-radius: var(--radius-md); font-weight: bold; 
+      transition: opacity 0.2s, transform 0.1s; 
+    }
+    .btn:active { transform: scale(0.97); }
     .btn-primary { background-color: var(--primary); color: white; }
     .btn-green { background-color: var(--green); color: white; }
     
-    .tab-bar { display: flex; padding: 4px; background-color: var(--bg-hover); border-radius: 12px; margin: 16px; flex-shrink: 0; }
-    .tab-btn { flex: 1; padding: 10px; text-align: center; font-size: 12px; font-weight: bold; border-radius: 8px; color: var(--text-sub); display: flex; justify-content: center; align-items: center; gap: 4px; }
+    .tab-bar { display: flex; padding: 4px; background-color: var(--bg-hover); border-radius: var(--radius-md); margin: 16px; flex-shrink: 0; }
+    .tab-btn { flex: 1; padding: 10px; text-align: center; font-size: 12px; font-weight: bold; border-radius: var(--radius-sm); color: var(--text-sub); display: flex; justify-content: center; align-items: center; gap: 4px; }
     .tab-btn.active { background-color: var(--bg-card); color: var(--text-main); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
     
-    .toggle-group { display: flex; padding: 4px; background-color: var(--bg-hover); border-radius: 8px; margin-bottom: 16px; }
-    .toggle-btn { flex: 1; padding: 8px; font-size: 12px; font-weight: bold; border-radius: 6px; color: var(--text-sub); text-align: center; }
+    .toggle-group { display: flex; padding: 4px; background-color: var(--bg-hover); border-radius: var(--radius-sm); margin-bottom: 16px; }
+    .toggle-btn { flex: 1; padding: 10px; font-size: 12px; font-weight: bold; border-radius: 6px; color: var(--text-sub); }
     .toggle-btn.active { background-color: var(--text-main); color: var(--bg-card); }
     
     .form-label { display: block; font-size: 11px; font-weight: bold; color: var(--text-sub); margin-bottom: 6px; }
-    .form-input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--border); background-color: var(--bg-input); font-size: 15px; appearance: none; }
+    .form-input { width: 100%; padding: 14px; border-radius: var(--radius-md); border: 1px solid var(--border); background-color: var(--bg-input); font-size: 15px; appearance: none; font-weight: bold; }
+    .form-input:focus-within { outline: 2px solid var(--primary); }
     
+    svg.icon { width: 18px; height: 18px; flex-shrink: 0; }
+    svg.icon-sm { width: 14px; height: 14px; flex-shrink: 0; }
+    
+    /* === Results Card Specifics === */
     .hotel-card { position: relative; padding: 16px; }
-    .fav-btn { position: absolute; top: 12px; right: 12px; padding: 8px; border-radius: 50%; background-color: var(--bg-hover); z-index: 5; }
+    .fav-btn { position: absolute; top: 12px; right: 12px; padding: 8px; border-radius: 50%; background-color: var(--bg-hover); z-index: 5; transition: 0.2s; }
     .fav-btn.is-fav { color: var(--pink); }
     .fav-btn.is-fav svg { fill: var(--pink); }
     
-    .badge { padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; }
+    .badge { padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; display: inline-flex; align-items: center; }
     .badge-primary { background-color: var(--primary-light); color: var(--primary); }
     .badge-pink { background-color: var(--pink-light); color: var(--pink); }
+    .badge-yellow { background-color: #fef3c7; color: #b45309; border: 1px solid #fcd34d; }
     
-    .split-view { display: flex; gap: 12px; align-items: flex-start; }
-    .split-col { flex: 1; width: 50%; display: flex; flex-direction: column; gap: 8px; }
+    /* 料金比較エリア (上部) */
+    .price-section {
+      background-color: var(--bg-hover);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      margin-top: 12px;
+    }
+    .accordion-btn {
+      width: 100%; display: flex; justify-content: space-between; align-items: center;
+      font-size: 12px; font-weight: bold; color: var(--primary); padding: 4px 0;
+    }
+    .daily-prices {
+      margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border);
+      display: flex; flex-direction: column; gap: 8px; font-size: 12px;
+    }
     
-    .color-blue { background-color: #3b82f6; } .color-indigo { background-color: #6366f1; } .color-teal { background-color: #14b8a6; }
-    .color-orange { background-color: #f97316; } .color-purple { background-color: #a855f7; } .color-pink { background-color: #ec4899; }
+    /* 予約・MAPエリア (下部) */
+    .action-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .btn-action {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 10px 4px; border-radius: var(--radius-md); font-size: 11px; font-weight: bold;
+      gap: 4px; transition: 0.2s; border: 1px solid var(--border);
+    }
+    .btn-action:active { transform: scale(0.96); }
+    .btn-map { background-color: var(--bg-input); color: var(--text-main); }
+    .btn-rakuten { background-color: var(--rakuten); color: white; border: none; }
+    .btn-jalan { background-color: var(--jalan); color: white; border: none; }
     
-    .loading-overlay { position: absolute; inset: 0; background-color: rgba(255,255,255,0.7); display: flex; justify-content: center; align-items: center; z-index: 50; flex-direction: column; gap: 12px; font-weight: bold; }
-    [data-theme="dark"] .loading-overlay { background-color: rgba(17,24,39,0.7); }
-    .spinner { width: 32px; height: 32px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+    /* === Split View (Simulation) === */
+    .split-view { display: flex; gap: 12px; height: 100%; align-items: flex-start; }
+    .split-col { flex: 1; width: 50%; display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
+    .timeline-item { position: relative; padding-left: 20px; padding-bottom: 12px; }
+    .timeline-line { position: absolute; left: 7px; top: 12px; bottom: -8px; width: 2px; background-color: var(--border); }
+    .timeline-dot { position: absolute; left: 4px; top: 10px; width: 8px; height: 8px; border-radius: 50%; border: 2px solid var(--bg-card); z-index: 2; }
+    
+    .color-blue { background-color: #3b82f6; } .color-indigo { background-color: #6366f1; } 
+    .color-teal { background-color: #14b8a6; } .color-orange { background-color: #f97316; } 
+    .color-purple { background-color: #a855f7; } .color-pink { background-color: #ec4899; }
+    .text-color-blue { color: #3b82f6; } .text-color-indigo { color: #6366f1; } .text-color-teal { color: #14b8a6; }
+    
+    /* Loading */
+    .loading-overlay { 
+      position: absolute; inset: 0; background-color: rgba(255,255,255,0.8); 
+      display: flex; justify-content: center; align-items: center; z-index: 50; 
+      flex-direction: column; gap: 16px; font-weight: bold; backdrop-filter: blur(2px);
+    }
+    [data-theme="dark"] .loading-overlay { background-color: rgba(17,24,39,0.8); }
+    .spinner { width: 40px; height: 40px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .disclaimer { text-align: center; font-size: 10px; color: var(--text-sub); margin-top: 16px; padding: 0 12px; line-height: 1.4; }
   </style>
 </head>
 <body>
-  <div class="app-container" id="app"></div>
+
+  <div class="app-container" id="app">
+    <!-- JavaScript (ジャバスクリプト) renders UI here -->
+  </div>
 
   <script>
+    // === 1. Icons Definition ===
     const ICONS = {
-      sun: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>`,
-      moon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`,
-      search: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>`,
-      calendar: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>`,
-      sparkles: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>`,
-      heart: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>`,
-      mapPin: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>`,
-      external: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>`,
-      building: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M12 6h.01M12 10h.01M12 14h.01M16 10h.01M16 14h.01M8 10h.01M8 14h.01"/></svg>`,
-      chevronDown: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="m6 9 6 6 6-6"/></svg>`,
-      chevronUp: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="m18 15-6-6-6 6"/></svg>`
+      sun: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>`,
+      moon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`,
+      search: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>`,
+      calendar: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>`,
+      sparkles: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1-1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>`,
+      heart: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>`,
+      mapPin: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-sm"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>`,
+      external: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-sm" style="width:12px; height:12px;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>`,
+      building: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M12 6h.01M12 10h.01M12 14h.01M16 10h.01M16 14h.01M8 10h.01M8 14h.01"/></svg>`,
+      chevronDown: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon"><path d="m6 9 6 6 6-6"/></svg>`,
+      chevronUp: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon"><path d="m18 15-6-6-6 6"/></svg>`,
+      share: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-sm"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>`
     };
 
+    // === 2. Data Definition ===
+    // API (エーピーアイ) を介さず完結するモックデータ
     const HOTELS = [
-      { id: 1, name: 'ABホテル犬山', distance: '4.0km', time: '10分', basePrice: 4000, area: '愛知県犬山市', color: 'blue', sites: { 楽天: 'https://travel.rakuten.co.jp/HOTEL/166547/', じゃらん: 'https://www.jalan.net/yad317079/' } },
-      { id: 2, name: 'ホテルミュースタイル犬山', distance: '3.5km', time: '10分', basePrice: 5500, area: '愛知県犬山市', color: 'indigo', sites: { 楽天: 'https://travel.rakuten.co.jp/HOTEL/181665/', じゃらん: '#' } },
-      { id: 3, name: 'ホテルルートイン各務原', distance: '6.5km', time: '15分', basePrice: 7250, area: '岐阜県各務原市', color: 'teal', sites: { 楽天: 'https://travel.rakuten.co.jp/HOTEL/68612/', じゃらん: 'https://www.jalan.net/yad378619/' } },
-      { id: 4, name: 'ビジネスホテル観月', distance: '7.0km', time: '15分', basePrice: 4500, area: '岐阜県各務原市', color: 'orange', sites: { 楽天: 'https://travel.rakuten.co.jp/HOTEL/68412/', じゃらん: '#' } },
-      { id: 5, name: '犬山セントラルホテル', distance: '4.5km', time: '12分', basePrice: 4800, area: '愛知県犬山市', color: 'purple', sites: { 楽天: 'https://travel.rakuten.co.jp/HOTEL/15000/', じゃらん: '#' } },
-      { id: 6, name: '旬樹庵 八勝閣みづのを', distance: '3.0km', time: '8分', basePrice: 8500, area: '愛知県犬山市', color: 'pink', sites: { 楽天: 'https://travel.rakuten.co.jp/HOTEL/11261/', じゃらん: '#' } },
-      { id: 7, name: 'ホテルインディゴ犬山', distance: '3.8km', time: '11分', basePrice: 18000, area: '愛知県犬山市', color: 'blue', sites: { 楽天: 'https://travel.rakuten.co.jp/HOTEL/182607/', じゃらん: '#' } },
-      { id: 8, name: '犬山館', distance: '3.2km', time: '9分', basePrice: 7000, area: '愛知県犬山市', color: 'indigo', sites: { 楽天: 'https://travel.rakuten.co.jp/HOTEL/161869/', じゃらん: '#' } },
-      { id: 9, name: '灯屋 迎帆楼', distance: '3.5km', time: '10分', basePrice: 25000, area: '愛知県犬山市', color: 'teal', sites: { 楽天: 'https://travel.rakuten.co.jp/HOTEL/161868/', じゃらん: '#' } },
-      { id: 10, name: 'サンパーク犬山', distance: '5.0km', time: '13分', basePrice: 5200, area: '愛知県犬山市', color: 'orange', sites: { 楽天: 'https://travel.rakuten.co.jp/HOTEL/137682/', じゃらん: '#' } },
-      { id: 11, name: '犬山ミヤコホテル', distance: '4.2km', time: '11分', basePrice: 3800, area: '愛知県犬山市', color: 'purple', sites: { 楽天: 'https://travel.rakuten.co.jp/HOTEL/180630/', じゃらん: '#' } }
+      { id: 1, name: 'ABホテル犬山', distance: '4.0km', time: '10分', basePrice: 4000, area: '愛知県犬山市', color: 'blue', sites: { rakuten: 'https://travel.rakuten.co.jp/HOTEL/166547/166547.html', jalan: 'https://www.jalan.net/yad317079/' } },
+      { id: 2, name: 'ホテルミュースタイル犬山', distance: '3.5km', time: '10分', basePrice: 5500, area: '愛知県犬山市', color: 'indigo', sites: { rakuten: 'https://travel.rakuten.co.jp/HOTEL/181665/181665.html', jalan: '#' } },
+      { id: 3, name: 'ホテルルートイン各務原', distance: '6.5km', time: '15分', basePrice: 7250, area: '岐阜県各務原市', color: 'teal', sites: { rakuten: 'https://travel.rakuten.co.jp/HOTEL/68612/68612.html', jalan: 'https://www.jalan.net/yad378619/' } },
+      { id: 4, name: 'ビジネスホテル観月', distance: '7.0km', time: '15分', basePrice: 4500, area: '岐阜県各務原市', color: 'orange', sites: { rakuten: 'https://travel.rakuten.co.jp/HOTEL/68412/68412.html', jalan: '#' } },
+      { id: 5, name: '犬山セントラルホテル', distance: '4.5km', time: '12分', basePrice: 4800, area: '愛知県犬山市', color: 'purple', sites: { rakuten: 'https://travel.rakuten.co.jp/HOTEL/15000/15000.html', jalan: '#' } },
+      { id: 6, name: '旬樹庵 八勝閣みづのを', distance: '3.0km', time: '8分', basePrice: 8500, area: '愛知県犬山市', color: 'pink', sites: { rakuten: 'https://travel.rakuten.co.jp/HOTEL/11261/11261.html', jalan: '#' } },
+      { id: 7, name: 'ホテルインディゴ犬山', distance: '3.8km', time: '11分', basePrice: 18000, area: '愛知県犬山市', color: 'blue', sites: { rakuten: 'https://travel.rakuten.co.jp/HOTEL/182607/182607.html', jalan: '#' } },
+      { id: 8, name: '犬山館', distance: '3.2km', time: '9分', basePrice: 7000, area: '愛知県犬山市', color: 'indigo', sites: { rakuten: 'https://travel.rakuten.co.jp/HOTEL/161869/161869.html', jalan: '#' } },
+      { id: 9, name: '灯屋 迎帆楼', distance: '3.5km', time: '10分', basePrice: 25000, area: '愛知県犬山市', color: 'teal', sites: { rakuten: 'https://travel.rakuten.co.jp/HOTEL/161868/161868.html', jalan: '#' } },
+      { id: 10, name: 'サンパーク犬山', distance: '5.0km', time: '13分', basePrice: 5200, area: '愛知県犬山市', color: 'orange', sites: { rakuten: 'https://travel.rakuten.co.jp/HOTEL/137682/137682.html', jalan: '#' } },
+      { id: 11, name: '犬山ミヤコホテル', distance: '4.2km', time: '11分', basePrice: 3800, area: '愛知県犬山市', color: 'purple', sites: { rakuten: 'https://travel.rakuten.co.jp/HOTEL/180630/180630.html', jalan: '#' } }
     ].map(h => ({ ...h, mapLink: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(h.name)}` }));
+
+    // === 3. Storage & Date Utilities ===
+    // LocalStorage (ローカルストレージ) への安全なアクセス
+    const Storage = {
+      get(key, fallback) {
+        try { const val = localStorage.getItem(key); return val ? JSON.parse(val) : fallback; } 
+        catch (e) { return fallback; }
+      },
+      set(key, value) {
+        try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) {}
+      }
+    };
 
     const addDays = (dateStr, days) => {
       const d = new Date(dateStr);
       d.setDate(d.getDate() + days);
       return d.toISOString().split('T')[0];
     };
+    
     const formatDay = (dateStr) => {
       if(!dateStr) return '';
       const d = new Date(dateStr);
+      if(isNaN(d.getTime())) return '';
       const days = ['日', '月', '火', '水', '木', '金', '土'];
       return `${d.getMonth()+1}/${d.getDate()}(${days[d.getDay()]})`;
     };
+    
     const formatFullDay = (dateStr) => {
       if(!dateStr) return '未選択';
       const d = new Date(dateStr);
+      if(isNaN(d.getTime())) return '未選択';
       const days = ['日', '月', '火', '水', '木', '金', '土'];
       return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}(${days[d.getDay()]})`;
     };
@@ -132,247 +284,506 @@
     const todayStr = new Date().toISOString().split('T')[0];
     const tmrwStr = addDays(todayStr, 1);
 
+    // === 4. Application State ===
     window.AppState = {
-      theme: localStorage.getItem('theme') || 'light',
+      theme: Storage.get('app_theme_v2', 'light'),
       activeTab: 'search',
-      searchTarget: 'all',
-      periodType: 'preset',
+      searchTarget: 'all', // 'all' or 'favorites'
+      periodType: 'preset', // 'preset' or 'custom'
       presetVal: "2026-08-24,2026-08-27,3",
       customIn: todayStr,
       customOut: tmrwStr,
-      favorites: JSON.parse(localStorage.getItem('favs') || '[]'),
+      favorites: Storage.get('app_favs_v2', []),
       isLoading: false,
       results: [],
-      searchParams: null,
+      searchParams: null, 
       combos: { fav: null, best: null },
-      expanded: {}
+      expandedCards: {} // アコーディオンの開閉状態をIDごとに管理
     };
 
-    const Actions = {
+    // === 5. Actions ===
+    const AppActions = {
       toggleTheme() {
         AppState.theme = AppState.theme === 'light' ? 'dark' : 'light';
-        localStorage.setItem('theme', AppState.theme);
+        Storage.set('app_theme_v2', AppState.theme);
         render();
       },
       setTab(tab) { AppState.activeTab = tab; render(); },
-      setTarget(t) { AppState.searchTarget = t; render(); },
-      setPeriodType(t) { AppState.periodType = t; render(); },
-      setPreset(v) { AppState.presetVal = v; render(); },
-      setIn(v) { AppState.customIn = v; render(); },
-      setOut(v) { AppState.customOut = v; render(); },
-      toggleExpand(id) { AppState.expanded[id] = !AppState.expanded[id]; render(); },
+      setSearchTarget(target) { AppState.searchTarget = target; render(); },
+      setPeriodType(type) { AppState.periodType = type; render(); },
+      setPresetVal(val) { AppState.presetVal = val; render(); },
+      setCustomIn(val) { AppState.customIn = val; render(); },
+      setCustomOut(val) { AppState.customOut = val; render(); },
       
-      toggleFav(id) {
-        if(AppState.favorites.includes(id)) AppState.favorites = AppState.favorites.filter(f => f !== id);
-        else AppState.favorites.push(id);
-        localStorage.setItem('favs', JSON.stringify(AppState.favorites));
-        if(AppState.results.length > 0) Actions.calcCombos();
+      toggleExpand(id) {
+        AppState.expandedCards[id] = !AppState.expandedCards[id];
         render();
       },
-
-      search() {
+      
+      toggleFav(id) {
+        if(AppState.favorites.includes(id)) {
+          AppState.favorites = AppState.favorites.filter(fid => fid !== id);
+        } else {
+          AppState.favorites.push(id);
+        }
+        Storage.set('app_favs_v2', AppState.favorites);
+        if(AppState.results.length > 0) AppActions.calcCombos(); // お気に入り変更時にシミュレーションも再計算
+        render();
+      },
+      
+      executeSearch() {
         let inStr, outStr, nights;
+        
+        // 検索条件のバリデーション
         if (AppState.periodType === 'preset') {
-          const p = AppState.presetVal.split(',');
-          inStr = p[0]; outStr = p[1]; nights = parseInt(p[2], 10);
+          const parts = AppState.presetVal.split(',');
+          inStr = parts[0]; outStr = parts[1]; nights = parseInt(parts[2], 10);
         } else {
           inStr = AppState.customIn; outStr = AppState.customOut;
-          const inD = new Date(inStr), outD = new Date(outStr);
-          if (outD <= inD) { alert('チェックアウト日はチェックイン日より後にしてください'); return; }
-          nights = Math.ceil((outD - inD) / 86400000);
+          const inDate = new Date(inStr); const outDate = new Date(outStr);
+          if (isNaN(inDate) || isNaN(outDate) || outDate <= inDate) {
+            alert('エラー: チェックアウト日はチェックイン日より後に設定してください。');
+            return;
+          }
+          nights = Math.ceil((outDate - inDate) / 86400000);
         }
         
         AppState.searchParams = { nights, start: inStr, end: outStr };
         AppState.isLoading = true;
         render();
 
+        // 非同期処理をシミュレート
         setTimeout(() => {
-          let targets = AppState.searchTarget === 'favorites' ? HOTELS.filter(h => AppState.favorites.includes(h.id)) : HOTELS;
-          AppState.results = targets.map(h => {
-            let daily = [], total = 0;
-            for(let i=0; i<nights; i++) {
-              let p = Math.round((h.basePrice * (1 + (Math.random()*0.4 - 0.2))) / 100) * 100;
-              daily.push(p); total += p;
-            }
-            return { ...h, dailyPrices: daily, totalPrice: total };
-          }).sort((a,b) => a.totalPrice - b.totalPrice);
+          let targetHotels = HOTELS;
+          if(AppState.searchTarget === 'favorites') {
+            targetHotels = HOTELS.filter(h => AppState.favorites.includes(h.id));
+          }
           
-          Actions.calcCombos();
+          if(targetHotels.length === 0) {
+            AppState.results = [];
+          } else {
+            AppState.results = targetHotels.map(h => {
+              const dailyPrices = [];
+              let totalPrice = 0;
+              for(let i=0; i<nights; i++) {
+                // ベース価格から±20%の変動をシミュレート
+                const fluctuation = 1 + (Math.random() * 0.4 - 0.2);
+                const price = Math.round((h.basePrice * fluctuation) / 100) * 100;
+                dailyPrices.push(price);
+                totalPrice += price;
+              }
+              return { ...h, dailyPrices, totalPrice };
+            }).sort((a,b) => a.totalPrice - b.totalPrice);
+          }
+          
+          AppActions.calcCombos();
           AppState.isLoading = false;
           AppState.activeTab = 'results';
+          AppState.expandedCards = {}; // 新規検索時はアコーディオンを全て閉じる
           render();
-        }, 1000);
+        }, 1200);
       },
-
+      
       calcCombos() {
-        if(AppState.results.length === 0 || AppState.searchParams.nights < 2) {
-          AppState.combos = { fav: null, best: null }; return;
+        if(AppState.results.length === 0 || !AppState.searchParams || AppState.searchParams.nights < 2) {
+          AppState.combos = { fav: null, best: null };
+          return;
         }
         const nights = AppState.searchParams.nights;
-        const makeCombo = (src) => {
-          if(src.length === 0) return null;
-          let raw = [], total = 0;
+        
+        // 最安ルートを計算し、連泊ブロックにまとめるアルゴリズム
+        const calcAndCompress = (sourceHotels) => {
+          if(sourceHotels.length === 0) return null;
+          const rawCombo = [];
           for(let i=0; i<nights; i++) {
-            let min = src.reduce((m, h) => h.dailyPrices[i] < m.dailyPrices[i] ? h : m, src[0]);
-            raw.push({ ...min, price: min.dailyPrices[i], dayIndex: i });
-            total += min.dailyPrices[i];
+            let cheapest = sourceHotels.reduce((min, h) => h.dailyPrices[i] < min.dailyPrices[i] ? h : min, sourceHotels[0]);
+            rawCombo.push({ ...cheapest, price: cheapest.dailyPrices[i], dayIndex: i });
           }
-          let compressed = [], curr = null;
-          raw.forEach(item => {
-            if(!curr) curr = { ...item, nights: 1, startDay: item.dayIndex, blockPrice: item.price };
-            else if(curr.id === item.id) { curr.nights++; curr.blockPrice += item.price; }
-            else { compressed.push(curr); curr = { ...item, nights: 1, startDay: item.dayIndex, blockPrice: item.price }; }
+          
+          const total = rawCombo.reduce((sum, item) => sum + item.price, 0);
+          
+          const compressed = [];
+          let current = null;
+          rawCombo.forEach(item => {
+            if(!current) {
+              current = { ...item, nights: 1, startDayIndex: item.dayIndex, blockPrice: item.price };
+            } else if (current.id === item.id) {
+              current.nights++;
+              current.blockPrice += item.price;
+            } else {
+              compressed.push(current);
+              current = { ...item, nights: 1, startDayIndex: item.dayIndex, blockPrice: item.price };
+            }
           });
-          if(curr) compressed.push(curr);
+          if(current) compressed.push(current);
+          
           return { combo: compressed, total };
         };
-        AppState.combos = {
-          best: makeCombo(AppState.results),
-          fav: makeCombo(AppState.results.filter(h => AppState.favorites.includes(h.id)))
-        };
-      },
 
+        const standardBestPrice = AppState.results[0]?.totalPrice || 0;
+        const bestCombo = calcAndCompress(AppState.results);
+        if(bestCombo) bestCombo.diff = standardBestPrice - bestCombo.total > 0 ? standardBestPrice - bestCombo.total : 0;
+        
+        const favHotels = AppState.results.filter(h => AppState.favorites.includes(h.id));
+        const favCombo = calcAndCompress(favHotels);
+        
+        AppState.combos = { best: bestCombo, fav: favCombo };
+      },
+      
       shareLine(type) {
-        const d = type === 'fav' ? AppState.combos.fav : AppState.combos.best;
-        if(!d) return;
-        let txt = `🏨 岐阜車体出張 ${type==='fav'?'お気に入り厳選':'最安ホッピング'}\n💰 合計: ¥${d.total.toLocaleString()}\n\n` +
-          d.combo.map(b => `・${formatDay(addDays(AppState.searchParams.start, b.startDay))}〜(${b.nights}泊)\n　${b.name} (¥${b.blockPrice.toLocaleString()})`).join('\n');
+        const data = type === 'fav' ? AppState.combos.fav : AppState.combos.best;
+        if(!data) return;
+        const title = type === 'fav' ? '💖 お気に入り厳選プラン' : '✨ 最安ホッピングプラン';
+        
+        const textLines = data.combo.map(block => {
+          return `・${formatDay(addDays(AppState.searchParams.start, block.startDayIndex))}〜 (${block.nights}泊)\n　${block.name} (¥${block.blockPrice.toLocaleString()})`;
+        }).join('\n');
+
+        const txt = `🏨 岐阜車体出張 ${title}\n📅 ${formatDay(AppState.searchParams.start)}〜 (${AppState.searchParams.nights}泊)\n💰 合計: ¥${data.total.toLocaleString()}\n\n${textLines}\n\n🔗 各リンクから予約を確定してください`;
+        
+        // LINE (ライン) アプリまたはブラウザシェアへ遷移
         window.open(`https://line.me/R/msg/text/?${encodeURIComponent(txt)}`, '_blank');
       }
     };
 
-    function render() {
+    // === 6. View Renderers ===
+    const render = () => {
       document.documentElement.setAttribute('data-theme', AppState.theme);
-      const app = document.getElementById('app');
+      const appEl = document.getElementById('app');
       
-      let content = '';
-      if(AppState.activeTab === 'search') content = renderSearch();
-      else if(AppState.activeTab === 'results') content = renderResults();
-      else if(AppState.activeTab === 'simulation') content = renderSim();
+      let viewContent = '';
+      if (AppState.activeTab === 'search') viewContent = renderSearchTab();
+      else if (AppState.activeTab === 'results') viewContent = renderResultsTab();
+      else if (AppState.activeTab === 'simulation') viewContent = renderSimTab();
 
-      app.innerHTML = `
+      appEl.innerHTML = `
         <div class="header">
-          <div class="flex items-center gap-2">${ICONS.building} <h1 class="font-bold text-base">岐阜車体 周辺ステイ</h1></div>
-          <button onclick="Actions.toggleTheme()">${AppState.theme === 'dark' ? ICONS.sun : ICONS.moon}</button>
-        </div>
-        <div class="tab-bar">
-          <button class="tab-btn ${AppState.activeTab==='search'?'active':''}" onclick="Actions.setTab('search')">${ICONS.search} 検索</button>
-          <button class="tab-btn ${AppState.activeTab==='results'?'active':''}" onclick="Actions.setTab('results')">${ICONS.calendar} 結果 ${AppState.results.length}</button>
-          <button class="tab-btn ${AppState.activeTab==='simulation'?'active':''}" onclick="Actions.setTab('simulation')">${ICONS.sparkles} 組合せ</button>
-        </div>
-        <div class="content-area">
-          ${content}
-          ${AppState.isLoading ? `<div class="loading-overlay"><div class="spinner"></div>シミュレーション中...</div>` : ''}
-        </div>
-      `;
-    }
-
-    function renderSearch() {
-      return `
-        <div class="scroll-y flex-col justify-between">
-          <div>
-            <h2 class="text-lg font-extrabold mb-3">検索条件</h2>
-            <div class="card p-4">
-              <label class="form-label">対象</label>
-              <div class="toggle-group">
-                <button class="toggle-btn ${AppState.searchTarget==='all'?'active':''}" onclick="Actions.setTarget('all')">すべて</button>
-                <button class="toggle-btn ${AppState.searchTarget==='favorites'?'active':''}" onclick="Actions.setTarget('favorites')">お気に入りのみ</button>
-              </div>
-              <label class="form-label">期間</label>
-              <div class="toggle-group mb-4">
-                <button class="toggle-btn ${AppState.periodType==='preset'?'active':''}" onclick="Actions.setPeriodType('preset')">パターン</button>
-                <button class="toggle-btn ${AppState.periodType==='custom'?'active':''}" onclick="Actions.setPeriodType('custom')">カレンダー</button>
-              </div>
-              ${AppState.periodType==='preset' ? `
-                <select class="form-input" onchange="Actions.setPreset(this.value)">
-                  <option value="2026-08-24,2026-08-27,3" ${AppState.presetVal.includes('24,2026-08-27')?'selected':''}>来週月曜から3泊（8/24〜8/27）</option>
-                  <option value="2026-08-21,2026-08-22,1">明日から1泊（8/21〜8/22）</option>
-                </select>` : `
-                <div class="flex gap-2">
-                  <div class="flex-1 relative"><input type="date" value="${AppState.customIn}" onchange="Actions.setIn(this.value)" class="form-input text-xs"><div class="text-[10px] text-sub mt-1">IN: ${formatFullDay(AppState.customIn)}</div></div>
-                  <div class="flex-1 relative"><input type="date" value="${AppState.customOut}" onchange="Actions.setOut(this.value)" class="form-input text-xs"><div class="text-[10px] text-sub mt-1">OUT: ${formatFullDay(AppState.customOut)}</div></div>
-                </div>`}
-            </div>
+          <div class="flex items-center gap-2">
+            <span class="text-primary">${ICONS.building}</span>
+            <h1 class="font-extrabold text-lg tracking-tight">岐阜車体 <span class="text-sm font-normal text-sub">周辺ステイ</span></h1>
           </div>
-          <button class="btn btn-primary w-full mt-4" onclick="Actions.search()">${ICONS.search} 料金シミュレーション実行</button>
+          <button onclick="AppActions.toggleTheme()" class="p-2 shrink-0" style="background:var(--bg-hover); border-radius:50%; color:var(--yellow)">
+            ${AppState.theme === 'dark' ? ICONS.sun : ICONS.moon}
+          </button>
+        </div>
+        
+        <div class="tab-bar">
+          <button class="tab-btn ${AppState.activeTab === 'search' ? 'active' : ''}" onclick="AppActions.setTab('search')">
+            ${ICONS.search} 検索
+          </button>
+          <button class="tab-btn ${AppState.activeTab === 'results' ? 'active' : ''}" onclick="AppActions.setTab('results')">
+            ${ICONS.calendar} 結果 ${AppState.results.length > 0 ? `<span class="badge badge-primary" style="margin-left:4px;">${AppState.results.length}</span>` : ''}
+          </button>
+          <button class="tab-btn ${AppState.activeTab === 'simulation' ? 'active' : ''}" onclick="AppActions.setTab('simulation')">
+            ${ICONS.sparkles} 組合せ
+          </button>
+        </div>
+        
+        <div class="content-area">
+          ${viewContent}
+          ${AppState.isLoading ? `
+            <div class="loading-overlay">
+              <div class="spinner"></div>
+              <div style="font-size:14px;">料金データを取得・計算中...</div>
+            </div>
+          ` : ''}
         </div>
       `;
-    }
+    };
 
-    function renderResults() {
-      if(AppState.results.length === 0) return `<div class="scroll-y flex items-center justify-center text-sub">検索結果はありません</div>`;
-      const cheapest = Math.min(...AppState.results.map(r => r.totalPrice));
+    const renderSearchTab = () => {
+      const isAll = AppState.searchTarget === 'all' ? 'active' : '';
+      const isFav = AppState.searchTarget === 'favorites' ? 'active' : '';
+      const isPreset = AppState.periodType === 'preset' ? 'active' : '';
+      const isCustom = AppState.periodType === 'custom' ? 'active' : '';
       
-      return `
-        <div class="scroll-y flex-col gap-3">
-          ${AppState.results.map(h => {
-            const isFav = AppState.favorites.includes(h.id);
-            const isCheap = h.totalPrice === cheapest;
-            const exp = AppState.expanded[h.id];
-            return `
-              <div class="card hotel-card" style="${isFav?'border:2px solid var(--pink);':''} ${isCheap?'border-left:6px solid var(--yellow);':''}">
-                <button class="fav-btn ${isFav?'is-fav':''}" onclick="Actions.toggleFav(${h.id})">${ICONS.heart}</button>
-                <div class="flex gap-1 mb-1">${isCheap?'<span class="badge badge-primary" style="background:#fef3c7;color:#b45309">🏆最安</span>':''} <span class="badge badge-primary">${h.area}</span></div>
-                <h3 class="font-bold text-base mb-1">${h.name}</h3>
-                <div class="flex gap-3 text-xs text-sub mb-2">${ICONS.mapPin} ${h.distance} / 車:${h.time}</div>
-                
-                <div class="flex justify-between items-end border-t pt-2 mt-2" style="border-color:var(--border);">
-                  <button class="text-xs text-primary underline" onclick="Actions.toggleExpand(${h.id})">${exp?'▲ 内訳閉じる':'▼ 料金内訳'}</button>
-                  <div class="text-right">
-                    <div class="text-[10px] text-sub">合計目安</div>
-                    <div class="text-xl font-extrabold text-pink">¥${h.totalPrice.toLocaleString()}</div>
-                  </div>
-                </div>
-                ${exp ? `<div class="mt-2 text-xs bg-hover p-2 rounded">${h.dailyPrices.map((p,i)=>`<div class="flex justify-between"><span>${formatDay(addDays(AppState.searchParams.start,i))}</span><span class="font-mono">¥${p.toLocaleString()}</span></div>`).join('')}</div>`:''}
-                
-                <div class="flex gap-2 mt-3 pt-2 border-t" style="border-color:var(--border);">
-                  <a href="${h.mapLink}" target="_blank" class="btn-site flex-1 p-2 text-center text-xs bg-hover rounded font-bold flex items-center justify-center gap-1">${ICONS.mapPin} MAP</a>
-                  ${Object.entries(h.sites).map(([name, url])=>`<a href="${url}" target="_blank" class="flex-1 p-2 text-center text-xs bg-green text-white rounded font-bold flex items-center justify-center gap-1">${name} ${ICONS.external}</a>`).join('')}
-                </div>
-              </div>
-            `;
-          }).join('')}
-        </div>
-      `;
-    }
-
-    function renderSim() {
-      if(!AppState.searchParams || AppState.searchParams.nights < 2) return `<div class="scroll-y flex items-center justify-center text-sub text-center">2泊以上でシミュレーション可能です</div>`;
-      
-      const renderCol = (data, title, colColor) => {
-        if(!data) return `<div class="card p-3 text-center text-xs text-sub">お気に入り宿がありません</div>`;
-        return `
-          <div class="card p-3" style="background:${colColor};">
-            <div class="text-center mb-2"><div class="text-[10px] font-bold text-sub">合計</div><div class="text-xl font-extrabold">¥${data.total.toLocaleString()}</div></div>
-            <button class="btn btn-primary w-full text-xs p-2 mb-3" onclick="Actions.shareLine('${title==='お気に入り'?'fav':'best'}')">${ICONS.share} LINE共有</button>
-            <div class="flex-col gap-2">
-              ${data.combo.map(b => `
-                <div class="card p-2 bg-card border">
-                  <div class="flex justify-between text-[10px] font-bold text-primary"><span>${formatDay(addDays(AppState.searchParams.start, b.startDay))} (${b.nights}泊)</span><span>¥${b.blockPrice.toLocaleString()}</span></div>
-                  <div class="font-bold text-xs my-1">${b.name}</div>
-                  <div class="flex gap-1 mt-2">
-                    <a href="${b.mapLink}" target="_blank" class="flex-1 text-[9px] p-1 text-center bg-hover rounded font-bold">MAP</a>
-                    <a href="${b.rakuten || '#'}" target="_blank" class="flex-1 text-[9px] p-1 text-center bg-green text-white rounded font-bold">予約 ${ICONS.external}</a>
-                  </div>
-                </div>
-              `).join('')}
+      let periodContent = '';
+      if (AppState.periodType === 'preset') {
+        periodContent = `
+          <div style="position:relative;">
+            <select class="form-input" style="padding-right:40px; cursor:pointer;" onchange="AppActions.setPresetVal(this.value)">
+              <option value="2026-08-21,2026-08-22,1" ${AppState.presetVal === '2026-08-21,2026-08-22,1' ? 'selected' : ''}>明日から1泊（8/21(金)〜8/22(土)）</option>
+              <option value="2026-08-24,2026-08-27,3" ${AppState.presetVal === '2026-08-24,2026-08-27,3' ? 'selected' : ''}>来週月曜から3泊（8/24(月)〜8/27(木)）</option>
+              <option value="2026-08-24,2026-08-28,4" ${AppState.presetVal === '2026-08-24,2026-08-28,4' ? 'selected' : ''}>来週月曜から4泊（8/24(月)〜8/28(金)）</option>
+              <option value="2026-08-31,2026-09-04,4" ${AppState.presetVal === '2026-08-31,2026-09-04,4' ? 'selected' : ''}>再来週月曜から4泊（8/31(月)〜9/4(金)）</option>
+            </select>
+            <div style="position:absolute; right:16px; top:50%; transform:translateY(-50%); pointer-events:none; color:var(--text-sub);">
+              ${ICONS.chevronDown}
             </div>
           </div>
         `;
+      } else {
+        // 透明なinput type="date"を重ねることで、見た目は曜日付き、機能はネイティブカレンダーを維持する
+        periodContent = `
+          <div class="flex items-center gap-2">
+            <div class="flex-1 relative">
+              <label class="form-label">チェックイン</label>
+              <div style="position:relative;">
+                <input type="date" value="${AppState.customIn}" onchange="AppActions.setCustomIn(this.value)" style="position:absolute; inset:0; opacity:0; z-index:10; cursor:pointer; width:100%; height:100%;">
+                <div class="form-input flex justify-between items-center" style="background-color: var(--bg-input); padding:14px;">
+                  <span class="font-bold text-sm">${formatFullDay(AppState.customIn)}</span>
+                  <span class="text-sub">${ICONS.chevronDown}</span>
+                </div>
+              </div>
+            </div>
+            <div class="text-sub mt-5 text-sm">〜</div>
+            <div class="flex-1 relative">
+              <label class="form-label">チェックアウト</label>
+              <div style="position:relative;">
+                <input type="date" value="${AppState.customOut}" onchange="AppActions.setCustomOut(this.value)" style="position:absolute; inset:0; opacity:0; z-index:10; cursor:pointer; width:100%; height:100%;">
+                <div class="form-input flex justify-between items-center" style="background-color: var(--bg-input); padding:14px;">
+                  <span class="font-bold text-sm">${formatFullDay(AppState.customOut)}</span>
+                  <span class="text-sub">${ICONS.chevronDown}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+      
+      return `
+        <div class="scroll-y flex-col justify-between" style="padding-bottom:24px;">
+          <div>
+            <h2 class="text-xl font-extrabold mb-4">検索条件</h2>
+            
+            <div class="card p-4 mb-4 shrink-0">
+              <label class="form-label text-sub">絞り込み対象</label>
+              <div class="toggle-group mb-4">
+                <button class="toggle-btn ${isAll}" onclick="AppActions.setSearchTarget('all')">すべての宿</button>
+                <button class="toggle-btn ${isFav}" onclick="AppActions.setSearchTarget('favorites')">お気に入り銘柄</button>
+              </div>
+              
+              <label class="form-label text-sub">宿泊スケジュール</label>
+              <div class="toggle-group mb-4">
+                <button class="toggle-btn ${isPreset}" onclick="AppActions.setPeriodType('preset')">よく使うパターン</button>
+                <button class="toggle-btn ${isCustom}" onclick="AppActions.setPeriodType('custom')">カレンダー指定</button>
+              </div>
+              
+              ${periodContent}
+            </div>
+          </div>
+          
+          <button class="btn btn-primary w-full mt-4 shrink-0" style="padding:16px;" onclick="AppActions.executeSearch()">
+            ${ICONS.search} 料金シミュレーションを実行
+          </button>
+        </div>
+      `;
+    };
+
+    const renderResultsTab = () => {
+      if(AppState.results.length === 0) {
+        return `
+          <div class="flex-col items-center justify-center h-full gap-3 text-sub p-6 text-center">
+            <div style="background:var(--bg-hover);padding:16px;border-radius:50%;">${ICONS.search}</div>
+            <p class="font-bold">条件に一致する宿がありません。<br>検索タブから条件を変更してください。</p>
+          </div>
+        `;
+      }
+      
+      let html = `
+        <div class="scroll-y flex-col gap-4">
+          <div class="flex justify-between items-center text-sm mb-1 px-1 shrink-0">
+            <span class="font-bold flex items-center gap-2">
+              ${ICONS.calendar} ${formatDay(AppState.searchParams.start)} 〜 ${AppState.searchParams.nights}泊
+            </span>
+            <span class="text-xs text-sub">大人1名1室</span>
+          </div>
+      `;
+      
+      const sorted = [...AppState.results].sort((a,b) => {
+        const aFav = AppState.favorites.includes(a.id);
+        const bFav = AppState.favorites.includes(b.id);
+        if(aFav && !bFav) return -1;
+        if(!aFav && bFav) return 1;
+        return 0; // 価格順は既にソート済み
+      });
+
+      const cheapestPrice = Math.min(...AppState.results.map(r => r.totalPrice));
+
+      sorted.forEach(hotel => {
+        const isFav = AppState.favorites.includes(hotel.id);
+        const isCheapest = hotel.totalPrice === cheapestPrice;
+        const isExpanded = AppState.expandedCards[hotel.id];
+        
+        let cardStyle = isFav ? `border: 2px solid var(--pink);` : ``;
+        if(isCheapest) cardStyle += `border-left: 6px solid var(--yellow);`;
+        
+        html += `
+          <div class="card hotel-card" style="${cardStyle}">
+            <button class="fav-btn ${isFav ? 'is-fav' : ''}" onclick="AppActions.toggleFav(${hotel.id})">
+              ${ICONS.heart}
+            </button>
+            
+            <div class="flex gap-2 mb-2">
+              ${isCheapest ? `<span class="badge badge-yellow">🏆最安値</span>` : ''}
+              <span class="badge ${isFav ? 'badge-pink' : 'badge-primary'}">${hotel.area}</span>
+            </div>
+            
+            <h3 class="font-bold text-lg pr-12 mb-2 leading-tight">${hotel.name}</h3>
+            
+            <div class="flex gap-4 text-xs text-sub mb-3">
+              <span class="flex items-center gap-1">${ICONS.mapPin} 距離: ${hotel.distance}</span>
+              <span class="flex items-center gap-1">${ICONS.clock} 車: ${hotel.time}</span>
+            </div>
+            
+            <!-- 上部: 料金比較と日々の内訳 -->
+            <div class="price-section">
+              <div class="flex justify-between items-end mb-2">
+                <span class="text-xs font-bold text-sub">${AppState.searchParams.nights}泊合計目安</span>
+                <span class="text-2xl font-extrabold text-pink leading-none">¥${hotel.totalPrice.toLocaleString()}</span>
+              </div>
+              
+              <button class="accordion-btn" onclick="AppActions.toggleExpand(${hotel.id})">
+                <span>${isExpanded ? '▲ 日々の料金内訳を閉じる' : '▼ 日々の料金内訳を見る'}</span>
+              </button>
+              
+              ${isExpanded ? `
+                <div class="daily-prices">
+                  ${hotel.dailyPrices.map((price, i) => `
+                    <div class="flex justify-between items-center">
+                      <span class="font-bold text-sub">${formatDay(addDays(AppState.searchParams.start, i))}</span>
+                      <span class="font-mono font-bold text-main">¥${price.toLocaleString()}</span>
+                    </div>
+                  `).join('')}
+                </div>
+              ` : ''}
+            </div>
+
+            <!-- 下部: MAPと予約サイト -->
+            <div class="action-grid">
+              <button class="btn-action btn-map" onclick="window.open('${hotel.mapLink}', '_blank')">
+                ${ICONS.mapPin}
+                <span>MAPで見る</span>
+              </button>
+              <button class="btn-action btn-rakuten" onclick="window.open('${hotel.sites.rakuten}', '_blank')">
+                <span style="font-size:14px; margin-bottom:2px;">R</span>
+                <span>楽天トラベル</span>
+              </button>
+              ${hotel.sites.jalan !== '#' ? `
+                <button class="btn-action btn-jalan" style="grid-column: span 2;" onclick="window.open('${hotel.sites.jalan}', '_blank')">
+                  <span>じゃらんで予約する</span>
+                </button>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      });
+      html += `<p class="disclaimer">※表示されている料金はGoogle Mapsの情報を目安としたシミュレーションです。実際の空室や料金は各リンク先でご確認ください。</p></div>`;
+      return html;
+    };
+
+    const renderSimTab = () => {
+      if(AppState.results.length === 0 || !AppState.searchParams || AppState.searchParams.nights < 2) {
+        return `
+          <div class="flex-col items-center justify-center h-full gap-3 text-sub text-center p-6">
+            <div style="background:var(--bg-hover);padding:16px;border-radius:50%;">${ICONS.sparkles}</div>
+            <p class="font-bold">2泊以上で検索を実行すると<br>組合せシミュレーションが表示されます</p>
+          </div>
+        `;
+      }
+      
+      const renderColumn = (comboObj, typeStr, accentColor) => {
+        if(!comboObj) {
+          return `
+            <div class="flex-col items-center justify-center h-full text-sub text-xs p-4 border rounded-lg border-dashed text-center" style="background:var(--bg-card);">
+              <span class="mb-2">${ICONS.heart}</span>
+              結果タブでお気に入り登録してください
+            </div>
+          `;
+        }
+        
+        let colHtml = `
+          <div class="text-center mb-3">
+            <div class="text-[10px] font-bold text-sub mb-0.5">合計金額</div>
+            <div class="text-xl font-extrabold text-main leading-none">¥${comboObj.total.toLocaleString()}</div>
+          </div>
+          <div class="flex-col gap-2 mb-3">
+        `;
+        
+        // 圧縮された連泊ブロックを描画
+        comboObj.combo.forEach((block, idx) => {
+          const startDateStr = formatDay(addDays(AppState.searchParams.start, block.startDayIndex));
+          const isLast = idx === comboObj.combo.length - 1;
+          const sameNext = !isLast && comboObj.combo[idx+1].id === block.id; // 基本はブロック化されるため発火しないが念のため
+          
+          colHtml += `
+            <div class="timeline-item" style="padding-left:14px; padding-bottom:8px;">
+              ${!isLast ? `<div class="timeline-line" style="left:7px; top:12px; bottom:-8px; width:2px; ${sameNext ? `background-color: var(--primary);` : ''}"></div>` : ''}
+              <div class="timeline-dot color-${block.color}" style="left:4px; top:12px; width:8px; height:8px;"></div>
+              
+              <div class="card p-2 border shrink-0 flex-col gap-1.5" style="background-color:var(--bg-card); border-color:var(--border); box-shadow:none;">
+                <div class="flex justify-between items-center px-0.5">
+                  <span class="text-[10px] font-bold text-color-${block.color}">${startDateStr}〜 (${block.nights}泊)</span>
+                  <div class="font-extrabold text-xs text-main font-mono">¥${block.blockPrice.toLocaleString()}</div>
+                </div>
+                
+                <div class="font-bold text-[11px] leading-tight mt-1 mb-1 px-0.5" style="white-space:normal;">${block.name}</div>
+                
+                <div class="flex flex-col gap-1 mt-1">
+                  <div class="flex gap-1 w-full">
+                    <button onclick="window.open('${block.mapLink}', '_blank')" class="flex-1 flex justify-center items-center text-main text-[10px] font-bold py-1.5 rounded border" style="background:var(--bg-input);">
+                      MAP
+                    </button>
+                    <button onclick="window.open('${block.rakuten}', '_blank')" class="flex justify-center items-center text-white text-[10px] font-bold py-1.5 rounded" style="background:var(--rakuten); flex-grow:2;">
+                      楽天予約
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+        colHtml += `</div>`;
+        return colHtml;
       };
 
       return `
         <div class="scroll-y">
-          <h3 class="font-bold text-sm mb-3">プラン比較</h3>
-          <div class="split-view">
-            <div class="split-col"><div class="text-xs font-bold text-pink text-center mb-1">お気に入り厳選</div>${renderCol(AppState.combos.fav, 'お気に入り', 'var(--pink-light)')}</div>
-            <div class="split-col"><div class="text-xs font-bold text-primary text-center mb-1">とにかく最安</div>${renderCol(AppState.combos.best, '最安', 'var(--primary-light)')}</div>
+          <div class="flex justify-between items-center mb-4 px-1 shrink-0">
+             <h3 class="font-extrabold flex items-center gap-1.5 text-base"><span class="text-yellow">${ICONS.sparkles}</span> プラン比較</h3>
+             <span class="text-[10px] text-sub font-bold border px-2 py-1 rounded-full">横並びで見比べられます</span>
           </div>
+          
+          <div class="split-view">
+            <!-- 左カラム：お気に入り -->
+            <div class="split-col">
+              <div class="text-center text-[11px] font-bold text-pink mb-2 flex items-center justify-center gap-1">
+                ${ICONS.heart} お気に入り
+              </div>
+              <div class="card p-2 border shrink-0" style="background:var(--pink-light); border-color:var(--pink);">
+                ${renderColumn(AppState.combos.fav, 'お気に入り', 'var(--pink)')}
+                ${AppState.combos.fav ? `
+                  <button class="btn w-full text-[11px] p-2 mt-1" style="background:#06C755; color:white;" onclick="AppActions.shareLine('fav')">
+                    ${ICONS.share} LINE (ライン) 共有
+                  </button>
+                ` : ''}
+              </div>
+            </div>
+            
+            <!-- 右カラム：最安 -->
+            <div class="split-col">
+              <div class="text-center text-[11px] font-bold text-primary mb-2 flex items-center justify-center gap-1">
+                ${ICONS.search} とにかく最安
+              </div>
+              <div class="card p-2 border shrink-0" style="background:var(--primary-light); border-color:var(--primary);">
+                ${renderColumn(AppState.combos.best, '最安', 'var(--primary)')}
+                <button class="btn w-full text-[11px] p-2 mt-1" style="background:#06C755; color:white;" onclick="AppActions.shareLine('best')">
+                  ${ICONS.share} LINE (ライン) 共有
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <p class="disclaimer mt-4">
+            ※プラン比較機能は連泊時の最安シミュレーションです。ブロック単位で表示される予約ボタンから各サイトへ遷移し、日程を指定して予約を行ってください。
+          </p>
         </div>
       `;
-    }
+    };
 
+    // === 7. Initialization ===
     render();
+
   </script>
 </body>
 </html>
