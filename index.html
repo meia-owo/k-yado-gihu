@@ -1,4 +1,4 @@
-<!-- Version: 1.3.0 | Standalone Hotel Search App (Simulation Card Layout Update) -->
+<!-- Version: 1.4.0 | Standalone Hotel Search App (Block UI & Booking Buttons) -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -62,10 +62,11 @@
     .justify-between { justify-content: space-between; }
     .justify-center { justify-content: center; }
     .gap-1 { gap: 4px; } .gap-2 { gap: 8px; } .gap-3 { gap: 12px; } .gap-4 { gap: 16px; }
-    .mt-2 { margin-top: 8px; } .mt-4 { margin-top: 16px; } .mb-2 { margin-bottom: 8px; } .mb-4 { margin-bottom: 16px; }
-    .p-3 { padding: 12px; } .p-4 { padding: 16px; } .p-5 { padding: 20px; }
+    .mt-2 { margin-top: 8px; } .mt-4 { margin-top: 16px; } .mb-2 { margin-bottom: 8px; } .mb-3 { margin-bottom: 12px; } .mb-4 { margin-bottom: 16px; }
+    .p-2 { padding: 8px; } .p-3 { padding: 12px; } .p-4 { padding: 16px; } .p-5 { padding: 20px; }
     .w-full { width: 100%; } .h-full { height: 100%; }
     .shrink-0 { flex-shrink: 0; }
+    .flex-1 { flex: 1; }
     
     /* Typography */
     .text-xs { font-size: 11px; } .text-sm { font-size: 13px; } .text-base { font-size: 15px; } .text-lg { font-size: 18px; } .text-2xl { font-size: 24px; }
@@ -117,9 +118,6 @@
     /* Split View for Simulation */
     .split-view { display: flex; gap: 12px; height: 100%; align-items: flex-start; }
     .split-col { flex: 1; width: 50%; display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
-    .timeline-item { position: relative; padding-left: 24px; padding-bottom: 12px; }
-    .timeline-line { position: absolute; left: 9px; top: 14px; bottom: -6px; width: 2px; background-color: var(--border); }
-    .timeline-dot { position: absolute; left: 5px; top: 10px; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--bg-card); z-index: 2; }
     
     .color-blue { background-color: #3b82f6; } .color-indigo { background-color: #6366f1; } .color-teal { background-color: #14b8a6; }
     .color-orange { background-color: #f97316; } .color-purple { background-color: #a855f7; } .color-pink { background-color: #ec4899; }
@@ -146,7 +144,7 @@
       moon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`,
       search: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>`,
       calendar: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>`,
-      sparkles: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1-1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>`,
+      sparkles: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>`,
       heart: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>`,
       mapPin: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon icon-sm"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>`,
       clock: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon icon-sm"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
@@ -318,23 +316,43 @@
           return;
         }
         const nights = AppState.searchParams.nights;
-        const calcBest = (sourceHotels) => {
+        
+        // 日毎の最安ルートを計算し、連泊する宿をブロックに圧縮する
+        const calcAndCompress = (sourceHotels) => {
           if(sourceHotels.length === 0) return null;
-          const combo = [];
+          const rawCombo = [];
           for(let i=0; i<nights; i++) {
             let cheapest = sourceHotels.reduce((min, h) => h.dailyPrices[i] < min.dailyPrices[i] ? h : min, sourceHotels[0]);
-            combo.push({ ...cheapest, price: cheapest.dailyPrices[i], dayIndex: i });
+            rawCombo.push({ ...cheapest, price: cheapest.dailyPrices[i], dayIndex: i });
           }
-          const total = combo.reduce((sum, item) => sum + item.price, 0);
-          return { combo, total };
+          
+          const total = rawCombo.reduce((sum, item) => sum + item.price, 0);
+          
+          // 圧縮（連泊ブロック化）
+          const compressed = [];
+          let current = null;
+          rawCombo.forEach(item => {
+            if(!current) {
+              current = { ...item, nights: 1, startDayIndex: item.dayIndex, blockPrice: item.price };
+            } else if (current.id === item.id) {
+              current.nights++;
+              current.blockPrice += item.price;
+            } else {
+              compressed.push(current);
+              current = { ...item, nights: 1, startDayIndex: item.dayIndex, blockPrice: item.price };
+            }
+          });
+          if(current) compressed.push(current);
+          
+          return { combo: compressed, total };
         };
 
         const standardBestPrice = AppState.results[0]?.totalPrice || 0;
-        const bestCombo = calcBest(AppState.results);
+        const bestCombo = calcAndCompress(AppState.results);
         if(bestCombo) bestCombo.diff = standardBestPrice - bestCombo.total > 0 ? standardBestPrice - bestCombo.total : 0;
         
         const favHotels = AppState.results.filter(h => AppState.favorites.includes(h.id));
-        const favCombo = calcBest(favHotels);
+        const favCombo = calcAndCompress(favHotels);
         
         AppState.combos = { best: bestCombo, fav: favCombo };
       },
@@ -343,9 +361,13 @@
         const data = type === 'fav' ? AppState.combos.fav : AppState.combos.best;
         if(!data) return;
         const title = type === 'fav' ? '💖 お気に入り厳選プラン' : '✨ 最安ホッピングプラン';
-        const txt = `🏨 岐阜車体出張 ${title}\n📅 ${formatDay(AppState.searchParams.start)}〜 (${AppState.searchParams.nights}泊)\n💰 合計: ¥${data.total.toLocaleString()}\n\n` + 
-          data.combo.map(item => `・${formatDay(addDays(AppState.searchParams.start, item.dayIndex))}\n　${item.name} (¥${item.price.toLocaleString()})`).join('\n') + 
-          `\n\n🔗 実際の料金はGoogleMap等で確認してね！`;
+        
+        // 圧縮されたブロックを展開してテキスト化
+        const textLines = data.combo.map(block => {
+          return `・${formatDay(addDays(AppState.searchParams.start, block.startDayIndex))}〜 (${block.nights}泊)\n　${block.name} (¥${block.blockPrice.toLocaleString()})`;
+        }).join('\n');
+
+        const txt = `🏨 岐阜車体出張 ${title}\n📅 ${formatDay(AppState.searchParams.start)}〜 (${AppState.searchParams.nights}泊)\n💰 合計: ¥${data.total.toLocaleString()}\n\n${textLines}\n\n🔗 実際の料金は各サイトで確認してね！`;
         window.open(`https://line.me/R/msg/text/?${encodeURIComponent(txt)}`, '_blank');
       }
     };
@@ -558,30 +580,33 @@
       const renderTL = (comboObj) => {
         if(!comboObj) return `<div class="flex-col items-center justify-center h-full text-sub text-xs p-4 border rounded-lg border-dashed text-center" style="background:var(--bg-card);"><span class="mb-2">${ICONS.heart}</span>結果タブで<br>お気に入り登録してね</div>`;
         
-        let tlHtml = `<div class="text-center mb-3">
+        let tlHtml = `<div class="text-center mb-4">
           <div class="text-[9px] font-bold text-sub mb-0.5">合計金額</div>
           <div class="text-xl font-extrabold text-main leading-none">¥${comboObj.total.toLocaleString()}</div>
         </div>`;
         
-        tlHtml += `<div class="flex-col gap-0">`;
-        comboObj.combo.forEach((item, idx) => {
-          const isLast = idx === comboObj.combo.length - 1;
-          const sameNext = !isLast && comboObj.combo[idx+1].id === item.id;
+        tlHtml += `<div class="flex-col gap-2 mb-3">`;
+        
+        // 圧縮されたブロックごとにレンダリング
+        comboObj.combo.forEach((block, idx) => {
+          const startDateStr = formatDay(addDays(AppState.searchParams.start, block.startDayIndex));
           
           tlHtml += `
-            <div class="timeline-item" style="padding-left:16px; padding-bottom:10px;">
-              ${!isLast ? `<div class="timeline-line" style="left:7px; top:12px; bottom:-10px; width:2px; ${sameNext ? `background-color: var(--primary);` : ''}"></div>` : ''}
-              <div class="timeline-dot color-${item.color}" style="left:4px; top:12px; width:8px; height:8px;"></div>
+            <div class="card p-2 border shrink-0 flex-col gap-1.5" style="background-color:var(--bg-input); border-color:var(--border);">
+              <div class="flex justify-between items-center px-0.5">
+                <span class="text-[10px] font-bold text-color-${block.color}">${startDateStr}から ${block.nights}泊</span>
+                <div class="font-extrabold text-xs text-main">¥${block.blockPrice.toLocaleString()}</div>
+              </div>
               
-              <div class="card p-2 border shrink-0 flex-col gap-1" style="background-color:var(--bg-input);">
-                <div class="flex justify-between items-center mb-1">
-                  <span class="text-[10px] font-bold text-color-${item.color}">${formatDay(addDays(AppState.searchParams.start, item.dayIndex))}</span>
-                  <a href="${item.mapLink}" target="_blank" class="text-[9px] font-bold text-sub flex items-center gap-0.5 bg-gray-100 px-1 py-0.5 rounded border border-dashed border-gray-300" style="background:var(--bg-hover); border-color:var(--border);">
-                    MAPで見る <span style="transform:scale(0.8);">${ICONS.external}</span>
-                  </a>
-                </div>
-                <div class="font-bold text-[11px] leading-tight mb-1" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.name}</div>
-                <div class="font-extrabold text-xs text-main">¥${item.price.toLocaleString()}</div>
+              <div class="font-bold text-[11px] leading-tight mb-1 px-0.5" style="white-space:normal;">${block.name}</div>
+              
+              <div class="flex gap-1 mt-1">
+                <a href="${block.mapLink}" target="_blank" class="flex-1 flex justify-center items-center gap-0.5 text-sub text-[9px] font-bold py-1.5 rounded" style="background:var(--bg-hover);">
+                  MAP ${ICONS.external}
+                </a>
+                <a href="${block.rakuten}" target="_blank" class="flex justify-center items-center gap-0.5 text-white text-[9px] font-bold py-1.5 rounded" style="background:var(--green); flex-grow:2;">
+                  この宿を予約 ${ICONS.external}
+                </a>
               </div>
             </div>
           `;
@@ -592,9 +617,8 @@
 
       return `
         <div class="scroll-y">
-          <div class="flex justify-between items-center mb-4 px-1 shrink-0">
+          <div class="flex justify-between items-center mb-3 px-1 shrink-0">
              <h3 class="font-extrabold flex items-center gap-1.5 text-base"><span class="text-yellow">${ICONS.sparkles}</span> プラン比較</h3>
-             <span class="text-[10px] text-sub font-bold border px-2 py-1 rounded-full">横並びで見比べられます</span>
           </div>
           
           <div class="split-view">
@@ -602,14 +626,15 @@
               <div class="text-center text-[10px] font-bold text-pink mb-2 flex items-center justify-center gap-1">${ICONS.heart} お気に入り</div>
               <div class="card p-2 border shrink-0" style="background:var(--pink-light); border-color:var(--pink);">
                 ${renderTL(AppState.combos.fav)}
-                ${AppState.combos.fav ? `<button class="btn btn-green w-full mt-3 text-[10px] p-2" onclick="AppActions.shareLine('fav')">${ICONS.share} LINEで共有</button>` : ''}
+                ${AppState.combos.fav ? `<button class="btn btn-primary w-full text-[10px] p-2 mt-1" onclick="AppActions.shareLine('fav')">${ICONS.share} LINEで共有</button>` : ''}
               </div>
             </div>
+            
             <div class="split-col">
               <div class="text-center text-[10px] font-bold text-primary mb-2 flex items-center justify-center gap-1">${ICONS.search} とにかく最安</div>
               <div class="card p-2 border shrink-0" style="background:var(--primary-light); border-color:var(--primary);">
                 ${renderTL(AppState.combos.best)}
-                <button class="btn btn-green w-full mt-3 text-[10px] p-2" onclick="AppActions.shareLine('best')">${ICONS.share} LINEで共有</button>
+                <button class="btn btn-primary w-full text-[10px] p-2 mt-1" onclick="AppActions.shareLine('best')">${ICONS.share} LINEで共有</button>
               </div>
             </div>
           </div>
