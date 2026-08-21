@@ -329,7 +329,7 @@
 
     // === 4.5 Rakuten Travel API (空室検索API) 連携 ===
     const RAKUTEN_ENDPOINT = 'https://openapi.rakuten.co.jp/engine/api/Travel/VacantHotelSearch/20170426';
-    const RAKUTEN_CALL_DELAY_MS = 400; // 短時間の連続アクセス対策のウェイト
+    const RAKUTEN_CALL_DELAY_MS = 1500; // 短時間の連続アクセス対策のウェイト（429対策で1.5秒に強化）
 
     const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
@@ -346,7 +346,8 @@
     };
 
     // 1施設・1泊分の空室状況と最安料金を取得（fetch直叩き。新API仕様はブラウザからの直接アクセスを想定した設計）
-    const fetchOneNightPrice = async (hotelNo, dateStr, appId, accessKey) => {
+    // 429(リクエスト過多)の場合は待機してリトライする
+    const fetchOneNightPrice = async (hotelNo, dateStr, appId, accessKey, retriesLeft = 2) => {
       if (!hotelNo) return { available: false, error: 'hotelNo不明' };
       const checkout = addDays(dateStr, 1);
       const params = new URLSearchParams({
@@ -369,6 +370,18 @@
         return { available: false, error: 'fetch失敗(CORS等): ' + (e && e.message ? e.message : '不明') };
       }
 
+      // HTTP404は「その施設・日程の空室なし」という正常応答（エラー本文の文言はブレることがあるためステータスコードで判定）
+      if (res.status === 404) return { available: false };
+
+      // HTTP429はリクエスト過多。少し待ってリトライする
+      if (res.status === 429) {
+        if (retriesLeft > 0) {
+          await sleep(3000);
+          return fetchOneNightPrice(hotelNo, dateStr, appId, accessKey, retriesLeft - 1);
+        }
+        return { available: false, error: 'HTTP429: リクエスト過多（リトライ上限）' };
+      }
+
       let data;
       try {
         data = await res.json();
@@ -376,13 +389,11 @@
         return { available: false, error: `HTTP${res.status} 応答をJSONとして解釈できません` };
       }
 
-      // not_found (HTTP404) はその施設・日程に空室が無いだけの正常応答。先にエラー扱いから除外する
-      if (data && data.error === 'not_found') return { available: false };
-
       if (!res.ok) {
         return { available: false, error: `HTTP${res.status}: ${(data && (data.error_description || data.error)) || res.statusText}` };
       }
       if (data && data.error) {
+        if (data.error === 'not_found') return { available: false };
         return { available: false, error: data.error_description || data.error };
       }
 
