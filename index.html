@@ -780,7 +780,7 @@
       sorted.forEach(hotel => {
         const isFav = AppState.favorites.includes(hotel.id);
         const isCheapest = cheapestPrice !== null && !hotel.hasUnavailable && hotel.totalPrice === cheapestPrice;
-        const reserveLink = hotel.reserveUrl || hotel.rakutenUrl;
+        const reserveLink = hotel.rakutenUrl; // 1泊分APIのURLではなく、日程を選び直せる宿ページに統一
         
         let cardStyle = isFav ? `border: 2px solid var(--pink);` : ``;
         if(isCheapest) cardStyle += `border-left: 6px solid var(--yellow);`;
@@ -835,7 +835,7 @@
           </div>
         `;
       });
-      html += `<p class="disclaimer">※料金は楽天トラベル空室検索APIから取得したリアルタイム情報です。ただし表示後に埋まる場合があるため、最終確認は予約ページで行ってください。</p></div>`;
+      html += `<p class="disclaimer">※料金は楽天トラベル空室検索APIから取得したリアルタイム情報です。「楽天で予約」は宿のページに遷移します。チェックイン日・泊数はページ内で選び直してください（自動入力ではありません）。</p></div>`;
       return html;
     };
 
@@ -873,7 +873,7 @@
           const isLast = idx === comboObj.combo.length - 1;
           const sameNext = !isLast && comboObj.combo[idx+1].id === block.id; // 基本はブロック化されるため発火しないが念のため
           const isFav = AppState.favorites.includes(block.id);
-          const reserveLink = block.reserveUrl || block.rakutenUrl;
+          const reserveLink = block.rakutenUrl; // 1泊分APIのURLではなく、日程を選び直せる宿ページに統一
           
           colHtml += `
             <div class="timeline-item" style="padding-left:14px; padding-bottom:8px;">
