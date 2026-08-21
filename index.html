@@ -253,17 +253,17 @@
     // === 2. Data Definition ===
     // API (エーピーアイ) を介さず完結するモックデータ
     const HOTELS = [
-      { id: 1, name: 'ABホテル犬山', distance: '4.0km', time: '10分', area: '愛知県犬山市', color: 'blue', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/166547/166547.html' },
-      { id: 2, name: 'ホテルミュースタイル犬山', distance: '3.5km', time: '10分', area: '愛知県犬山市', color: 'indigo', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/181665/181665.html' },
-      { id: 3, name: 'ホテルルートイン各務原', distance: '6.5km', time: '15分', area: '岐阜県各務原市', color: 'teal', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/68612/68612.html' },
-      { id: 4, name: 'ビジネスホテル観月', distance: '7.0km', time: '15分', area: '岐阜県各務原市', color: 'orange', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/68412/68412.html' },
-      { id: 5, name: '犬山セントラルホテル', distance: '4.5km', time: '12分', area: '愛知県犬山市', color: 'purple', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/15000/15000.html' },
-      { id: 6, name: '旬樹庵 八勝閣みづのを', distance: '3.0km', time: '8分', area: '愛知県犬山市', color: 'pink', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/11261/11261.html' },
-      { id: 7, name: 'ホテルインディゴ犬山', distance: '3.8km', time: '11分', area: '愛知県犬山市', color: 'blue', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/182607/182607.html' },
-      { id: 8, name: '犬山館', distance: '3.2km', time: '9分', area: '愛知県犬山市', color: 'indigo', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/161869/161869.html' },
-      { id: 9, name: '灯屋 迎帆楼', distance: '3.5km', time: '10分', area: '愛知県犬山市', color: 'teal', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/161868/161868.html' },
-      { id: 10, name: 'サンパーク犬山', distance: '5.0km', time: '13分', area: '愛知県犬山市', color: 'orange', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/137682/137682.html' },
-      { id: 11, name: '犬山ミヤコホテル', distance: '4.2km', time: '11分', area: '愛知県犬山市', color: 'purple', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/180630/180630.html' }
+      { id: 1, name: 'ABホテル犬山', distance: '4.0km', time: '10分', area: '愛知県犬山市', color: 'blue', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/197708/197708.html' },
+      { id: 2, name: 'ホテルミュースタイル犬山', distance: '3.5km', time: '10分', area: '愛知県犬山市', color: 'indigo', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/182415/182415.html' },
+      { id: 3, name: 'ホテルルートイン各務原', distance: '6.5km', time: '15分', area: '岐阜県各務原市', color: 'teal', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/1162/1162.html' },
+      { id: 4, name: 'ビジネスホテル観月', distance: '7.0km', time: '15分', area: '岐阜県各務原市', color: 'orange', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/8697/8697.html' },
+      { id: 5, name: '犬山セントラルホテル', distance: '4.5km', time: '12分', area: '愛知県犬山市', color: 'purple', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/108717/108717.html' },
+      { id: 6, name: '旬樹庵 八勝閣みづのを', distance: '3.0km', time: '8分', area: '愛知県犬山市', color: 'pink', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/5306/5306.html' },
+      { id: 7, name: 'ホテルインディゴ犬山', distance: '3.8km', time: '11分', area: '愛知県犬山市', color: 'blue', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/183344/183344.html' },
+      { id: 8, name: '犬山館', distance: '3.2km', time: '9分', area: '愛知県犬山市', color: 'indigo', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/52894/52894.html' },
+      { id: 9, name: '灯屋 迎帆楼', distance: '3.5km', time: '10分', area: '愛知県犬山市', color: 'teal', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/162755/162755.html' },
+      { id: 10, name: 'サンパーク犬山', distance: '5.0km', time: '13分', area: '愛知県犬山市', color: 'orange', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/108725/108725.html' },
+      { id: 11, name: '犬山ミヤコホテル', distance: '4.2km', time: '11分', area: '愛知県犬山市', color: 'purple', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/5169/5169.html' }
     ].map(h => ({
       ...h,
       mapLink: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(h.name)}`,
