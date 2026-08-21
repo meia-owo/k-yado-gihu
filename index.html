@@ -328,7 +328,7 @@
     };
 
     // === 4.5 Rakuten Travel API (空室検索API) 連携 ===
-    const RAKUTEN_ENDPOINT = 'https://app.rakuten.co.jp/services/api/Travel/VacantHotelSearch/20170426';
+    const RAKUTEN_ENDPOINT = 'https://openapi.rakuten.co.jp/engine/api/Travel/VacantHotelSearch/20170426';
     const RAKUTEN_CALL_DELAY_MS = 400; // 短時間の連続アクセス対策のウェイト
 
     const sleep = (ms) => new Promise(r => setTimeout(r, ms));
@@ -477,6 +477,7 @@
             let reserveUrl = null;
             let hasUnavailable = false;
             let hasError = false;
+            let firstErrorMsg = null;
 
             for (let i = 0; i < nights; i++) {
               const dateStr = addDays(inStr, i);
@@ -488,14 +489,17 @@
               } else {
                 dailyPrices.push(null);
                 hasUnavailable = true;
-                if (result.error) hasError = true;
+                if (result.error) {
+                  hasError = true;
+                  if (!firstErrorMsg) firstErrorMsg = result.error;
+                }
               }
               AppState.loadingProgress.done++;
               render();
               await sleep(RAKUTEN_CALL_DELAY_MS);
             }
 
-            newResults.push({ ...h, dailyPrices, totalPrice, hasUnavailable, hasError, reserveUrl });
+            newResults.push({ ...h, dailyPrices, totalPrice, hasUnavailable, hasError, firstErrorMsg, reserveUrl });
           }
           // 全日程で空室が取れた宿を優先し、合計金額の安い順に並べる
           newResults.sort((a, b) => {
@@ -780,7 +784,7 @@
             <div class="flex gap-2 mb-2" style="flex-wrap:wrap;">
               ${isCheapest ? `<span class="badge badge-yellow">🏆最安値</span>` : ''}
               ${hotel.hasUnavailable ? `<span class="badge" style="background:#fef3c7; color:#b45309;">一部日程 空室なし</span>` : ''}
-              ${hotel.hasError ? `<span class="badge" style="background:#fee2e2; color:#b91c1c;">取得エラーあり</span>` : ''}
+              ${hotel.hasError ? `<span class="badge" style="background:#fee2e2; color:#b91c1c;">エラー: ${hotel.firstErrorMsg || '不明'}</span>` : ''}
               <span class="badge ${isFav ? 'badge-pink' : 'badge-primary'}">${hotel.area}</span>
             </div>
             
