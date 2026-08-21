@@ -251,8 +251,8 @@
     };
 
     // === 2. Data Definition ===
-    // API (エーピーアイ) を介さず完結するモックデータ
-    const HOTELS = [
+    // 宿マスターの初期シードデータ（コード直書き）。編集はlocalStorage側で行い、このシードは基準点として残す
+    const HOTELS_DEFAULT = [
       { id: 1, name: 'ABホテル犬山', distance: '4.0km', time: '10分', area: '愛知県犬山市', color: 'blue', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/197708/197708.html' },
       { id: 2, name: 'ホテルミュースタイル犬山', distance: '3.5km', time: '10分', area: '愛知県犬山市', color: 'indigo', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/182415/182415.html' },
       { id: 3, name: 'ホテルルートイン各務原', distance: '6.5km', time: '15分', area: '岐阜県各務原市', color: 'teal', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/1162/1162.html' },
@@ -264,12 +264,23 @@
       { id: 9, name: '灯屋 迎帆楼', distance: '3.5km', time: '10分', area: '愛知県犬山市', color: 'teal', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/162755/162755.html' },
       { id: 10, name: 'サンパーク犬山', distance: '5.0km', time: '13分', area: '愛知県犬山市', color: 'orange', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/108725/108725.html' },
       { id: 11, name: '犬山ミヤコホテル', distance: '4.2km', time: '11分', area: '愛知県犬山市', color: 'purple', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/5169/5169.html' }
-    ].map(h => ({
+    ];
+
+    // 宿オブジェクトに派生フィールド(mapLink・rakutenHotelNo)を付与
+    const enrichHotel = (h) => ({
       ...h,
       mapLink: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(h.name)}`,
-      // 楽天URLの /HOTEL/xxxxx/ から施設番号(hotelNo)を直接抽出。空室検索APIをこの番号でピンポイント検索する
+      // 楽天URLの /HOTEL/xxxxx/ から施設番号(hotelNo)を直接抽出
       rakutenHotelNo: (h.rakutenUrl.match(/\/HOTEL\/(\d+)\//) || [])[1] || null
-    }));
+    });
+
+    // 距離計算の起点（岐阜車体・固定値）
+    const ORIGIN_ADDRESS = '35.3973787, 136.8966483';
+    const getDirectionsLink = (hotel) => {
+      return `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(ORIGIN_ADDRESS)}&destination=${encodeURIComponent(hotel.name)}&travelmode=driving`;
+    };
+
+    const COLOR_CYCLE = ['blue', 'indigo', 'teal', 'orange', 'purple', 'pink'];
 
     // === 3. Storage & Date Utilities ===
     // LocalStorage (ローカルストレージ) への安全なアクセス
@@ -318,6 +329,26 @@
       customIn: todayStr,
       customOut: tmrwStr,
       favorites: Storage.get('app_favs_v2', []),
+      hotels: Storage.get('hotel_master_v1', HOTELS_DEFAULT).map(enrichHotel),
+      nextHotelId: Storage.get('hotel_master_next_id_v1', 12),
+      hotelMasterExpanded: false,
+      hotelEditingId: null, // 現在編集中の宿id（nullなら編集フォーム非表示）
+      hotelEditDraft: null,
+      newHotelDraft: { name: '', area: '', distance: '', time: '', rakutenUrl: '' },
+      addHotelMode: 'single', // 'single' or 'bulk'
+      bulkImportText: '',
+      isBulkImporting: false,
+      bulkImportProgress: { done: 0, total: 0 },
+      bulkImportErrors: [],
+      hotelVerifyResults: {}, // { [id]: {status: 'checking'|'ok'|'mismatch'|'error', actualName?, message?} }
+      isVerifyingAll: false,
+      verifyProgress: { done: 0, total: 0 },
+      exportViewOpen: false,
+      exportedCode: '',
+      distanceImportText: '',
+      distanceImportResult: '',
+      distanceImportErrorsDetail: [],
+      pricingMode: Storage.get('pricing_mode_v1', 'api'), // 'api' or 'simple'
       rakutenAppId: Storage.get('rakuten_app_id_v1', '3ea872c5-2c1e-4868-a8be-cd7fb43a8e2d'),
       rakutenAccessKey: Storage.get('rakuten_access_key_v1', 'pk_sSAm5g7qYmY8QBdLCa9rgIpv41Lm3iqQND5lkGSb5FR'),
       isLoading: false,
@@ -332,6 +363,8 @@
 
     // === 4.5 Rakuten Travel API (空室検索API) 連携 ===
     const RAKUTEN_ENDPOINT = 'https://openapi.rakuten.co.jp/engine/api/Travel/VacantHotelSearch/20170426';
+    // 施設検索API（空室状況を伴わない軽量な施設情報取得。宿マスターの名前検証に使用）
+    const SIMPLE_HOTEL_ENDPOINT = 'https://openapi.rakuten.co.jp/engine/api/Travel/SimpleHotelSearch/20260731';
     const RAKUTEN_CALL_DELAY_MS = 1500; // 短時間の連続アクセス対策のウェイト（429対策で1.5秒に強化）
 
     const sleep = (ms) => new Promise(r => setTimeout(r, ms));
@@ -410,6 +443,77 @@
       return { available: true, price: cheapest, reserveUrl: urls[0] || null };
     };
 
+    // レスポンス内から指定キーの値を再帰的に探す（構造のブレに強い汎用ヘルパー）
+    const extractFieldValue = (obj, key) => {
+      if (Array.isArray(obj)) {
+        for (const item of obj) {
+          const found = extractFieldValue(item, key);
+          if (found != null) return found;
+        }
+        return null;
+      } else if (obj && typeof obj === 'object') {
+        if (obj[key] != null) return obj[key];
+        for (const v of Object.values(obj)) {
+          const found = extractFieldValue(v, key);
+          if (found != null) return found;
+        }
+      }
+      return null;
+    };
+
+    // 施設検索APIでhotelNoから実際の施設名を取得し、登録名との一致を検証する
+    const verifyHotelName = async (hotelNo, appId, accessKey) => {
+      const info = await fetchHotelInfo(hotelNo, appId, accessKey);
+      if (!info.ok) return info;
+      return { ok: true, actualName: info.name };
+    };
+
+    // 施設検索APIで hotelNo から 名称・住所 を取得（宿マスターの一括インポート・検証で共用）
+    const fetchHotelInfo = async (hotelNo, appId, accessKey) => {
+      if (!hotelNo) return { ok: false, error: 'hotelNo不明' };
+      const params = new URLSearchParams({
+        applicationId: appId,
+        accessKey: accessKey,
+        format: 'json',
+        hotelNo: hotelNo,
+        responseType: 'small'
+      });
+      const url = `${SIMPLE_HOTEL_ENDPOINT}?${params.toString()}`;
+      let res;
+      try {
+        res = await fetch(url, { method: 'GET' });
+      } catch (e) {
+        return { ok: false, error: 'fetch失敗(CORS等): ' + (e && e.message ? e.message : '不明') };
+      }
+      let data;
+      try {
+        data = await res.json();
+      } catch (e) {
+        return { ok: false, error: `HTTP${res.status} 応答をJSONとして解釈できません` };
+      }
+      if (!res.ok || (data && data.error)) {
+        return { ok: false, error: `HTTP${res.status}: ${(data && (data.error_description || data.error)) || res.statusText}` };
+      }
+      const name = extractFieldValue(data, 'hotelName');
+      if (!name) return { ok: false, error: '施設名が取得できませんでした' };
+      const address1 = extractFieldValue(data, 'address1') || '';
+      const address2 = extractFieldValue(data, 'address2') || '';
+      return { ok: true, name, address: (address1 + address2).trim() };
+    };
+
+    // 全角/半角スペース・記号の差を吸収した緩い一致判定
+    const normalizeHotelName = (s) => (s || '').replace(/[\s　・]/g, '').toLowerCase();
+    const namesLooselyMatch = (a, b) => {
+      const na = normalizeHotelName(a), nb = normalizeHotelName(b);
+      return na.includes(nb) || nb.includes(na);
+    };
+
+    // 宿マスターをlocalStorageに保存（派生フィールドは除いて保存し、読込時にenrichHotelで再付与）
+    const saveHotelMaster = () => {
+      const raw = AppState.hotels.map(({ mapLink, rakutenHotelNo, ...rest }) => rest);
+      Storage.set('hotel_master_v1', raw);
+    };
+
     // === 5. Actions ===
     const AppActions = {
       toggleTheme() {
@@ -436,6 +540,261 @@
       },
       toggleApiSettings() {
         AppState.apiSettingsExpanded = !AppState.apiSettingsExpanded;
+        render();
+      },
+
+      setPricingMode(mode) {
+        AppState.pricingMode = mode;
+        Storage.set('pricing_mode_v1', mode);
+        render();
+      },
+
+      // === 宿マスター管理 ===
+      toggleHotelMaster() {
+        AppState.hotelMasterExpanded = !AppState.hotelMasterExpanded;
+        render();
+      },
+
+      setNewHotelField(field, val) {
+        AppState.newHotelDraft[field] = val;
+      },
+
+      addHotel() {
+        const d = AppState.newHotelDraft;
+        if (!d.name.trim() || !d.rakutenUrl.trim()) {
+          alert('エラー: 宿名と楽天URLは必須です。');
+          return;
+        }
+        const hotelNo = (d.rakutenUrl.match(/\/HOTEL\/(\d+)\//) || [])[1];
+        if (!hotelNo) {
+          alert('エラー: 楽天URLから施設番号(hotelNo)を抽出できませんでした。URL形式を確認してください。\n例: https://travel.rakuten.co.jp/HOTEL/12345/12345.html');
+          return;
+        }
+        const newHotel = enrichHotel({
+          id: AppState.nextHotelId,
+          name: d.name.trim(),
+          area: d.area.trim() || '未設定',
+          distance: d.distance.trim() || '-',
+          time: d.time.trim() || '-',
+          color: COLOR_CYCLE[AppState.hotels.length % COLOR_CYCLE.length],
+          rakutenUrl: d.rakutenUrl.trim()
+        });
+        AppState.hotels.push(newHotel);
+        AppState.nextHotelId++;
+        Storage.set('hotel_master_next_id_v1', AppState.nextHotelId);
+        saveHotelMaster();
+        AppState.newHotelDraft = { name: '', area: '', distance: '', time: '', rakutenUrl: '' };
+        render();
+      },
+
+      setAddHotelMode(mode) {
+        AppState.addHotelMode = mode;
+        render();
+      },
+      setBulkImportText(val) {
+        AppState.bulkImportText = val;
+      },
+
+      async bulkImportHotels() {
+        if (!AppState.rakutenAppId || !AppState.rakutenAccessKey) {
+          alert('エラー: URL一括インポートには楽天のアプリID・アクセスキーが必要です。');
+          return;
+        }
+        const urls = AppState.bulkImportText
+          .split('\n')
+          .map(s => s.trim())
+          .filter(s => s.length > 0);
+        if (urls.length === 0) {
+          alert('エラー: 楽天URLを1行に1件ずつ入力してください。');
+          return;
+        }
+
+        AppState.isBulkImporting = true;
+        AppState.bulkImportProgress = { done: 0, total: urls.length };
+        AppState.bulkImportErrors = [];
+        render();
+
+        for (const url of urls) {
+          const hotelNo = (url.match(/\/HOTEL\/(\d+)\//) || [])[1];
+          if (!hotelNo) {
+            AppState.bulkImportErrors.push(`${url} → URLからhotelNoを抽出できませんでした`);
+          } else if (AppState.hotels.some(h => h.rakutenHotelNo === hotelNo)) {
+            AppState.bulkImportErrors.push(`${url} → 既に登録済み(hotelNo:${hotelNo})のためスキップ`);
+          } else {
+            const info = await fetchHotelInfo(hotelNo, AppState.rakutenAppId, AppState.rakutenAccessKey);
+            if (!info.ok) {
+              AppState.bulkImportErrors.push(`${url} → 取得失敗: ${info.error}`);
+            } else {
+              const newHotel = enrichHotel({
+                id: AppState.nextHotelId,
+                name: info.name,
+                area: info.address || '未設定',
+                distance: '-',
+                time: '-',
+                color: COLOR_CYCLE[AppState.hotels.length % COLOR_CYCLE.length],
+                rakutenUrl: url
+              });
+              AppState.hotels.push(newHotel);
+              AppState.nextHotelId++;
+            }
+          }
+          AppState.bulkImportProgress.done++;
+          render();
+          await sleep(RAKUTEN_CALL_DELAY_MS);
+        }
+
+        Storage.set('hotel_master_next_id_v1', AppState.nextHotelId);
+        saveHotelMaster();
+        AppState.isBulkImporting = false;
+        AppState.bulkImportText = '';
+        render();
+      },
+
+      startEditHotel(id) {
+        const h = AppState.hotels.find(x => x.id === id);
+        if (!h) return;
+        AppState.hotelEditingId = id;
+        AppState.hotelEditDraft = { name: h.name, area: h.area, distance: h.distance, time: h.time, rakutenUrl: h.rakutenUrl };
+        render();
+      },
+      setEditHotelField(field, val) {
+        AppState.hotelEditDraft[field] = val;
+      },
+      cancelEditHotel() {
+        AppState.hotelEditingId = null;
+        AppState.hotelEditDraft = null;
+        render();
+      },
+      saveEditHotel(id) {
+        const d = AppState.hotelEditDraft;
+        if (!d.name.trim() || !d.rakutenUrl.trim()) {
+          alert('エラー: 宿名と楽天URLは必須です。');
+          return;
+        }
+        const hotelNo = (d.rakutenUrl.match(/\/HOTEL\/(\d+)\//) || [])[1];
+        if (!hotelNo) {
+          alert('エラー: 楽天URLから施設番号(hotelNo)を抽出できませんでした。');
+          return;
+        }
+        AppState.hotels = AppState.hotels.map(h => h.id === id
+          ? enrichHotel({ ...h, name: d.name.trim(), area: d.area.trim() || '未設定', distance: d.distance.trim() || '-', time: d.time.trim() || '-', rakutenUrl: d.rakutenUrl.trim() })
+          : h
+        );
+        saveHotelMaster();
+        AppState.hotelEditingId = null;
+        AppState.hotelEditDraft = null;
+        delete AppState.hotelVerifyResults[id]; // URLが変わった可能性があるので検証結果はクリア
+        render();
+      },
+      deleteHotel(id) {
+        const h = AppState.hotels.find(x => x.id === id);
+        if (!h) return;
+        if (!confirm(`「${h.name}」を宿マスターから削除しますか？\n（お気に入り登録も一緒に解除されます）`)) return;
+        AppState.hotels = AppState.hotels.filter(x => x.id !== id);
+        AppState.favorites = AppState.favorites.filter(fid => fid !== id);
+        delete AppState.hotelVerifyResults[id];
+        Storage.set('app_favs_v2', AppState.favorites);
+        saveHotelMaster();
+        render();
+      },
+      resetHotelsToDefault() {
+        if (!confirm('宿マスターを初期データにリセットします。追加・編集した内容は失われます。よろしいですか？')) return;
+        AppState.hotels = HOTELS_DEFAULT.map(enrichHotel);
+        AppState.nextHotelId = 12;
+        AppState.hotelVerifyResults = {};
+        Storage.set('hotel_master_next_id_v1', 12);
+        saveHotelMaster();
+        render();
+      },
+      toggleExportView() {
+        AppState.exportViewOpen = !AppState.exportViewOpen;
+        if (AppState.exportViewOpen) {
+          const lines = AppState.hotels.map(h =>
+            `      { id: ${h.id}, name: '${h.name.replace(/'/g, "\\'")}', distance: '${h.distance}', time: '${h.time}', area: '${h.area}', color: '${h.color}', rakutenUrl: '${h.rakutenUrl}' }`
+          );
+          AppState.exportedCode = `const HOTELS_DEFAULT = [\n${lines.join(',\n')}\n    ];`;
+        }
+        render();
+      },
+
+      setDistanceImportText(val) {
+        AppState.distanceImportText = val;
+      },
+
+      // 「現在の宿名リストをコピー用に出力」：距離・車時間を書き込むためのひな形をテキストエリアに用意する
+      fillDistanceTemplate() {
+        AppState.distanceImportText = AppState.hotels.map(h => `${h.name},${h.distance},${h.time}`).join('\n');
+        render();
+      },
+
+      // 「宿名,距離,車時間」形式のテキストを解析して、名前が一致する宿のdistance/timeを一括更新
+      importDistanceData() {
+        const lines = AppState.distanceImportText.split('\n').map(s => s.trim()).filter(s => s);
+        if (lines.length === 0) {
+          alert('エラー: インポートするテキストが空です。');
+          return;
+        }
+        let matched = 0, unmatched = [];
+        lines.forEach(line => {
+          const parts = line.split(',').map(s => s.trim());
+          if (parts.length < 3) { unmatched.push(line + '（形式エラー：カンマ区切りが3項目未満）'); return; }
+          const [name, distance, time] = parts;
+          const target = AppState.hotels.find(h => namesLooselyMatch(h.name, name));
+          if (!target) { unmatched.push(`${name}（一致する宿が見つかりません）`); return; }
+          target.distance = distance;
+          target.time = time;
+          matched++;
+        });
+        saveHotelMaster();
+        AppState.distanceImportResult = `${matched}件更新しました。` + (unmatched.length > 0 ? `未一致: ${unmatched.length}件` : '');
+        AppState.distanceImportErrorsDetail = unmatched;
+        render();
+      },
+
+      async verifyHotel(id) {
+        if (!AppState.rakutenAppId || !AppState.rakutenAccessKey) {
+          alert('エラー: 検証には楽天のアプリID・アクセスキーが必要です。');
+          return;
+        }
+        const h = AppState.hotels.find(x => x.id === id);
+        if (!h) return;
+        AppState.hotelVerifyResults[id] = { status: 'checking' };
+        render();
+        const result = await verifyHotelName(h.rakutenHotelNo, AppState.rakutenAppId, AppState.rakutenAccessKey);
+        if (!result.ok) {
+          AppState.hotelVerifyResults[id] = { status: 'error', message: result.error };
+        } else if (namesLooselyMatch(h.name, result.actualName)) {
+          AppState.hotelVerifyResults[id] = { status: 'ok', actualName: result.actualName };
+        } else {
+          AppState.hotelVerifyResults[id] = { status: 'mismatch', actualName: result.actualName };
+        }
+        render();
+      },
+
+      async verifyAllHotels() {
+        if (!AppState.rakutenAppId || !AppState.rakutenAccessKey) {
+          alert('エラー: 検証には楽天のアプリID・アクセスキーが必要です。');
+          return;
+        }
+        AppState.isVerifyingAll = true;
+        AppState.verifyProgress = { done: 0, total: AppState.hotels.length };
+        render();
+        for (const h of AppState.hotels) {
+          AppState.hotelVerifyResults[h.id] = { status: 'checking' };
+          render();
+          const result = await verifyHotelName(h.rakutenHotelNo, AppState.rakutenAppId, AppState.rakutenAccessKey);
+          if (!result.ok) {
+            AppState.hotelVerifyResults[h.id] = { status: 'error', message: result.error };
+          } else if (namesLooselyMatch(h.name, result.actualName)) {
+            AppState.hotelVerifyResults[h.id] = { status: 'ok', actualName: result.actualName };
+          } else {
+            AppState.hotelVerifyResults[h.id] = { status: 'mismatch', actualName: result.actualName };
+          }
+          AppState.verifyProgress.done++;
+          render();
+          await sleep(RAKUTEN_CALL_DELAY_MS);
+        }
+        AppState.isVerifyingAll = false;
         render();
       },
 
@@ -467,18 +826,32 @@
           nights = Math.ceil((outDate - inDate) / 86400000);
         }
 
+        let targetHotels = AppState.hotels;
+        if(AppState.searchTarget === 'favorites') {
+          targetHotels = AppState.hotels.filter(h => AppState.favorites.includes(h.id));
+        }
+
+        // === 簡易モード：APIを一切叩かず、宿一覧のみ表示 ===
+        if (AppState.pricingMode === 'simple') {
+          AppState.searchParams = { nights, start: inStr, end: outStr };
+          AppState.results = targetHotels.map(h => ({ ...h, isSimpleMode: true }));
+          AppActions.calcCombos();
+          AppState.activeTab = 'results';
+          render();
+          return;
+        }
+
+        // === APIモード：楽天トラベル空室検索APIでリアルタイム料金取得 ===
         if (!AppState.rakutenAppId || !AppState.rakutenAccessKey) {
-          alert('エラー: 楽天のアプリID・アクセスキーが未設定です。検索タブ上部で入力してください。');
+          if (confirm('楽天のアプリID・アクセスキーが未設定です。\n簡易モード（料金なし・宿一覧のみ）で検索しますか？\n「キャンセル」で検索タブに戻ってAPI設定を行えます。')) {
+            AppActions.setPricingMode('simple');
+            AppActions.executeSearch();
+          }
           return;
         }
         
         AppState.searchParams = { nights, start: inStr, end: outStr };
         AppState.isLoading = true;
-
-        let targetHotels = HOTELS;
-        if(AppState.searchTarget === 'favorites') {
-          targetHotels = HOTELS.filter(h => AppState.favorites.includes(h.id));
-        }
 
         const total = targetHotels.length * nights;
         AppState.loadingProgress = { done: 0, total };
@@ -533,7 +906,7 @@
       },
       
       calcCombos() {
-        if(AppState.results.length === 0 || !AppState.searchParams || AppState.searchParams.nights < 2) {
+        if(AppState.pricingMode === 'simple' || AppState.results.length === 0 || !AppState.searchParams || AppState.searchParams.nights < 2) {
           AppState.combos = { fav: null, best: null };
           return;
         }
@@ -698,6 +1071,15 @@
         <div class="scroll-y flex-col justify-between" style="padding-bottom:24px;">
           <div>
             <h2 class="text-xl font-extrabold mb-4">検索条件</h2>
+
+            <div class="card p-4 mb-4 shrink-0">
+              <label class="form-label text-sub">検索モード</label>
+              <div class="toggle-group" style="margin-bottom:0;">
+                <button class="toggle-btn ${AppState.pricingMode === 'api' ? 'active' : ''}" onclick="AppActions.setPricingMode('api')">${ICONS.sparkles} 楽天APIでリアル料金</button>
+                <button class="toggle-btn ${AppState.pricingMode === 'simple' ? 'active' : ''}" onclick="AppActions.setPricingMode('simple')">簡易(APIなし)</button>
+              </div>
+              ${AppState.pricingMode === 'simple' ? `<p class="disclaimer" style="text-align:left; padding-top:8px;">※簡易モードは通信・レート制限を気にせず宿の一覧だけサッと見たい時用です。料金は取得しません。</p>` : ''}
+            </div>
             
             <div class="card p-4 mb-4 shrink-0">
               <label class="form-label text-sub">絞り込み対象</label>
@@ -721,7 +1103,7 @@
                 <span class="text-xs font-bold text-pink">${AppState.favorites.length}件選択中</span>
               </div>
               <div class="flex-col gap-2" style="max-height:180px; overflow-y:auto;">
-                ${HOTELS.map(h => {
+                ${AppState.hotels.map(h => {
                   const isFav = AppState.favorites.includes(h.id);
                   return `
                     <button onclick="AppActions.toggleFav(${h.id})" class="flex items-center justify-between w-full mini-fav ${isFav ? 'is-fav' : ''}" style="padding:10px 8px; border-radius:8px; border:1px solid ${isFav ? 'var(--pink)' : 'var(--border)'}; background-color:${isFav ? 'var(--pink-light)' : 'var(--bg-input)'}; min-height:44px;">
@@ -756,6 +1138,149 @@
               </div>
             ` : ''}
           </div>
+
+          <div class="card p-4 mt-4 shrink-0">
+            <button onclick="AppActions.toggleHotelMaster()" class="flex justify-between items-center w-full" style="min-height:36px;">
+              <span class="flex items-center gap-2">
+                <label class="form-label text-sub" style="margin-bottom:0;">宿マスター管理</label>
+                <span class="badge badge-primary">${AppState.hotels.length}件</span>
+              </span>
+              <span class="text-sub">${AppState.hotelMasterExpanded ? ICONS.chevronUp : ICONS.chevronDown}</span>
+            </button>
+            ${AppState.hotelMasterExpanded ? renderHotelMasterBody() : ''}
+          </div>
+        </div>
+      `;
+    };
+
+    // 宿マスター管理カードの中身（一覧・編集・追加・検証・リセット・書き出し）
+    const renderHotelMasterBody = () => {
+      const rows = AppState.hotels.map(h => {
+        const isEditing = AppState.hotelEditingId === h.id;
+        const v = AppState.hotelVerifyResults[h.id];
+        let verifyBadge = '';
+        if (v) {
+          if (v.status === 'checking') verifyBadge = `<span class="badge" style="background:var(--bg-hover); color:var(--text-sub);">確認中…</span>`;
+          else if (v.status === 'ok') verifyBadge = `<span class="badge" style="background:#dcfce7; color:#15803d;">✓一致 (${v.actualName})</span>`;
+          else if (v.status === 'mismatch') verifyBadge = `<span class="badge" style="background:#fee2e2; color:#b91c1c;">⚠実際は「${v.actualName}」</span>`;
+          else verifyBadge = `<span class="badge" style="background:#fee2e2; color:#b91c1c;">検証エラー: ${v.message || '不明'}</span>`;
+        }
+
+        if (isEditing) {
+          const d = AppState.hotelEditDraft;
+          return `
+            <div class="card p-3 border" style="background:var(--bg-hover);">
+              <label class="form-label text-sub">宿名</label>
+              <input type="text" class="form-input text-xs mb-2" value="${d.name}" oninput="AppActions.setEditHotelField('name', this.value)">
+              <label class="form-label text-sub">エリア</label>
+              <input type="text" class="form-input text-xs mb-2" value="${d.area}" oninput="AppActions.setEditHotelField('area', this.value)">
+              <div class="flex gap-2 mb-2">
+                <div class="flex-1">
+                  <label class="form-label text-sub">距離</label>
+                  <input type="text" class="form-input text-xs" value="${d.distance}" oninput="AppActions.setEditHotelField('distance', this.value)">
+                </div>
+                <div class="flex-1">
+                  <label class="form-label text-sub">車で</label>
+                  <input type="text" class="form-input text-xs" value="${d.time}" oninput="AppActions.setEditHotelField('time', this.value)">
+                </div>
+              </div>
+              <label class="form-label text-sub">楽天URL</label>
+              <input type="text" class="form-input text-xs mb-2" style="font-family:ui-monospace,monospace;" value="${d.rakutenUrl}" oninput="AppActions.setEditHotelField('rakutenUrl', this.value)">
+              <div class="flex gap-2 mt-2">
+                <button class="btn-action" style="flex:1; min-height:40px; background:var(--bg-input); border:1px solid var(--border);" onclick="AppActions.cancelEditHotel()">キャンセル</button>
+                <button class="btn-action" style="flex:1; min-height:40px; background:var(--primary); color:white;" onclick="AppActions.saveEditHotel(${h.id})">保存</button>
+              </div>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="card p-3 border">
+            <div class="flex justify-between items-start gap-2">
+              <div class="flex-1">
+                <div class="font-bold text-sm">${h.name}</div>
+                <div class="text-xs text-sub mt-1">${h.area} ・ ${h.distance} ・ 車${h.time}</div>
+                <div class="text-xs text-sub font-mono mt-1">hotelNo: ${h.rakutenHotelNo || '不明'}</div>
+                ${verifyBadge ? `<div class="mt-1">${verifyBadge}</div>` : ''}
+              </div>
+            </div>
+            <div class="flex gap-2 mt-2">
+              <button class="btn-action" style="flex:1; min-height:36px; font-size:11px; background:var(--bg-input); border:1px solid var(--border);" onclick="AppActions.startEditHotel(${h.id})">編集</button>
+              <button class="btn-action" style="flex:1; min-height:36px; font-size:11px; background:var(--bg-input); border:1px solid var(--border);" onclick="AppActions.verifyHotel(${h.id})">検証</button>
+              <button class="btn-action" style="flex:1; min-height:36px; font-size:11px; background:#fee2e2; color:#b91c1c; border:none;" onclick="AppActions.deleteHotel(${h.id})">削除</button>
+            </div>
+            <button class="btn-action w-full mt-2" style="min-height:36px; font-size:11px; background:var(--primary-light); color:var(--primary);" onclick="window.open('${getDirectionsLink(h)}', '_blank')">${ICONS.mapPin} ルートを確認（距離・車時間チェック用）</button>
+          </div>
+        `;
+      }).join('');
+
+      const d = AppState.newHotelDraft;
+      return `
+        <div class="mt-3">
+          <div class="flex gap-2 mb-3">
+            <button class="btn-action" style="flex:1; min-height:40px; font-size:11px; background:var(--primary-light); color:var(--primary);" onclick="AppActions.verifyAllHotels()" ${AppState.isVerifyingAll ? 'disabled' : ''}>
+              ${AppState.isVerifyingAll ? `検証中 ${AppState.verifyProgress.done}/${AppState.verifyProgress.total}` : '全件一括検証'}
+            </button>
+            <button class="btn-action" style="flex:1; min-height:40px; font-size:11px; background:var(--bg-input); border:1px solid var(--border);" onclick="AppActions.toggleExportView()">
+              ${AppState.exportViewOpen ? 'コード表示を閉じる' : 'コード反映用に書き出す'}
+            </button>
+          </div>
+          ${AppState.exportViewOpen ? `
+            <div class="mb-3">
+              <p class="text-xs text-sub mb-1">この内容をコピーして「これに更新して」と伝えてください。</p>
+              <textarea readonly class="form-input text-xs" style="font-family:ui-monospace,monospace; height:160px; resize:vertical;" onclick="this.select()">${AppState.exportedCode}</textarea>
+            </div>
+          ` : ''}
+
+          <div class="flex-col gap-2 mb-3" style="max-height:340px; overflow-y:auto;">
+            ${rows}
+          </div>
+
+          <div class="card p-3 border" style="background:var(--bg-hover); margin-bottom:12px;">
+            <label class="form-label text-sub" style="margin-bottom:8px;">距離・車時間を一括インポート</label>
+            <p class="text-xs text-sub mb-2">各宿の「ルートを確認」でGoogleマップを開いて実測値を確認 → 下の欄に「宿名,距離,車時間」の形式で1行ずつ貼り付けてください。</p>
+            <button class="btn-action w-full mb-2" style="min-height:36px; font-size:11px; background:var(--bg-input); border:1px solid var(--border);" onclick="AppActions.fillDistanceTemplate()">現在の宿名リストをひな形として出力</button>
+            <textarea class="form-input text-xs mb-2" style="font-family:ui-monospace,monospace; height:140px; resize:vertical;" placeholder="ABホテル犬山,4.2km,11分&#10;犬山館,3.2km,9分" oninput="AppActions.setDistanceImportText(this.value)">${AppState.distanceImportText}</textarea>
+            <button class="btn-action w-full" style="min-height:44px; background:var(--primary); color:white;" onclick="AppActions.importDistanceData()">この内容で距離・車時間を更新</button>
+            ${AppState.distanceImportResult ? `<p class="text-xs font-bold text-primary mt-2">${AppState.distanceImportResult}</p>` : ''}
+            ${AppState.distanceImportErrorsDetail && AppState.distanceImportErrorsDetail.length > 0 ? `
+              <div class="mt-2" style="background:#fee2e2; border-radius:8px; padding:8px;">
+                ${AppState.distanceImportErrorsDetail.map(e => `<div class="text-xs" style="color:#b91c1c;">${e}</div>`).join('')}
+              </div>
+            ` : ''}
+          </div>
+
+          <div class="card p-3 border" style="background:var(--bg-hover); margin-bottom:12px;">
+            <label class="form-label text-sub" style="margin-bottom:8px;">＋ 宿を追加</label>
+            <div class="toggle-group" style="margin-bottom:12px;">
+              <button class="toggle-btn ${AppState.addHotelMode === 'single' ? 'active' : ''}" onclick="AppActions.setAddHotelMode('single')">1件ずつ入力</button>
+              <button class="toggle-btn ${AppState.addHotelMode === 'bulk' ? 'active' : ''}" onclick="AppActions.setAddHotelMode('bulk')">URL一括インポート</button>
+            </div>
+
+            ${AppState.addHotelMode === 'single' ? `
+              <input type="text" class="form-input text-xs mb-2" placeholder="宿名（必須）" value="${d.name}" oninput="AppActions.setNewHotelField('name', this.value)">
+              <input type="text" class="form-input text-xs mb-2" placeholder="エリア（例: 愛知県犬山市）" value="${d.area}" oninput="AppActions.setNewHotelField('area', this.value)">
+              <div class="flex gap-2 mb-2">
+                <input type="text" class="form-input text-xs flex-1" placeholder="距離（例: 4.0km）" value="${d.distance}" oninput="AppActions.setNewHotelField('distance', this.value)">
+                <input type="text" class="form-input text-xs flex-1" placeholder="車で（例: 10分）" value="${d.time}" oninput="AppActions.setNewHotelField('time', this.value)">
+              </div>
+              <input type="text" class="form-input text-xs mb-2" style="font-family:ui-monospace,monospace;" placeholder="楽天URL（必須・/HOTEL/番号/を含むURL）" value="${d.rakutenUrl}" oninput="AppActions.setNewHotelField('rakutenUrl', this.value)">
+              <button class="btn-action w-full" style="min-height:44px; background:var(--primary); color:white;" onclick="AppActions.addHotel()">追加する</button>
+            ` : `
+              <p class="text-xs text-sub mb-2">楽天URLを1行に1件ずつ貼り付けてください。宿名・エリアは施設検索APIから自動取得します（距離・車時間は取得後に手動編集）。</p>
+              <textarea class="form-input text-xs mb-2" style="font-family:ui-monospace,monospace; height:120px; resize:vertical;" placeholder="https://travel.rakuten.co.jp/HOTEL/12345/12345.html&#10;https://travel.rakuten.co.jp/HOTEL/67890/67890.html" oninput="AppActions.setBulkImportText(this.value)">${AppState.bulkImportText}</textarea>
+              <button class="btn-action w-full" style="min-height:44px; background:var(--primary); color:white;" onclick="AppActions.bulkImportHotels()" ${AppState.isBulkImporting ? 'disabled' : ''}>
+                ${AppState.isBulkImporting ? `取得中 ${AppState.bulkImportProgress.done}/${AppState.bulkImportProgress.total}` : '情報を自動取得して追加'}
+              </button>
+              ${AppState.bulkImportErrors.length > 0 ? `
+                <div class="mt-2" style="background:#fee2e2; border-radius:8px; padding:8px;">
+                  ${AppState.bulkImportErrors.map(e => `<div class="text-xs" style="color:#b91c1c;">${e}</div>`).join('')}
+                </div>
+              ` : ''}
+            `}
+          </div>
+
+          <button class="btn-action w-full" style="min-height:40px; font-size:11px; background:var(--bg-hover); color:var(--text-sub);" onclick="AppActions.resetHotelsToDefault()">初期データにリセット</button>
         </div>
       `;
     };
@@ -768,6 +1293,46 @@
             <p class="font-bold">条件に一致する宿がありません。<br>検索タブから条件を変更してください。</p>
           </div>
         `;
+      }
+
+      // === 簡易モード：料金なしのシンプルな宿一覧 ===
+      if (AppState.pricingMode === 'simple') {
+        const sortedSimple = [...AppState.results].sort((a,b) => {
+          const aFav = AppState.favorites.includes(a.id);
+          const bFav = AppState.favorites.includes(b.id);
+          if(aFav && !bFav) return -1;
+          if(!aFav && bFav) return 1;
+          return a.name.localeCompare(b.name, 'ja');
+        });
+        let simpleHtml = `
+          <div class="scroll-y flex-col gap-4">
+            <div class="flex justify-between items-center text-sm mb-1 px-1 shrink-0">
+              <span class="font-bold flex items-center gap-2">${ICONS.calendar} 簡易モード（料金なし）</span>
+              <span class="text-xs text-sub">${sortedSimple.length}件</span>
+            </div>
+        `;
+        sortedSimple.forEach(hotel => {
+          const isFav = AppState.favorites.includes(hotel.id);
+          simpleHtml += `
+            <div class="card hotel-card" style="${isFav ? 'border: 2px solid var(--pink);' : ''}">
+              <button class="fav-btn ${isFav ? 'is-fav' : ''}" onclick="AppActions.toggleFav(${hotel.id})">${ICONS.heart}</button>
+              <div class="flex gap-2 mb-2">
+                <span class="badge ${isFav ? 'badge-pink' : 'badge-primary'}">${hotel.area}</span>
+              </div>
+              <h3 class="font-bold text-lg pr-12 mb-2 leading-tight">${hotel.name}</h3>
+              <div class="flex gap-4 text-xs text-sub mb-3">
+                <span class="flex items-center gap-1">${ICONS.mapPin} 距離: ${hotel.distance}</span>
+                <span class="flex items-center gap-1">${ICONS.clock} 車: ${hotel.time}</span>
+              </div>
+              <div class="action-grid" style="margin-top:4px;">
+                <button class="btn-action btn-map" onclick="window.open('${getDirectionsLink(hotel)}', '_blank')">${ICONS.mapPin}<span>MAPで見る</span></button>
+                <button class="btn-action btn-rakuten" onclick="window.open('${hotel.rakutenUrl}', '_blank')"><span>楽天のページを開く</span></button>
+              </div>
+            </div>
+          `;
+        });
+        simpleHtml += `<p class="disclaimer">※簡易モードは楽天APIを使わず宿の一覧のみ表示しています。料金・空室状況は各リンク先でご確認ください。</p></div>`;
+        return simpleHtml;
       }
       
       let html = `
@@ -838,7 +1403,7 @@
 
             <!-- 下部: MAPと予約 -->
             <div class="action-grid">
-              <button class="btn-action btn-map" onclick="window.open('${hotel.mapLink}', '_blank')">
+              <button class="btn-action btn-map" onclick="window.open('${getDirectionsLink(hotel)}', '_blank')">
                 ${ICONS.mapPin}
                 <span>MAPで見る</span>
               </button>
@@ -854,6 +1419,15 @@
     };
 
     const renderSimTab = () => {
+      if (AppState.pricingMode === 'simple') {
+        return `
+          <div class="flex-col items-center justify-center h-full gap-3 text-sub text-center p-6">
+            <div style="background:var(--bg-hover);padding:16px;border-radius:50%;">${ICONS.sparkles}</div>
+            <p class="font-bold">組合せ機能はAPIモードでのみ利用可能です</p>
+            <p class="text-xs">検索タブで「APIモード」に切り替えてください</p>
+          </div>
+        `;
+      }
       if(AppState.results.length === 0 || !AppState.searchParams || AppState.searchParams.nights < 2) {
         return `
           <div class="flex-col items-center justify-center h-full gap-3 text-sub text-center p-6">
@@ -919,7 +1493,7 @@
                 ` : ''}
                 
                 <div class="flex flex-col gap-1.5 mt-1">
-                  <button onclick="window.open('${block.mapLink}', '_blank')" class="flex justify-center items-center text-main text-[11px] font-bold rounded border" style="background:var(--bg-input); min-height:40px;">
+                  <button onclick="window.open('${getDirectionsLink(block)}', '_blank')" class="flex justify-center items-center text-main text-[11px] font-bold rounded border" style="background:var(--bg-input); min-height:40px;">
                     ${ICONS.mapPin} MAP
                   </button>
                   ${reserveLink ? `
