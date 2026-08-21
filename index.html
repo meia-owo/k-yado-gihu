@@ -318,8 +318,8 @@
       customIn: todayStr,
       customOut: tmrwStr,
       favorites: Storage.get('app_favs_v2', []),
-      rakutenAppId: Storage.get('rakuten_app_id_v1', ''),
-      rakutenAccessKey: Storage.get('rakuten_access_key_v1', ''),
+      rakutenAppId: Storage.get('rakuten_app_id_v1', '3ea872c5-2c1e-4868-a8be-cd7fb43a8e2d'),
+      rakutenAccessKey: Storage.get('rakuten_access_key_v1', 'pk_sSAm5g7qYmY8QBdLCa9rgIpv41Lm3iqQND5lkGSb5FR'),
       isLoading: false,
       loadingProgress: { done: 0, total: 0 },
       results: [],
@@ -376,12 +376,13 @@
         return { available: false, error: `HTTP${res.status} 応答をJSONとして解釈できません` };
       }
 
+      // not_found (HTTP404) はその施設・日程に空室が無いだけの正常応答。先にエラー扱いから除外する
+      if (data && data.error === 'not_found') return { available: false };
+
       if (!res.ok) {
         return { available: false, error: `HTTP${res.status}: ${(data && (data.error_description || data.error)) || res.statusText}` };
       }
       if (data && data.error) {
-        // not_found = その施設・日程の空室無し（エラー扱いにしない）
-        if (data.error === 'not_found') return { available: false };
         return { available: false, error: data.error_description || data.error };
       }
 
