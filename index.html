@@ -253,18 +253,23 @@
     // === 2. Data Definition ===
     // API (エーピーアイ) を介さず完結するモックデータ
     const HOTELS = [
-      { id: 1, name: 'ABホテル犬山', distance: '4.0km', time: '10分', basePrice: 4000, area: '愛知県犬山市', color: 'blue', sites: { rakuten: 'https://travel.rakuten.co.jp/HOTEL/166547/166547.html', jalan: 'https://www.jalan.net/yad317079/' } },
-      { id: 2, name: 'ホテルミュースタイル犬山', distance: '3.5km', time: '10分', basePrice: 5500, area: '愛知県犬山市', color: 'indigo', sites: { rakuten: 'https://travel.rakuten.co.jp/HOTEL/181665/181665.html', jalan: '#' } },
-      { id: 3, name: 'ホテルルートイン各務原', distance: '6.5km', time: '15分', basePrice: 7250, area: '岐阜県各務原市', color: 'teal', sites: { rakuten: 'https://travel.rakuten.co.jp/HOTEL/68612/68612.html', jalan: 'https://www.jalan.net/yad378619/' } },
-      { id: 4, name: 'ビジネスホテル観月', distance: '7.0km', time: '15分', basePrice: 4500, area: '岐阜県各務原市', color: 'orange', sites: { rakuten: 'https://travel.rakuten.co.jp/HOTEL/68412/68412.html', jalan: '#' } },
-      { id: 5, name: '犬山セントラルホテル', distance: '4.5km', time: '12分', basePrice: 4800, area: '愛知県犬山市', color: 'purple', sites: { rakuten: 'https://travel.rakuten.co.jp/HOTEL/15000/15000.html', jalan: '#' } },
-      { id: 6, name: '旬樹庵 八勝閣みづのを', distance: '3.0km', time: '8分', basePrice: 8500, area: '愛知県犬山市', color: 'pink', sites: { rakuten: 'https://travel.rakuten.co.jp/HOTEL/11261/11261.html', jalan: '#' } },
-      { id: 7, name: 'ホテルインディゴ犬山', distance: '3.8km', time: '11分', basePrice: 18000, area: '愛知県犬山市', color: 'blue', sites: { rakuten: 'https://travel.rakuten.co.jp/HOTEL/182607/182607.html', jalan: '#' } },
-      { id: 8, name: '犬山館', distance: '3.2km', time: '9分', basePrice: 7000, area: '愛知県犬山市', color: 'indigo', sites: { rakuten: 'https://travel.rakuten.co.jp/HOTEL/161869/161869.html', jalan: '#' } },
-      { id: 9, name: '灯屋 迎帆楼', distance: '3.5km', time: '10分', basePrice: 25000, area: '愛知県犬山市', color: 'teal', sites: { rakuten: 'https://travel.rakuten.co.jp/HOTEL/161868/161868.html', jalan: '#' } },
-      { id: 10, name: 'サンパーク犬山', distance: '5.0km', time: '13分', basePrice: 5200, area: '愛知県犬山市', color: 'orange', sites: { rakuten: 'https://travel.rakuten.co.jp/HOTEL/137682/137682.html', jalan: '#' } },
-      { id: 11, name: '犬山ミヤコホテル', distance: '4.2km', time: '11分', basePrice: 3800, area: '愛知県犬山市', color: 'purple', sites: { rakuten: 'https://travel.rakuten.co.jp/HOTEL/180630/180630.html', jalan: '#' } }
-    ].map(h => ({ ...h, mapLink: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(h.name)}` }));
+      { id: 1, name: 'ABホテル犬山', distance: '4.0km', time: '10分', area: '愛知県犬山市', color: 'blue', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/166547/166547.html' },
+      { id: 2, name: 'ホテルミュースタイル犬山', distance: '3.5km', time: '10分', area: '愛知県犬山市', color: 'indigo', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/181665/181665.html' },
+      { id: 3, name: 'ホテルルートイン各務原', distance: '6.5km', time: '15分', area: '岐阜県各務原市', color: 'teal', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/68612/68612.html' },
+      { id: 4, name: 'ビジネスホテル観月', distance: '7.0km', time: '15分', area: '岐阜県各務原市', color: 'orange', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/68412/68412.html' },
+      { id: 5, name: '犬山セントラルホテル', distance: '4.5km', time: '12分', area: '愛知県犬山市', color: 'purple', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/15000/15000.html' },
+      { id: 6, name: '旬樹庵 八勝閣みづのを', distance: '3.0km', time: '8分', area: '愛知県犬山市', color: 'pink', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/11261/11261.html' },
+      { id: 7, name: 'ホテルインディゴ犬山', distance: '3.8km', time: '11分', area: '愛知県犬山市', color: 'blue', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/182607/182607.html' },
+      { id: 8, name: '犬山館', distance: '3.2km', time: '9分', area: '愛知県犬山市', color: 'indigo', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/161869/161869.html' },
+      { id: 9, name: '灯屋 迎帆楼', distance: '3.5km', time: '10分', area: '愛知県犬山市', color: 'teal', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/161868/161868.html' },
+      { id: 10, name: 'サンパーク犬山', distance: '5.0km', time: '13分', area: '愛知県犬山市', color: 'orange', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/137682/137682.html' },
+      { id: 11, name: '犬山ミヤコホテル', distance: '4.2km', time: '11分', area: '愛知県犬山市', color: 'purple', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/180630/180630.html' }
+    ].map(h => ({
+      ...h,
+      mapLink: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(h.name)}`,
+      // 楽天URLの /HOTEL/xxxxx/ から施設番号(hotelNo)を直接抽出。空室検索APIをこの番号でピンポイント検索する
+      rakutenHotelNo: (h.rakutenUrl.match(/\/HOTEL\/(\d+)\//) || [])[1] || null
+    }));
 
     // === 3. Storage & Date Utilities ===
     // LocalStorage (ローカルストレージ) への安全なアクセス
@@ -313,26 +318,83 @@
       customIn: todayStr,
       customOut: tmrwStr,
       favorites: Storage.get('app_favs_v2', []),
-      bookingSite: Storage.get('app_booking_site_v1', 'rakuten'), // 'rakuten' or 'jalan'
+      rakutenAppId: Storage.get('rakuten_app_id_v1', ''),
+      rakutenAccessKey: Storage.get('rakuten_access_key_v1', ''),
       isLoading: false,
+      loadingProgress: { done: 0, total: 0 },
       results: [],
       searchParams: null, 
       combos: { fav: null, best: null }
     };
 
-    // 予約サイトの選択・フォールバック解決ヘルパー
-    // hotelOrBlock.sites = { rakuten: url|'#', jalan: url|'#' }
-    const SITE_LABELS = { rakuten: '楽天トラベル', jalan: 'じゃらん' };
-    const getAvailableSites = (sites) => {
-      return Object.keys(SITE_LABELS)
-        .filter(key => sites[key] && sites[key] !== '#')
-        .map(key => ({ key, label: SITE_LABELS[key], url: sites[key] }));
+    // === 4.5 Rakuten Travel API (空室検索API) 連携 ===
+    const RAKUTEN_ENDPOINT = 'https://app.rakuten.co.jp/services/api/Travel/VacantHotelSearch/20170426';
+    const RAKUTEN_CALL_DELAY_MS = 400; // 短時間の連続アクセス対策のウェイト
+
+    const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+    // JSONP方式でリクエスト（CORSの影響を受けない。scriptタグでの読み込み）
+    const jsonpFetch = (url, timeoutMs = 8000) => {
+      return new Promise((resolve) => {
+        const cbName = 'rkCb_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+        const script = document.createElement('script');
+        let done = false;
+        const finish = (result) => {
+          if (done) return;
+          done = true;
+          clearTimeout(timer);
+          delete window[cbName];
+          script.remove();
+          resolve(result);
+        };
+        const timer = setTimeout(() => finish({ error: 'timeout', error_description: 'タイムアウトしました' }), timeoutMs);
+        window[cbName] = (data) => finish(data);
+        script.onerror = () => finish({ error: 'network_error', error_description: '通信エラー' });
+        script.src = `${url}&callback=${cbName}`;
+        document.body.appendChild(script);
+      });
     };
-    const getPreferredSite = (sites) => {
-      const avail = getAvailableSites(sites);
-      if (avail.length === 0) return null;
-      const preferred = avail.find(s => s.key === AppState.bookingSite);
-      return preferred || avail[0];
+
+    // レスポンスのネスト構造に依存せず dailyCharge / reserveUrl を再帰的に収集
+    const extractChargesAndUrl = (obj, charges = [], urls = []) => {
+      if (Array.isArray(obj)) {
+        obj.forEach(item => extractChargesAndUrl(item, charges, urls));
+      } else if (obj && typeof obj === 'object') {
+        if (obj.dailyCharge) charges.push(obj.dailyCharge);
+        if (obj.reserveUrl) urls.push(obj.reserveUrl);
+        Object.values(obj).forEach(v => extractChargesAndUrl(v, charges, urls));
+      }
+      return { charges, urls };
+    };
+
+    // 1施設・1泊分の空室状況と最安料金を取得
+    const fetchOneNightPrice = async (hotelNo, dateStr, appId, accessKey) => {
+      if (!hotelNo) return { available: false, error: 'hotelNo不明' };
+      const checkout = addDays(dateStr, 1);
+      const params = new URLSearchParams({
+        applicationId: appId,
+        accessKey: accessKey,
+        format: 'json',
+        hotelNo: hotelNo,
+        checkinDate: dateStr,
+        checkoutDate: checkout,
+        adultNum: '1',
+        responseType: 'small'
+      });
+      const data = await jsonpFetch(`${RAKUTEN_ENDPOINT}?${params.toString()}`);
+      if (data && data.error) {
+        // not_found = その施設・日程の空室無し（エラー扱いにしない）
+        if (data.error === 'not_found') return { available: false };
+        return { available: false, error: data.error_description || data.error };
+      }
+      const { charges, urls } = extractChargesAndUrl(data);
+      let cheapest = null;
+      charges.forEach(c => {
+        const total = c.total ?? c.rakutenCharge;
+        if (total != null && (cheapest === null || total < cheapest)) cheapest = total;
+      });
+      if (cheapest === null) return { available: false };
+      return { available: true, price: cheapest, reserveUrl: urls[0] || null };
     };
 
     // === 5. Actions ===
@@ -349,9 +411,14 @@
       setCustomIn(val) { AppState.customIn = val; render(); },
       setCustomOut(val) { AppState.customOut = val; render(); },
       
-      setBookingSite(site) {
-        AppState.bookingSite = site;
-        Storage.set('app_booking_site_v1', site);
+      setRakutenAppId(val) {
+        AppState.rakutenAppId = val.trim();
+        Storage.set('rakuten_app_id_v1', AppState.rakutenAppId);
+        render();
+      },
+      setRakutenAccessKey(val) {
+        AppState.rakutenAccessKey = val.trim();
+        Storage.set('rakuten_access_key_v1', AppState.rakutenAccessKey);
         render();
       },
 
@@ -366,7 +433,7 @@
         render();
       },
       
-      executeSearch() {
+      async executeSearch() {
         let inStr, outStr, nights;
         
         // 検索条件のバリデーション
@@ -382,40 +449,66 @@
           }
           nights = Math.ceil((outDate - inDate) / 86400000);
         }
+
+        if (!AppState.rakutenAppId || !AppState.rakutenAccessKey) {
+          alert('エラー: 楽天のアプリID・アクセスキーが未設定です。検索タブ上部で入力してください。');
+          return;
+        }
         
         AppState.searchParams = { nights, start: inStr, end: outStr };
         AppState.isLoading = true;
+
+        let targetHotels = HOTELS;
+        if(AppState.searchTarget === 'favorites') {
+          targetHotels = HOTELS.filter(h => AppState.favorites.includes(h.id));
+        }
+
+        const total = targetHotels.length * nights;
+        AppState.loadingProgress = { done: 0, total };
         render();
 
-        // 非同期処理をシミュレート
-        setTimeout(() => {
-          let targetHotels = HOTELS;
-          if(AppState.searchTarget === 'favorites') {
-            targetHotels = HOTELS.filter(h => AppState.favorites.includes(h.id));
-          }
-          
-          if(targetHotels.length === 0) {
-            AppState.results = [];
-          } else {
-            AppState.results = targetHotels.map(h => {
-              const dailyPrices = [];
-              let totalPrice = 0;
-              for(let i=0; i<nights; i++) {
-                // ベース価格から±20%の変動をシミュレート
-                const fluctuation = 1 + (Math.random() * 0.4 - 0.2);
-                const price = Math.round((h.basePrice * fluctuation) / 100) * 100;
-                dailyPrices.push(price);
-                totalPrice += price;
+        if(targetHotels.length === 0) {
+          AppState.results = [];
+        } else {
+          const newResults = [];
+          for (const h of targetHotels) {
+            const dailyPrices = [];
+            let totalPrice = 0;
+            let reserveUrl = null;
+            let hasUnavailable = false;
+            let hasError = false;
+
+            for (let i = 0; i < nights; i++) {
+              const dateStr = addDays(inStr, i);
+              const result = await fetchOneNightPrice(h.rakutenHotelNo, dateStr, AppState.rakutenAppId, AppState.rakutenAccessKey);
+              if (result.available) {
+                dailyPrices.push(result.price);
+                totalPrice += result.price;
+                if (!reserveUrl && result.reserveUrl) reserveUrl = result.reserveUrl;
+              } else {
+                dailyPrices.push(null);
+                hasUnavailable = true;
+                if (result.error) hasError = true;
               }
-              return { ...h, dailyPrices, totalPrice };
-            }).sort((a,b) => a.totalPrice - b.totalPrice);
+              AppState.loadingProgress.done++;
+              render();
+              await sleep(RAKUTEN_CALL_DELAY_MS);
+            }
+
+            newResults.push({ ...h, dailyPrices, totalPrice, hasUnavailable, hasError, reserveUrl });
           }
-          
-          AppActions.calcCombos();
-          AppState.isLoading = false;
-          AppState.activeTab = 'results';
-          render();
-        }, 1200);
+          // 全日程で空室が取れた宿を優先し、合計金額の安い順に並べる
+          newResults.sort((a, b) => {
+            if (a.hasUnavailable !== b.hasUnavailable) return a.hasUnavailable ? 1 : -1;
+            return a.totalPrice - b.totalPrice;
+          });
+          AppState.results = newResults;
+        }
+        
+        AppActions.calcCombos();
+        AppState.isLoading = false;
+        AppState.activeTab = 'results';
+        render();
       },
       
       calcCombos() {
@@ -425,14 +518,17 @@
         }
         const nights = AppState.searchParams.nights;
         
-        // 最安ルートを計算し、連泊ブロックにまとめるアルゴリズム
+        // 最安ルートを計算し、連泊ブロックにまとめるアルゴリズム（空室なしの夜はスキップ）
         const calcAndCompress = (sourceHotels) => {
           if(sourceHotels.length === 0) return null;
           const rawCombo = [];
           for(let i=0; i<nights; i++) {
-            let cheapest = sourceHotels.reduce((min, h) => h.dailyPrices[i] < min.dailyPrices[i] ? h : min, sourceHotels[0]);
+            const candidates = sourceHotels.filter(h => h.dailyPrices[i] != null);
+            if(candidates.length === 0) continue; // その夜は全滅（空室なし）→ 組合せから除外
+            let cheapest = candidates.reduce((min, h) => h.dailyPrices[i] < min.dailyPrices[i] ? h : min, candidates[0]);
             rawCombo.push({ ...cheapest, price: cheapest.dailyPrices[i], dayIndex: i });
           }
+          if(rawCombo.length === 0) return null;
           
           const total = rawCombo.reduce((sum, item) => sum + item.price, 0);
           
@@ -441,7 +537,7 @@
           rawCombo.forEach(item => {
             if(!current) {
               current = { ...item, nights: 1, startDayIndex: item.dayIndex, blockPrice: item.price, nightlyPrices: [item.price] };
-            } else if (current.id === item.id) {
+            } else if (current.id === item.id && item.dayIndex === current.startDayIndex + current.nights) {
               current.nights++;
               current.blockPrice += item.price;
               current.nightlyPrices.push(item.price);
@@ -519,7 +615,8 @@
           ${AppState.isLoading ? `
             <div class="loading-overlay">
               <div class="spinner"></div>
-              <div style="font-size:14px;">料金データを取得・計算中...</div>
+              <div style="font-size:14px;">楽天トラベルAPIで料金取得中...</div>
+              <div style="font-size:12px; color:var(--text-sub);">${AppState.loadingProgress.done} / ${AppState.loadingProgress.total} 件</div>
             </div>
           ` : ''}
         </div>
@@ -580,6 +677,18 @@
         <div class="scroll-y flex-col justify-between" style="padding-bottom:24px;">
           <div>
             <h2 class="text-xl font-extrabold mb-4">検索条件</h2>
+
+            <div class="card p-4 mb-4 shrink-0">
+              <div class="flex justify-between items-center mb-2">
+                <label class="form-label text-sub" style="margin-bottom:0;">楽天トラベルAPI設定</label>
+                ${AppState.rakutenAppId && AppState.rakutenAccessKey ? `<span class="badge badge-primary">設定済み</span>` : `<span class="badge" style="background:#fef3c7; color:#b45309;">未設定</span>`}
+              </div>
+              <label class="form-label text-sub" style="margin-top:8px;">アプリID (applicationId)</label>
+              <input type="text" class="form-input text-xs" placeholder="例: 3ea872c5-2c1e-..." value="${AppState.rakutenAppId}" onchange="AppActions.setRakutenAppId(this.value)" style="font-family:ui-monospace,monospace; margin-bottom:10px;">
+              <label class="form-label text-sub">アクセスキー (accessKey)</label>
+              <input type="text" class="form-input text-xs" placeholder="pk_から始まる文字列" value="${AppState.rakutenAccessKey}" onchange="AppActions.setRakutenAccessKey(this.value)" style="font-family:ui-monospace,monospace;">
+              <p class="disclaimer" style="text-align:left; padding-top:8px;">※この端末内(localStorage)にのみ保存されます。LINE共有時にはこの設定値は含まれません。</p>
+            </div>
             
             <div class="card p-4 mb-4 shrink-0">
               <label class="form-label text-sub">絞り込み対象</label>
@@ -639,15 +748,7 @@
             <span class="font-bold flex items-center gap-2">
               ${ICONS.calendar} ${formatDay(AppState.searchParams.start)} 〜 ${AppState.searchParams.nights}泊
             </span>
-            <span class="text-xs text-sub">大人1名1室</span>
-          </div>
-
-          <div class="card p-3 shrink-0">
-            <label class="form-label text-sub" style="margin-bottom:8px;">予約サイトを選択</label>
-            <div class="site-toggle" style="margin-top:0;">
-              <button class="site-chip ${AppState.bookingSite === 'rakuten' ? 'active' : ''}" onclick="AppActions.setBookingSite('rakuten')">楽天トラベル</button>
-              <button class="site-chip ${AppState.bookingSite === 'jalan' ? 'active' : ''}" onclick="AppActions.setBookingSite('jalan')">じゃらん</button>
-            </div>
+            <span class="text-xs text-sub">大人1名1室 ・ 楽天トラベル実料金</span>
           </div>
       `;
       
@@ -659,13 +760,13 @@
         return 0; // 価格順は既にソート済み
       });
 
-      const cheapestPrice = Math.min(...AppState.results.map(r => r.totalPrice));
+      const fullyAvailable = AppState.results.filter(r => !r.hasUnavailable);
+      const cheapestPrice = fullyAvailable.length > 0 ? Math.min(...fullyAvailable.map(r => r.totalPrice)) : null;
 
       sorted.forEach(hotel => {
         const isFav = AppState.favorites.includes(hotel.id);
-        const isCheapest = hotel.totalPrice === cheapestPrice;
-        const availSites = getAvailableSites(hotel.sites);
-        const preferred = getPreferredSite(hotel.sites);
+        const isCheapest = cheapestPrice !== null && !hotel.hasUnavailable && hotel.totalPrice === cheapestPrice;
+        const reserveLink = hotel.reserveUrl || hotel.rakutenUrl;
         
         let cardStyle = isFav ? `border: 2px solid var(--pink);` : ``;
         if(isCheapest) cardStyle += `border-left: 6px solid var(--yellow);`;
@@ -676,8 +777,10 @@
               ${ICONS.heart}
             </button>
             
-            <div class="flex gap-2 mb-2">
+            <div class="flex gap-2 mb-2" style="flex-wrap:wrap;">
               ${isCheapest ? `<span class="badge badge-yellow">🏆最安値</span>` : ''}
+              ${hotel.hasUnavailable ? `<span class="badge" style="background:#fef3c7; color:#b45309;">一部日程 空室なし</span>` : ''}
+              ${hotel.hasError ? `<span class="badge" style="background:#fee2e2; color:#b91c1c;">取得エラーあり</span>` : ''}
               <span class="badge ${isFav ? 'badge-pink' : 'badge-primary'}">${hotel.area}</span>
             </div>
             
@@ -691,15 +794,15 @@
             <!-- 上部: 料金比較と日々の内訳（常時表示） -->
             <div class="price-section">
               <div class="flex justify-between items-end mb-2">
-                <span class="text-xs font-bold text-sub">${AppState.searchParams.nights}泊合計目安</span>
+                <span class="text-xs font-bold text-sub">${AppState.searchParams.nights}泊合計${hotel.hasUnavailable ? '(取得分のみ)' : ''}</span>
                 <span class="text-2xl font-extrabold text-pink leading-none">¥${hotel.totalPrice.toLocaleString()}</span>
               </div>
               
               <div class="daily-grid">
                 ${hotel.dailyPrices.map((price, i) => `
-                  <div class="daily-chip">
+                  <div class="daily-chip" ${price == null ? 'style="opacity:0.5;"' : ''}>
                     <div class="d-label">${formatDay(addDays(AppState.searchParams.start, i))}</div>
-                    <div class="d-price">¥${price.toLocaleString()}</div>
+                    <div class="d-price">${price != null ? '¥' + price.toLocaleString() : '空室なし'}</div>
                   </div>
                 `).join('')}
               </div>
@@ -711,29 +814,14 @@
                 ${ICONS.mapPin}
                 <span>MAPで見る</span>
               </button>
-              ${preferred ? `
-                <button class="btn-action btn-${preferred.key}" onclick="window.open('${preferred.url}', '_blank')">
-                  <span>${preferred.label}で予約</span>
-                </button>
-              ` : `
-                <button class="btn-action" style="background-color:var(--bg-hover); color:var(--text-sub);" disabled>
-                  <span>予約リンクなし</span>
-                </button>
-              `}
-              ${availSites.length > 1 ? `
-                <div class="flex gap-2" style="grid-column: span 2;">
-                  ${availSites.filter(s => s.key !== preferred.key).map(s => `
-                    <button class="btn-action btn-${s.key}" style="flex:1; min-height:40px;" onclick="window.open('${s.url}', '_blank')">
-                      <span>${s.label}でも予約可</span>
-                    </button>
-                  `).join('')}
-                </div>
-              ` : ''}
+              <button class="btn-action btn-rakuten" onclick="window.open('${reserveLink}', '_blank')">
+                <span>楽天で予約</span>
+              </button>
             </div>
           </div>
         `;
       });
-      html += `<p class="disclaimer">※表示されている料金はGoogle Mapsの情報を目安としたシミュレーションです。実際の空室や料金は各リンク先でご確認ください。</p></div>`;
+      html += `<p class="disclaimer">※料金は楽天トラベル空室検索APIから取得したリアルタイム情報です。ただし表示後に埋まる場合があるため、最終確認は予約ページで行ってください。</p></div>`;
       return html;
     };
 
@@ -771,7 +859,7 @@
           const isLast = idx === comboObj.combo.length - 1;
           const sameNext = !isLast && comboObj.combo[idx+1].id === block.id; // 基本はブロック化されるため発火しないが念のため
           const isFav = AppState.favorites.includes(block.id);
-          const preferred = getPreferredSite(block.sites);
+          const reserveLink = block.reserveUrl || block.rakutenUrl;
           
           colHtml += `
             <div class="timeline-item" style="padding-left:14px; padding-bottom:8px;">
@@ -806,9 +894,9 @@
                   <button onclick="window.open('${block.mapLink}', '_blank')" class="flex justify-center items-center text-main text-[11px] font-bold rounded border" style="background:var(--bg-input); min-height:40px;">
                     ${ICONS.mapPin} MAP
                   </button>
-                  ${preferred ? `
-                    <button onclick="window.open('${preferred.url}', '_blank')" class="flex justify-center items-center text-white text-[11px] font-bold rounded" style="background:var(--${preferred.key}); min-height:40px;">
-                      ${preferred.label}で予約
+                  ${reserveLink ? `
+                    <button onclick="window.open('${reserveLink}', '_blank')" class="flex justify-center items-center text-white text-[11px] font-bold rounded" style="background:var(--rakuten); min-height:40px;">
+                      楽天で予約
                     </button>
                   ` : `
                     <div class="flex justify-center items-center text-sub text-[10px] font-bold rounded" style="background:var(--bg-hover); min-height:36px;">予約リンクなし</div>
@@ -827,14 +915,6 @@
           <div class="flex justify-between items-center mb-3 px-1 shrink-0">
              <h3 class="font-extrabold flex items-center gap-1.5 text-base"><span class="text-yellow">${ICONS.sparkles}</span> プラン比較</h3>
              <span class="text-[10px] text-sub font-bold border px-2 py-1 rounded-full">横並びで見比べられます</span>
-          </div>
-
-          <div class="card p-3 mb-4 shrink-0">
-            <label class="form-label text-sub" style="margin-bottom:8px;">予約サイトを選択</label>
-            <div class="site-toggle" style="margin-top:0;">
-              <button class="site-chip ${AppState.bookingSite === 'rakuten' ? 'active' : ''}" onclick="AppActions.setBookingSite('rakuten')">楽天トラベル</button>
-              <button class="site-chip ${AppState.bookingSite === 'jalan' ? 'active' : ''}" onclick="AppActions.setBookingSite('jalan')">じゃらん</button>
-            </div>
           </div>
           
           <div class="split-view">
