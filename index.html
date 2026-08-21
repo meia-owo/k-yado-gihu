@@ -259,7 +259,12 @@
       { id: 4, name: 'ビジネスホテル観月', distance: '5.5km', time: '18分', area: '岐阜県各務原市', color: 'orange', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/8697/8697.html' },
       { id: 5, name: '犬山セントラルホテル', distance: '6.5km', time: '17分', area: '愛知県犬山市', color: 'purple', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/108717/108717.html' },
       { id: 6, name: '犬山館', distance: '5.3km', time: '13分', area: '愛知県犬山市', color: 'pink', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/52894/52894.html' },
-      { id: 8, name: '犬山ミヤコホテル', distance: '6.2km', time: '16分', area: '愛知県犬山市', color: 'indigo', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/5169/5169.html' }
+      { id: 8, name: '犬山ミヤコホテル', distance: '6.2km', time: '16分', area: '愛知県犬山市', color: 'indigo', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/5169/5169.html' },
+      { id: 9, name: 'ビジネスホテルニューたじま', distance: '3.5km', time: '10分', area: '岐阜県各務原市', color: 'blue', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/188318/188318.html' },
+      { id: 10, name: '犬山シティホテル', distance: '7.0km', time: '15分', area: '愛知県犬山市', color: 'indigo', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/106077/106077.html' },
+      { id: 11, name: 'ウィークリー翔ホテル各務原', distance: '7.5km', time: '18分', area: '岐阜県各務原市', color: 'teal', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/147757/147757.html' },
+      { id: 12, name: '犬山国際ユースホステル', distance: '7.5km', time: '18分', area: '愛知県犬山市', color: 'orange', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/52163/52163.html' },
+      { id: 13, name: 'ABホテル各務原', distance: '9.0km', time: '20分', area: '岐阜県各務原市', color: 'purple', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/162909/162909.html' }
     ];
 
     // 宿オブジェクトに派生フィールド(mapLink・rakutenHotelNo)を付与
@@ -326,7 +331,7 @@
       customOut: tmrwStr,
       favorites: Storage.get('app_favs_v2', []),
       hotels: Storage.get('hotel_master_v1', HOTELS_DEFAULT).map(enrichHotel),
-      nextHotelId: Storage.get('hotel_master_next_id_v1', 9),
+      nextHotelId: Storage.get('hotel_master_next_id_v1', 14),
       hotelMasterExpanded: false,
       hotelEditingId: null, // 現在編集中の宿id（nullなら編集フォーム非表示）
       hotelEditDraft: null,
@@ -696,9 +701,9 @@
       resetHotelsToDefault() {
         if (!confirm('宿マスターを初期データにリセットします。追加・編集した内容は失われます。よろしいですか？')) return;
         AppState.hotels = HOTELS_DEFAULT.map(enrichHotel);
-        AppState.nextHotelId = 9;
+        AppState.nextHotelId = 14;
         AppState.hotelVerifyResults = {};
-        Storage.set('hotel_master_next_id_v1', 9);
+        Storage.set('hotel_master_next_id_v1', 14);
         saveHotelMaster();
         render();
       },
