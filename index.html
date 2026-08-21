@@ -322,10 +322,13 @@
       rakutenAccessKey: Storage.get('rakuten_access_key_v1', 'pk_sSAm5g7qYmY8QBdLCa9rgIpv41Lm3iqQND5lkGSb5FR'),
       isLoading: false,
       loadingProgress: { done: 0, total: 0 },
+      apiSettingsExpanded: false, // 未設定時のみ後で自動展開
       results: [],
       searchParams: null, 
       combos: { fav: null, best: null }
     };
+    // 未設定の場合のみ最初から展開しておく
+    AppState.apiSettingsExpanded = !(AppState.rakutenAppId && AppState.rakutenAccessKey);
 
     // === 4.5 Rakuten Travel API (空室検索API) 連携 ===
     const RAKUTEN_ENDPOINT = 'https://openapi.rakuten.co.jp/engine/api/Travel/VacantHotelSearch/20170426';
@@ -429,6 +432,10 @@
       setRakutenAccessKey(val) {
         AppState.rakutenAccessKey = val.trim();
         Storage.set('rakuten_access_key_v1', AppState.rakutenAccessKey);
+        render();
+      },
+      toggleApiSettings() {
+        AppState.apiSettingsExpanded = !AppState.apiSettingsExpanded;
         render();
       },
 
@@ -691,18 +698,6 @@
         <div class="scroll-y flex-col justify-between" style="padding-bottom:24px;">
           <div>
             <h2 class="text-xl font-extrabold mb-4">検索条件</h2>
-
-            <div class="card p-4 mb-4 shrink-0">
-              <div class="flex justify-between items-center mb-2">
-                <label class="form-label text-sub" style="margin-bottom:0;">楽天トラベルAPI設定</label>
-                ${AppState.rakutenAppId && AppState.rakutenAccessKey ? `<span class="badge badge-primary">設定済み</span>` : `<span class="badge" style="background:#fef3c7; color:#b45309;">未設定</span>`}
-              </div>
-              <label class="form-label text-sub" style="margin-top:8px;">アプリID (applicationId)</label>
-              <input type="text" class="form-input text-xs" placeholder="例: 3ea872c5-2c1e-..." value="${AppState.rakutenAppId}" onchange="AppActions.setRakutenAppId(this.value)" style="font-family:ui-monospace,monospace; margin-bottom:10px;">
-              <label class="form-label text-sub">アクセスキー (accessKey)</label>
-              <input type="text" class="form-input text-xs" placeholder="pk_から始まる文字列" value="${AppState.rakutenAccessKey}" onchange="AppActions.setRakutenAccessKey(this.value)" style="font-family:ui-monospace,monospace;">
-              <p class="disclaimer" style="text-align:left; padding-top:8px;">※この端末内(localStorage)にのみ保存されます。LINE共有時にはこの設定値は含まれません。</p>
-            </div>
             
             <div class="card p-4 mb-4 shrink-0">
               <label class="form-label text-sub">絞り込み対象</label>
@@ -742,6 +737,25 @@
           <button class="btn btn-primary w-full mt-4 shrink-0" style="padding:16px;" onclick="AppActions.executeSearch()">
             ${ICONS.search} 料金シミュレーションを実行
           </button>
+
+          <div class="card p-4 mt-4 shrink-0">
+            <button onclick="AppActions.toggleApiSettings()" class="flex justify-between items-center w-full" style="min-height:36px;">
+              <span class="flex items-center gap-2">
+                <label class="form-label text-sub" style="margin-bottom:0;">楽天トラベルAPI設定</label>
+                ${AppState.rakutenAppId && AppState.rakutenAccessKey ? `<span class="badge badge-primary">設定済み</span>` : `<span class="badge" style="background:#fef3c7; color:#b45309;">未設定</span>`}
+              </span>
+              <span class="text-sub">${AppState.apiSettingsExpanded ? ICONS.chevronUp : ICONS.chevronDown}</span>
+            </button>
+            ${AppState.apiSettingsExpanded ? `
+              <div class="mt-3">
+                <label class="form-label text-sub">アプリID (applicationId)</label>
+                <input type="text" class="form-input text-xs" placeholder="例: 3ea872c5-2c1e-..." value="${AppState.rakutenAppId}" onchange="AppActions.setRakutenAppId(this.value)" style="font-family:ui-monospace,monospace; margin-bottom:10px;">
+                <label class="form-label text-sub">アクセスキー (accessKey)</label>
+                <input type="text" class="form-input text-xs" placeholder="pk_から始まる文字列" value="${AppState.rakutenAccessKey}" onchange="AppActions.setRakutenAccessKey(this.value)" style="font-family:ui-monospace,monospace;">
+                <p class="disclaimer" style="text-align:left; padding-top:8px;">※この端末内(localStorage)にのみ保存されます。LINE共有時にはこの設定値は含まれません。</p>
+              </div>
+            ` : ''}
+          </div>
         </div>
       `;
     };
