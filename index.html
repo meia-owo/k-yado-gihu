@@ -253,17 +253,13 @@
     // === 2. Data Definition ===
     // 宿マスターの初期シードデータ（コード直書き）。編集はlocalStorage側で行い、このシードは基準点として残す
     const HOTELS_DEFAULT = [
-      { id: 1, name: 'ABホテル犬山', distance: '4.0km', time: '10分', area: '愛知県犬山市', color: 'blue', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/197708/197708.html' },
-      { id: 2, name: 'ホテルミュースタイル犬山', distance: '3.5km', time: '10分', area: '愛知県犬山市', color: 'indigo', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/182415/182415.html' },
-      { id: 3, name: 'ホテルルートイン各務原', distance: '6.5km', time: '15分', area: '岐阜県各務原市', color: 'teal', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/1162/1162.html' },
-      { id: 4, name: 'ビジネスホテル観月', distance: '7.0km', time: '15分', area: '岐阜県各務原市', color: 'orange', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/8697/8697.html' },
-      { id: 5, name: '犬山セントラルホテル', distance: '4.5km', time: '12分', area: '愛知県犬山市', color: 'purple', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/108717/108717.html' },
-      { id: 6, name: '旬樹庵 八勝閣みづのを', distance: '3.0km', time: '8分', area: '愛知県犬山市', color: 'pink', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/5306/5306.html' },
-      { id: 7, name: 'ホテルインディゴ犬山', distance: '3.8km', time: '11分', area: '愛知県犬山市', color: 'blue', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/183344/183344.html' },
-      { id: 8, name: '犬山館', distance: '3.2km', time: '9分', area: '愛知県犬山市', color: 'indigo', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/52894/52894.html' },
-      { id: 9, name: '灯屋 迎帆楼', distance: '3.5km', time: '10分', area: '愛知県犬山市', color: 'teal', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/162755/162755.html' },
-      { id: 10, name: 'サンパーク犬山', distance: '5.0km', time: '13分', area: '愛知県犬山市', color: 'orange', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/108725/108725.html' },
-      { id: 11, name: '犬山ミヤコホテル', distance: '4.2km', time: '11分', area: '愛知県犬山市', color: 'purple', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/5169/5169.html' }
+      { id: 1, name: 'ABホテル犬山', distance: '7.4km', time: '21分', area: '愛知県犬山市', color: 'blue', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/197708/197708.html' },
+      { id: 2, name: 'ホテルミュースタイル犬山', distance: '6.5km', time: '18分', area: '愛知県犬山市', color: 'indigo', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/182415/182415.html' },
+      { id: 3, name: 'ホテルルートイン各務原', distance: '5.1km', time: '13分', area: '岐阜県各務原市', color: 'teal', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/1162/1162.html' },
+      { id: 4, name: 'ビジネスホテル観月', distance: '5.5km', time: '18分', area: '岐阜県各務原市', color: 'orange', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/8697/8697.html' },
+      { id: 5, name: '犬山セントラルホテル', distance: '6.5km', time: '17分', area: '愛知県犬山市', color: 'purple', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/108717/108717.html' },
+      { id: 6, name: '犬山館', distance: '5.3km', time: '13分', area: '愛知県犬山市', color: 'pink', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/52894/52894.html' },
+      { id: 8, name: '犬山ミヤコホテル', distance: '6.2km', time: '16分', area: '愛知県犬山市', color: 'indigo', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/5169/5169.html' }
     ];
 
     // 宿オブジェクトに派生フィールド(mapLink・rakutenHotelNo)を付与
@@ -330,7 +326,7 @@
       customOut: tmrwStr,
       favorites: Storage.get('app_favs_v2', []),
       hotels: Storage.get('hotel_master_v1', HOTELS_DEFAULT).map(enrichHotel),
-      nextHotelId: Storage.get('hotel_master_next_id_v1', 12),
+      nextHotelId: Storage.get('hotel_master_next_id_v1', 9),
       hotelMasterExpanded: false,
       hotelEditingId: null, // 現在編集中の宿id（nullなら編集フォーム非表示）
       hotelEditDraft: null,
@@ -700,9 +696,9 @@
       resetHotelsToDefault() {
         if (!confirm('宿マスターを初期データにリセットします。追加・編集した内容は失われます。よろしいですか？')) return;
         AppState.hotels = HOTELS_DEFAULT.map(enrichHotel);
-        AppState.nextHotelId = 12;
+        AppState.nextHotelId = 9;
         AppState.hotelVerifyResults = {};
-        Storage.set('hotel_master_next_id_v1', 12);
+        Storage.set('hotel_master_next_id_v1', 9);
         saveHotelMaster();
         render();
       },
