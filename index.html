@@ -320,13 +320,21 @@
     const todayStr = new Date().toISOString().split('T')[0];
     const tmrwStr = addDays(todayStr, 1);
 
+    // 次の月曜日（今日が月曜なら翌週の月曜）の日付を返す
+    const getNextMonday = (fromStr, weeksAhead = 0) => {
+      const d = new Date(fromStr);
+      const day = d.getDay(); // 0=日, 1=月, ...
+      const diff = ((1 - day) + 7) % 7 || 7; // 次の月曜までの日数（今日が月曜でも次週扱い）
+      return addDays(fromStr, diff + weeksAhead * 7);
+    };
+
     // === 4. Application State ===
     window.AppState = {
       theme: Storage.get('app_theme_v2', 'light'),
       activeTab: 'search',
       searchTarget: 'all', // 'all' or 'favorites'
       periodType: 'preset', // 'preset' or 'custom'
-      presetVal: "2026-08-24,2026-08-27,3",
+      presetVal: (() => { const m = getNextMonday(todayStr, 0); return `${m},${addDays(m,3)},3`; })(),
       customIn: todayStr,
       customOut: tmrwStr,
       favorites: Storage.get('app_favs_v2', []),
@@ -1026,13 +1034,22 @@
       
       let periodContent = '';
       if (AppState.periodType === 'preset') {
+        const nextMon = getNextMonday(todayStr, 0);
+        const nextMon3 = addDays(nextMon, 3);
+        const nextMon4 = addDays(nextMon, 4);
+        const nextMon2w = getNextMonday(todayStr, 1);
+        const nextMon2w4 = addDays(nextMon2w, 4);
+        const opt1 = `${todayStr},${tmrwStr},1`;
+        const opt2 = `${nextMon},${nextMon3},3`;
+        const opt3 = `${nextMon},${nextMon4},4`;
+        const opt4 = `${nextMon2w},${nextMon2w4},4`;
         periodContent = `
           <div style="position:relative;">
             <select class="form-input" style="padding-right:40px; cursor:pointer;" onchange="AppActions.setPresetVal(this.value)">
-              <option value="2026-08-21,2026-08-22,1" ${AppState.presetVal === '2026-08-21,2026-08-22,1' ? 'selected' : ''}>明日から1泊（8/21(金)〜8/22(土)）</option>
-              <option value="2026-08-24,2026-08-27,3" ${AppState.presetVal === '2026-08-24,2026-08-27,3' ? 'selected' : ''}>来週月曜から3泊（8/24(月)〜8/27(木)）</option>
-              <option value="2026-08-24,2026-08-28,4" ${AppState.presetVal === '2026-08-24,2026-08-28,4' ? 'selected' : ''}>来週月曜から4泊（8/24(月)〜8/28(金)）</option>
-              <option value="2026-08-31,2026-09-04,4" ${AppState.presetVal === '2026-08-31,2026-09-04,4' ? 'selected' : ''}>再来週月曜から4泊（8/31(月)〜9/4(金)）</option>
+              <option value="${opt1}" ${AppState.presetVal === opt1 ? 'selected' : ''}>明日から1泊（${formatDay(todayStr)}〜${formatDay(tmrwStr)}）</option>
+              <option value="${opt2}" ${AppState.presetVal === opt2 ? 'selected' : ''}>来週月曜から3泊（${formatDay(nextMon)}〜${formatDay(nextMon3)}）</option>
+              <option value="${opt3}" ${AppState.presetVal === opt3 ? 'selected' : ''}>来週月曜から4泊（${formatDay(nextMon)}〜${formatDay(nextMon4)}）</option>
+              <option value="${opt4}" ${AppState.presetVal === opt4 ? 'selected' : ''}>再来週月曜から4泊（${formatDay(nextMon2w)}〜${formatDay(nextMon2w4)}）</option>
             </select>
             <div style="position:absolute; right:16px; top:50%; transform:translateY(-50%); pointer-events:none; color:var(--text-sub);">
               ${ICONS.chevronDown}
