@@ -253,18 +253,14 @@
     // === 2. Data Definition ===
     // 宿マスターの初期シードデータ（コード直書き）。編集はlocalStorage側で行い、このシードは基準点として残す
     const HOTELS_DEFAULT = [
-      { id: 1, name: 'ABホテル犬山', distance: '7.4km', time: '21分', area: '愛知県犬山市', color: 'blue', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/197708/197708.html' },
-      { id: 2, name: 'ホテルミュースタイル犬山', distance: '6.5km', time: '18分', area: '愛知県犬山市', color: 'indigo', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/182415/182415.html' },
-      { id: 3, name: 'ホテルルートイン各務原', distance: '5.1km', time: '13分', area: '岐阜県各務原市', color: 'teal', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/1162/1162.html' },
-      { id: 4, name: 'ビジネスホテル観月', distance: '5.5km', time: '18分', area: '岐阜県各務原市', color: 'orange', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/8697/8697.html' },
-      { id: 5, name: '犬山セントラルホテル', distance: '6.5km', time: '17分', area: '愛知県犬山市', color: 'purple', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/108717/108717.html' },
-      { id: 6, name: '犬山館', distance: '5.3km', time: '13分', area: '愛知県犬山市', color: 'pink', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/52894/52894.html' },
-      { id: 8, name: '犬山ミヤコホテル', distance: '6.2km', time: '16分', area: '愛知県犬山市', color: 'indigo', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/5169/5169.html' },
-      { id: 9, name: 'ビジネスホテルニューたじま', distance: '3.5km', time: '10分', area: '岐阜県各務原市', color: 'blue', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/188318/188318.html' },
-      { id: 10, name: '犬山シティホテル', distance: '7.0km', time: '15分', area: '愛知県犬山市', color: 'indigo', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/106077/106077.html' },
-      { id: 11, name: 'ウィークリー翔ホテル各務原', distance: '7.5km', time: '18分', area: '岐阜県各務原市', color: 'teal', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/147757/147757.html' },
-      { id: 12, name: '犬山国際ユースホステル', distance: '7.5km', time: '18分', area: '愛知県犬山市', color: 'orange', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/52163/52163.html' },
-      { id: 13, name: 'ABホテル各務原', distance: '9.0km', time: '20分', area: '岐阜県各務原市', color: 'purple', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/162909/162909.html' }
+      { id: 1, name: 'ABホテル犬山', distance: '4.0km', time: '10分', area: '愛知県犬山市', color: 'blue', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/197708/197708.html' },
+      { id: 2, name: 'ホテルミュースタイル犬山', distance: '3.5km', time: '10分', area: '愛知県犬山市', color: 'indigo', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/182415/182415.html' },
+      { id: 3, name: 'ホテルルートイン各務原', distance: '6.5km', time: '15分', area: '岐阜県各務原市', color: 'teal', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/1162/1162.html' },
+      { id: 5, name: '犬山セントラルホテル', distance: '4.5km', time: '12分', area: '愛知県犬山市', color: 'purple', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/108717/108717.html' },
+      { id: 8, name: '犬山館', distance: '3.2km', time: '9分', area: '愛知県犬山市', color: 'indigo', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/52894/52894.html' },
+      { id: 10, name: 'サンパーク犬山', distance: '5.0km', time: '13分', area: '愛知県犬山市', color: 'orange', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/108725/108725.html' },
+      { id: 11, name: '犬山ミヤコホテル', distance: '4.2km', time: '11分', area: '愛知県犬山市', color: 'purple', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/5169/5169.html' },
+      { id: 14, name: 'HOTEL R9 The Yard 美濃加茂', distance: '16.3km', time: '40分', area: '岐阜県美濃加茂市', color: 'teal', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/184080/184080.html' }
     ];
 
     // 宿オブジェクトに派生フィールド(mapLink・rakutenHotelNo)を付与
@@ -338,8 +334,9 @@
       customIn: todayStr,
       customOut: tmrwStr,
       favorites: Storage.get('app_favs_v2', []),
+      excludedHotelIds: Storage.get('excluded_hotels_v1', []), // 検索から一時的に除外する宿
       hotels: Storage.get('hotel_master_v1', HOTELS_DEFAULT).map(enrichHotel),
-      nextHotelId: Storage.get('hotel_master_next_id_v1', 14),
+      nextHotelId: Storage.get('hotel_master_next_id_v1', 15),
       hotelMasterExpanded: false,
       hotelEditingId: null, // 現在編集中の宿id（nullなら編集フォーム非表示）
       hotelEditDraft: null,
@@ -709,9 +706,9 @@
       resetHotelsToDefault() {
         if (!confirm('宿マスターを初期データにリセットします。追加・編集した内容は失われます。よろしいですか？')) return;
         AppState.hotels = HOTELS_DEFAULT.map(enrichHotel);
-        AppState.nextHotelId = 14;
+        AppState.nextHotelId = 15;
         AppState.hotelVerifyResults = {};
-        Storage.set('hotel_master_next_id_v1', 14);
+        Storage.set('hotel_master_next_id_v1', 15);
         saveHotelMaster();
         render();
       },
@@ -817,6 +814,16 @@
         if(AppState.results.length > 0) AppActions.calcCombos(); // お気に入り変更時にシミュレーションも再計算
         render();
       },
+
+      toggleExclude(id) {
+        if(AppState.excludedHotelIds.includes(id)) {
+          AppState.excludedHotelIds = AppState.excludedHotelIds.filter(eid => eid !== id);
+        } else {
+          AppState.excludedHotelIds.push(id);
+        }
+        Storage.set('excluded_hotels_v1', AppState.excludedHotelIds);
+        render();
+      },
       
       async executeSearch() {
         let inStr, outStr, nights;
@@ -839,6 +846,8 @@
         if(AppState.searchTarget === 'favorites') {
           targetHotels = AppState.hotels.filter(h => AppState.favorites.includes(h.id));
         }
+        // 除外指定された宿はどちらのモードでも検索対象から外す
+        targetHotels = targetHotels.filter(h => !AppState.excludedHotelIds.includes(h.id));
 
         // === 簡易モード：APIを一切叩かず、宿一覧のみ表示 ===
         if (AppState.pricingMode === 'simple') {
@@ -1127,6 +1136,24 @@
                     <button onclick="AppActions.toggleFav(${h.id})" class="flex items-center justify-between w-full mini-fav ${isFav ? 'is-fav' : ''}" style="padding:10px 8px; border-radius:8px; border:1px solid ${isFav ? 'var(--pink)' : 'var(--border)'}; background-color:${isFav ? 'var(--pink-light)' : 'var(--bg-input)'}; min-height:44px;">
                       <span class="text-xs font-bold" style="text-align:left; color:var(--text-main);">${h.name}</span>
                       <span style="display:inline-flex;">${ICONS.heart}</span>
+                    </button>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+            <div class="card p-4 mb-4 shrink-0">
+              <div class="flex justify-between items-center mb-3">
+                <label class="form-label text-sub" style="margin-bottom:0;">除外する宿</label>
+                <span class="text-xs font-bold" style="color:#b91c1c;">${AppState.excludedHotelIds.length}件除外中</span>
+              </div>
+              <p class="text-xs text-sub mb-2">タップした宿は検索対象から一時的に外れます（マスターからは削除されません）</p>
+              <div class="flex-col gap-2" style="max-height:180px; overflow-y:auto;">
+                ${AppState.hotels.map(h => {
+                  const isExcluded = AppState.excludedHotelIds.includes(h.id);
+                  return `
+                    <button onclick="AppActions.toggleExclude(${h.id})" class="flex items-center justify-between w-full" style="padding:10px 8px; border-radius:8px; border:1px solid ${isExcluded ? '#b91c1c' : 'var(--border)'}; background-color:${isExcluded ? '#fee2e2' : 'var(--bg-input)'}; min-height:44px;">
+                      <span class="text-xs font-bold" style="text-align:left; color:${isExcluded ? '#b91c1c' : 'var(--text-main)'}; ${isExcluded ? 'text-decoration:line-through;' : ''}">${h.name}</span>
+                      <span style="color:${isExcluded ? '#b91c1c' : 'var(--text-sub)'}; font-weight:bold; font-size:14px;">${isExcluded ? '✕' : ''}</span>
                     </button>
                   `;
                 }).join('')}
