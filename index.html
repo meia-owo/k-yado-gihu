@@ -329,8 +329,12 @@
       theme: Storage.get('app_theme_v2', 'light'),
       activeTab: 'search',
       searchTarget: 'all', // 'all' or 'favorites'
-      periodType: 'preset', // 'preset' or 'custom'
-      presetVal: (() => { const m = getNextMonday(todayStr, 0); return `${m},${addDays(m,3)},3`; })(),
+      periodType: 'custom', // 'preset' or 'custom'（デフォルトはカレンダー指定）
+      presetMode: 'monday', // 'tomorrow' or 'monday'
+      mondayWeekOffset: 0, // 0=来週, 1=再来週, 2=翌々週
+      mondayDurationMode: 'nights', // 'nights' or 'checkout'
+      mondayNights: 3,
+      mondayCheckout: (() => { const m = getNextMonday(todayStr, 0); return addDays(m, 3); })(),
       customIn: todayStr,
       customOut: tmrwStr,
       favorites: Storage.get('app_favs_v2', []),
@@ -530,7 +534,11 @@
       setTab(tab) { AppState.activeTab = tab; render(); },
       setSearchTarget(target) { AppState.searchTarget = target; render(); },
       setPeriodType(type) { AppState.periodType = type; render(); },
-      setPresetVal(val) { AppState.presetVal = val; render(); },
+      setPresetMode(mode) { AppState.presetMode = mode; render(); },
+      setMondayWeekOffset(val) { AppState.mondayWeekOffset = parseInt(val, 10); render(); },
+      setMondayDurationMode(mode) { AppState.mondayDurationMode = mode; render(); },
+      setMondayNights(val) { AppState.mondayNights = parseInt(val, 10); render(); },
+      setMondayCheckout(val) { AppState.mondayCheckout = val; render(); },
       setCustomIn(val) { AppState.customIn = val; render(); },
       setCustomOut(val) { AppState.customOut = val; render(); },
       
@@ -830,8 +838,23 @@
         
         // 検索条件のバリデーション
         if (AppState.periodType === 'preset') {
-          const parts = AppState.presetVal.split(',');
-          inStr = parts[0]; outStr = parts[1]; nights = parseInt(parts[2], 10);
+          if (AppState.presetMode === 'tomorrow') {
+            inStr = todayStr; outStr = tmrwStr; nights = 1;
+          } else {
+            inStr = getNextMonday(todayStr, AppState.mondayWeekOffset);
+            if (AppState.mondayDurationMode === 'nights') {
+              nights = AppState.mondayNights;
+              outStr = addDays(inStr, nights);
+            } else {
+              outStr = AppState.mondayCheckout;
+              const inDate = new Date(inStr); const outDate = new Date(outStr);
+              if (isNaN(outDate) || outDate <= inDate) {
+                alert('エラー: チェックアウト日はチェックイン日（月曜）より後に設定してください。');
+                return;
+              }
+              nights = Math.ceil((outDate - inDate) / 86400000);
+            }
+          }
         } else {
           inStr = AppState.customIn; outStr = AppState.customOut;
           const inDate = new Date(inStr); const outDate = new Date(outStr);
@@ -1043,27 +1066,61 @@
       
       let periodContent = '';
       if (AppState.periodType === 'preset') {
-        const nextMon = getNextMonday(todayStr, 0);
-        const nextMon3 = addDays(nextMon, 3);
-        const nextMon4 = addDays(nextMon, 4);
-        const nextMon2w = getNextMonday(todayStr, 1);
-        const nextMon2w4 = addDays(nextMon2w, 4);
-        const opt1 = `${todayStr},${tmrwStr},1`;
-        const opt2 = `${nextMon},${nextMon3},3`;
-        const opt3 = `${nextMon},${nextMon4},4`;
-        const opt4 = `${nextMon2w},${nextMon2w4},4`;
+        const isTomorrow = AppState.presetMode === 'tomorrow' ? 'active' : '';
+        const isMonday = AppState.presetMode === 'monday' ? 'active' : '';
+        const monday = getNextMonday(todayStr, AppState.mondayWeekOffset);
+        const isNights = AppState.mondayDurationMode === 'nights' ? 'active' : '';
+        const isCheckoutMode = AppState.mondayDurationMode === 'checkout' ? 'active' : '';
+        const mondayCheckoutPreview = AppState.mondayDurationMode === 'nights' ? addDays(monday, AppState.mondayNights) : AppState.mondayCheckout;
+
         periodContent = `
-          <div style="position:relative;">
-            <select class="form-input" style="padding-right:40px; cursor:pointer;" onchange="AppActions.setPresetVal(this.value)">
-              <option value="${opt1}" ${AppState.presetVal === opt1 ? 'selected' : ''}>明日から1泊（${formatDay(todayStr)}〜${formatDay(tmrwStr)}）</option>
-              <option value="${opt2}" ${AppState.presetVal === opt2 ? 'selected' : ''}>来週月曜から3泊（${formatDay(nextMon)}〜${formatDay(nextMon3)}）</option>
-              <option value="${opt3}" ${AppState.presetVal === opt3 ? 'selected' : ''}>来週月曜から4泊（${formatDay(nextMon)}〜${formatDay(nextMon4)}）</option>
-              <option value="${opt4}" ${AppState.presetVal === opt4 ? 'selected' : ''}>再来週月曜から4泊（${formatDay(nextMon2w)}〜${formatDay(nextMon2w4)}）</option>
-            </select>
-            <div style="position:absolute; right:16px; top:50%; transform:translateY(-50%); pointer-events:none; color:var(--text-sub);">
-              ${ICONS.chevronDown}
-            </div>
+          <div class="toggle-group" style="margin-bottom:12px;">
+            <button class="toggle-btn ${isTomorrow}" onclick="AppActions.setPresetMode('tomorrow')">明日から1泊</button>
+            <button class="toggle-btn ${isMonday}" onclick="AppActions.setPresetMode('monday')">〇曜日から</button>
           </div>
+
+          ${AppState.presetMode === 'tomorrow' ? `
+            <div class="card p-3 border" style="background:var(--bg-hover);">
+              <p class="text-sm font-bold">${formatDay(todayStr)} 〜 ${formatDay(tmrwStr)}（1泊）</p>
+            </div>
+          ` : `
+            <div class="card p-3 border" style="background:var(--bg-hover);">
+              <label class="form-label text-sub" style="margin-bottom:8px;">どの週の月曜から</label>
+              <div style="position:relative; margin-bottom:12px;">
+                <select class="form-input" style="padding-right:40px; cursor:pointer;" onchange="AppActions.setMondayWeekOffset(this.value)">
+                  <option value="0" ${AppState.mondayWeekOffset === 0 ? 'selected' : ''}>来週月曜（${formatDay(getNextMonday(todayStr, 0))}）</option>
+                  <option value="1" ${AppState.mondayWeekOffset === 1 ? 'selected' : ''}>再来週月曜（${formatDay(getNextMonday(todayStr, 1))}）</option>
+                  <option value="2" ${AppState.mondayWeekOffset === 2 ? 'selected' : ''}>翌々週月曜（${formatDay(getNextMonday(todayStr, 2))}）</option>
+                </select>
+                <div style="position:absolute; right:16px; top:50%; transform:translateY(-50%); pointer-events:none; color:var(--text-sub);">${ICONS.chevronDown}</div>
+              </div>
+
+              <label class="form-label text-sub" style="margin-bottom:8px;">期間の指定方法</label>
+              <div class="toggle-group" style="margin-bottom:12px;">
+                <button class="toggle-btn ${isNights}" onclick="AppActions.setMondayDurationMode('nights')">泊数で指定</button>
+                <button class="toggle-btn ${isCheckoutMode}" onclick="AppActions.setMondayDurationMode('checkout')">チェックアウト日で指定</button>
+              </div>
+
+              ${AppState.mondayDurationMode === 'nights' ? `
+                <div style="position:relative;">
+                  <select class="form-input" style="padding-right:40px; cursor:pointer;" onchange="AppActions.setMondayNights(this.value)">
+                    ${[1,2,3,4,5,6,7].map(n => `<option value="${n}" ${AppState.mondayNights === n ? 'selected' : ''}>${n}泊</option>`).join('')}
+                  </select>
+                  <div style="position:absolute; right:16px; top:50%; transform:translateY(-50%); pointer-events:none; color:var(--text-sub);">${ICONS.chevronDown}</div>
+                </div>
+              ` : `
+                <div style="position:relative;">
+                  <input type="date" value="${AppState.mondayCheckout}" onchange="AppActions.setMondayCheckout(this.value)" style="position:absolute; inset:0; opacity:0; z-index:10; cursor:pointer; width:100%; height:100%;">
+                  <div class="form-input flex justify-between items-center" style="background-color: var(--bg-input); padding:14px;">
+                    <span class="font-bold text-sm">${formatFullDay(AppState.mondayCheckout)}</span>
+                    <span class="text-sub">${ICONS.chevronDown}</span>
+                  </div>
+                </div>
+              `}
+
+              <p class="text-xs text-sub mt-2">${formatDay(monday)} 〜 ${formatDay(mondayCheckoutPreview)}</p>
+            </div>
+          `}
         `;
       } else {
         // 透明なinput type="date"を重ねることで、見た目は曜日付き、機能はネイティブカレンダーを維持する
