@@ -84,27 +84,38 @@
     }
 
     /* === 表示モード切替（モバイル/PC） === */
-    /* 'auto' はビューポート幅で自動判定（上のデフォルト挙動）。'mobile'/'pc' は明示的に固定する */
+    /* 'auto' は実際の画面幅で自動判定。960px以上ならPC同等の見た目に切り替わる。'mobile'/'pc' は明示的に固定する */
     #app[data-view-mode="mobile"] {
       max-width: 480px; width: 100%; height: 100%; max-height: 850px; border-radius: 0; border: none;
     }
     @media (min-width: 481px) {
       #app[data-view-mode="mobile"] { height: 95dvh; border-radius: 40px; border: 8px solid var(--border); }
     }
+    /* PC 明示指定: 常に横幅を広げる（グリッド化は画面が十分広い時のみ、下記メディアクエリで制御） */
     #app[data-view-mode="pc"] {
       max-width: 1400px; width: 96vw; height: 92dvh; max-height: none; border-radius: 16px; border: 1px solid var(--border);
     }
-    /* PCモード時、宿の一覧をグリッド表示に切替（横に複数枚並べる）。
+    /* 自動判定: 実際の画面幅が960px以上あるときだけ、PCと同じ横幅・グリッド表示に切り替える */
+    @media (min-width: 960px) {
+      #app[data-view-mode="auto"] {
+        max-width: 1400px; width: 96vw; height: 92dvh; max-height: none; border-radius: 16px; border: 1px solid var(--border);
+      }
+    }
+    /* 宿の一覧をグリッド表示に切替（横に複数枚並べる）。
        実際の画面幅が十分ある場合のみ有効化（スマホでPCモードを強制した際の崩れ対策） */
     @media (min-width: 960px) {
-      #app[data-view-mode="pc"] #results-list {
+      #app[data-view-mode="pc"] #results-list,
+      #app[data-view-mode="auto"] #results-list {
         display: grid; grid-template-columns: repeat(auto-fill, minmax(440px, 1fr)); gap: 16px; align-content: start; align-items: start;
       }
       /* グリッドアイテムはデフォルトmin-width:autoのため、長い宿名などで枠が広がり金額がはみ出て隠れる問題への対策 */
-      #app[data-view-mode="pc"] #results-list > .card { min-width: 0; }
-      #app[data-view-mode="pc"] #results-list .list-full-row { grid-column: 1 / -1; }
+      #app[data-view-mode="pc"] #results-list > .card,
+      #app[data-view-mode="auto"] #results-list > .card { min-width: 0; }
+      #app[data-view-mode="pc"] #results-list .list-full-row,
+      #app[data-view-mode="auto"] #results-list .list-full-row { grid-column: 1 / -1; }
     }
-    #app[data-view-mode="pc"] .split-view { max-width: 900px; margin: 0 auto; }
+    #app[data-view-mode="pc"] .split-view,
+    #app[data-view-mode="auto"] .split-view { max-width: 900px; margin: 0 auto; }
     .view-toggle { display: flex; gap: 2px; background-color: var(--bg-hover); border-radius: var(--radius-sm); padding: 2px; }
     .view-toggle-btn { padding: 6px 8px; border-radius: 6px; display: flex; align-items: center; color: var(--text-sub); }
     .view-toggle-btn.active { background-color: var(--bg-card); color: var(--primary); box-shadow: 0 1px 2px rgba(0,0,0,0.08); }
