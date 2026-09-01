@@ -82,6 +82,27 @@
     @media (min-width: 481px) { 
       .app-container { height: 95dvh; border-radius: 40px; border: 8px solid var(--border); } 
     }
+
+    /* === 表示モード切替（モバイル/PC） === */
+    /* 'auto' はビューポート幅で自動判定（上のデフォルト挙動）。'mobile'/'pc' は明示的に固定する */
+    #app[data-view-mode="mobile"] {
+      max-width: 480px; width: 100%; height: 100%; max-height: 850px; border-radius: 0; border: none;
+    }
+    @media (min-width: 481px) {
+      #app[data-view-mode="mobile"] { height: 95dvh; border-radius: 40px; border: 8px solid var(--border); }
+    }
+    #app[data-view-mode="pc"] {
+      max-width: 1400px; width: 96vw; height: 92dvh; max-height: none; border-radius: 16px; border: 1px solid var(--border);
+    }
+    /* PCモード時、宿の一覧をグリッド表示に切替（横に複数枚並べる） */
+    #app[data-view-mode="pc"] #results-list {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; align-content: start;
+    }
+    #app[data-view-mode="pc"] #results-list .list-full-row { grid-column: 1 / -1; }
+    #app[data-view-mode="pc"] .split-view { max-width: 900px; margin: 0 auto; }
+    .view-toggle { display: flex; gap: 2px; background-color: var(--bg-hover); border-radius: var(--radius-sm); padding: 2px; }
+    .view-toggle-btn { padding: 6px 8px; border-radius: 6px; display: flex; align-items: center; color: var(--text-sub); }
+    .view-toggle-btn.active { background-color: var(--bg-card); color: var(--primary); box-shadow: 0 1px 2px rgba(0,0,0,0.08); }
     
     .header { 
       display: flex; justify-content: space-between; align-items: center; 
@@ -247,7 +268,9 @@
       chevronDown: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon"><path d="m6 9 6 6 6-6"/></svg>`,
       chevronUp: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon"><path d="m18 15-6-6-6 6"/></svg>`,
       share: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-sm"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>`,
-      clock: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-sm"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>`
+      clock: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-sm"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>`,
+      smartphone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-sm"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>`,
+      monitor: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-sm"><rect width="20" height="14" x="2" y="3" rx="2"/><path d="M8 21h8M12 17v4"/></svg>`
     };
 
     // === 2. Data Definition ===
@@ -327,6 +350,7 @@
     // === 4. Application State ===
     window.AppState = {
       theme: Storage.get('app_theme_v2', 'light'),
+      viewMode: Storage.get('view_mode_v1', 'auto'), // 'auto' | 'mobile' | 'pc'
       activeTab: 'search',
       searchTarget: 'all', // 'all' or 'favorites'
       periodType: 'custom', // 'preset' or 'custom'（デフォルトはカレンダー指定）
@@ -529,6 +553,11 @@
       toggleTheme() {
         AppState.theme = AppState.theme === 'light' ? 'dark' : 'light';
         Storage.set('app_theme_v2', AppState.theme);
+        render();
+      },
+      setViewMode(mode) {
+        AppState.viewMode = mode;
+        Storage.set('view_mode_v1', mode);
         render();
       },
       setTab(tab) { AppState.activeTab = tab; render(); },
@@ -1016,6 +1045,7 @@
     const render = () => {
       document.documentElement.setAttribute('data-theme', AppState.theme);
       const appEl = document.getElementById('app');
+      appEl.setAttribute('data-view-mode', AppState.viewMode);
       
       let viewContent = '';
       if (AppState.activeTab === 'search') viewContent = renderSearchTab();
@@ -1028,9 +1058,16 @@
             <span class="text-primary">${ICONS.building}</span>
             <h1 class="font-extrabold text-lg tracking-tight">岐阜車体 <span class="text-sm font-normal text-sub">周辺ステイ</span></h1>
           </div>
-          <button onclick="AppActions.toggleTheme()" class="p-2 shrink-0" style="background:var(--bg-hover); border-radius:50%; color:var(--yellow)">
-            ${AppState.theme === 'dark' ? ICONS.sun : ICONS.moon}
-          </button>
+          <div class="flex items-center gap-2">
+            <div class="view-toggle">
+              <button class="view-toggle-btn ${AppState.viewMode === 'auto' ? 'active' : ''}" onclick="AppActions.setViewMode('auto')" title="自動">自動</button>
+              <button class="view-toggle-btn ${AppState.viewMode === 'mobile' ? 'active' : ''}" onclick="AppActions.setViewMode('mobile')" title="モバイル表示">${ICONS.smartphone}</button>
+              <button class="view-toggle-btn ${AppState.viewMode === 'pc' ? 'active' : ''}" onclick="AppActions.setViewMode('pc')" title="PC表示">${ICONS.monitor}</button>
+            </div>
+            <button onclick="AppActions.toggleTheme()" class="p-2 shrink-0" style="background:var(--bg-hover); border-radius:50%; color:var(--yellow)">
+              ${AppState.theme === 'dark' ? ICONS.sun : ICONS.moon}
+            </button>
+          </div>
         </div>
         
         <div class="tab-bar">
@@ -1407,8 +1444,8 @@
           return a.name.localeCompare(b.name, 'ja');
         });
         let simpleHtml = `
-          <div class="scroll-y flex-col gap-4">
-            <div class="flex justify-between items-center text-sm mb-1 px-1 shrink-0">
+          <div class="scroll-y flex-col gap-4" id="results-list">
+            <div class="flex justify-between items-center text-sm mb-1 px-1 shrink-0 list-full-row">
               <span class="font-bold flex items-center gap-2">${ICONS.calendar} 簡易モード（料金なし）</span>
               <span class="text-xs text-sub">${sortedSimple.length}件</span>
             </div>
@@ -1433,13 +1470,13 @@
             </div>
           `;
         });
-        simpleHtml += `<p class="disclaimer">※簡易モードは楽天APIを使わず宿の一覧のみ表示しています。料金・空室状況は各リンク先でご確認ください。</p></div>`;
+        simpleHtml += `<p class="disclaimer list-full-row">※簡易モードは楽天APIを使わず宿の一覧のみ表示しています。料金・空室状況は各リンク先でご確認ください。</p></div>`;
         return simpleHtml;
       }
       
       let html = `
-        <div class="scroll-y flex-col gap-4">
-          <div class="flex justify-between items-center text-sm mb-1 px-1 shrink-0">
+        <div class="scroll-y flex-col gap-4" id="results-list">
+          <div class="flex justify-between items-center text-sm mb-1 px-1 shrink-0 list-full-row">
             <span class="font-bold flex items-center gap-2">
               ${ICONS.calendar} ${formatDay(AppState.searchParams.start)} 〜 ${AppState.searchParams.nights}泊
             </span>
@@ -1516,7 +1553,7 @@
           </div>
         `;
       });
-      html += `<p class="disclaimer">※料金は楽天トラベル空室検索APIから取得したリアルタイム情報です。「楽天で予約」は宿のページに遷移します。チェックイン日・泊数はページ内で選び直してください（自動入力ではありません）。</p></div>`;
+      html += `<p class="disclaimer list-full-row">※料金は楽天トラベル空室検索APIから取得したリアルタイム情報です。「楽天で予約」は宿のページに遷移します。チェックイン日・泊数はページ内で選び直してください（自動入力ではありません）。</p></div>`;
       return html;
     };
 
