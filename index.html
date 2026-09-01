@@ -94,13 +94,16 @@
     #app[data-view-mode="pc"] {
       max-width: 1400px; width: 96vw; height: 92dvh; max-height: none; border-radius: 16px; border: 1px solid var(--border);
     }
-    /* PCモード時、宿の一覧をグリッド表示に切替（横に複数枚並べる） */
-    #app[data-view-mode="pc"] #results-list {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(440px, 1fr)); gap: 16px; align-content: start; align-items: start;
+    /* PCモード時、宿の一覧をグリッド表示に切替（横に複数枚並べる）。
+       実際の画面幅が十分ある場合のみ有効化（スマホでPCモードを強制した際の崩れ対策） */
+    @media (min-width: 960px) {
+      #app[data-view-mode="pc"] #results-list {
+        display: grid; grid-template-columns: repeat(auto-fill, minmax(440px, 1fr)); gap: 16px; align-content: start; align-items: start;
+      }
+      /* グリッドアイテムはデフォルトmin-width:autoのため、長い宿名などで枠が広がり金額がはみ出て隠れる問題への対策 */
+      #app[data-view-mode="pc"] #results-list > .card { min-width: 0; }
+      #app[data-view-mode="pc"] #results-list .list-full-row { grid-column: 1 / -1; }
     }
-    /* グリッドアイテムはデフォルトmin-width:autoのため、長い宿名などで枠が広がり金額がはみ出て隠れる問題への対策 */
-    #app[data-view-mode="pc"] #results-list > .card { min-width: 0; }
-    #app[data-view-mode="pc"] #results-list .list-full-row { grid-column: 1 / -1; }
     #app[data-view-mode="pc"] .split-view { max-width: 900px; margin: 0 auto; }
     .view-toggle { display: flex; gap: 2px; background-color: var(--bg-hover); border-radius: var(--radius-sm); padding: 2px; }
     .view-toggle-btn { padding: 6px 8px; border-radius: 6px; display: flex; align-items: center; color: var(--text-sub); }
