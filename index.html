@@ -107,6 +107,12 @@
       #app[data-view-mode="pc"] #results-list,
       #app[data-view-mode="auto"] #results-list {
         display: grid; grid-template-columns: repeat(auto-fill, minmax(440px, 1fr)); gap: 16px; align-content: start; align-items: start;
+        /* .scroll-y の height:100% がそのまま残ると、グリッドの行トラックが
+           コンテナの高さに収まるよう圧縮され、カード本来の高さ(自動計算値)より
+           行が低くなって縦にカードが重なってしまう。
+           height:auto + min-height:100% にして行を内容に応じた高さで計算させ、
+           はみ出た分は従来通り overflow-y:auto でスクロールさせる。 */
+        height: auto; min-height: 100%;
       }
       /* グリッドアイテムはデフォルトmin-width:autoのため、長い宿名などで枠が広がり金額がはみ出て隠れる問題への対策 */
       #app[data-view-mode="pc"] #results-list > .card,
@@ -398,7 +404,7 @@
       distanceImportText: '',
       distanceImportResult: '',
       distanceImportErrorsDetail: [],
-      pricingMode: Storage.get('pricing_mode_v1', 'api'), // 'api' or 'simple'
+      pricingMode: 'api', // 楽天APIのみ運用のため固定
       rakutenAppId: Storage.get('rakuten_app_id_v1', '3ea872c5-2c1e-4868-a8be-cd7fb43a8e2d'),
       rakutenAccessKey: Storage.get('rakuten_access_key_v1', 'pk_sSAm5g7qYmY8QBdLCa9rgIpv41Lm3iqQND5lkGSb5FR'),
       isLoading: false,
@@ -584,6 +590,12 @@
       setMondayDurationMode(mode) { AppState.mondayDurationMode = mode; render(); },
       setMondayNights(val) { AppState.mondayNights = parseInt(val, 10); render(); },
       setMondayCheckout(val) { AppState.mondayCheckout = val; render(); },
+      // 透明重ねinput type="date"はPCのマウスクリックだとネイティブピッカーが
+      // 開かないことがある（opacity:0のinputに対するChromeの既知の挙動）ため、
+      // クリック時に明示的にshowPicker()を呼んで確実に開かせる。
+      openDatePicker(el) {
+        try { if (el.showPicker) el.showPicker(); } catch (e) { /* 未対応ブラウザは通常のクリック挙動に任せる */ }
+      },
       setCustomIn(val) { AppState.customIn = val; render(); },
       setCustomOut(val) { AppState.customOut = val; render(); },
       
@@ -927,12 +939,11 @@
           return;
         }
 
-        // === APIモード：楽天トラベル空室検索APIでリアルタイム料金取得 ===
+        // === 楽天トラベル空室検索APIでリアルタイム料金取得（API Only） ===
         if (!AppState.rakutenAppId || !AppState.rakutenAccessKey) {
-          if (confirm('楽天のアプリID・アクセスキーが未設定です。\n簡易モード（料金なし・宿一覧のみ）で検索しますか？\n「キャンセル」で検索タブに戻ってAPI設定を行えます。')) {
-            AppActions.setPricingMode('simple');
-            AppActions.executeSearch();
-          }
+          alert('楽天のアプリID・アクセスキーが未設定です。\n検索タブ下部の「楽天トラベルAPI設定」から設定してください。');
+          AppState.apiSettingsExpanded = true;
+          render();
           return;
         }
         
@@ -1163,7 +1174,7 @@
                 </div>
               ` : `
                 <div style="position:relative;">
-                  <input type="date" value="${AppState.mondayCheckout}" onchange="AppActions.setMondayCheckout(this.value)" style="position:absolute; inset:0; opacity:0; z-index:10; cursor:pointer; width:100%; height:100%;">
+                  <input type="date" value="${AppState.mondayCheckout}" onchange="AppActions.setMondayCheckout(this.value)" onclick="AppActions.openDatePicker(this)" style="position:absolute; inset:0; opacity:0; z-index:10; cursor:pointer; width:100%; height:100%;">
                   <div class="form-input flex justify-between items-center" style="background-color: var(--bg-input); padding:14px;">
                     <span class="font-bold text-sm">${formatFullDay(AppState.mondayCheckout)}</span>
                     <span class="text-sub">${ICONS.chevronDown}</span>
@@ -1182,7 +1193,7 @@
             <div class="flex-1 relative">
               <label class="form-label">チェックイン</label>
               <div style="position:relative;">
-                <input type="date" value="${AppState.customIn}" onchange="AppActions.setCustomIn(this.value)" style="position:absolute; inset:0; opacity:0; z-index:10; cursor:pointer; width:100%; height:100%;">
+                <input type="date" value="${AppState.customIn}" onchange="AppActions.setCustomIn(this.value)" onclick="AppActions.openDatePicker(this)" style="position:absolute; inset:0; opacity:0; z-index:10; cursor:pointer; width:100%; height:100%;">
                 <div class="form-input flex justify-between items-center" style="background-color: var(--bg-input); padding:14px;">
                   <span class="font-bold text-sm">${formatFullDay(AppState.customIn)}</span>
                   <span class="text-sub">${ICONS.chevronDown}</span>
@@ -1193,7 +1204,7 @@
             <div class="flex-1 relative">
               <label class="form-label">チェックアウト</label>
               <div style="position:relative;">
-                <input type="date" value="${AppState.customOut}" onchange="AppActions.setCustomOut(this.value)" style="position:absolute; inset:0; opacity:0; z-index:10; cursor:pointer; width:100%; height:100%;">
+                <input type="date" value="${AppState.customOut}" onchange="AppActions.setCustomOut(this.value)" onclick="AppActions.openDatePicker(this)" style="position:absolute; inset:0; opacity:0; z-index:10; cursor:pointer; width:100%; height:100%;">
                 <div class="form-input flex justify-between items-center" style="background-color: var(--bg-input); padding:14px;">
                   <span class="font-bold text-sm">${formatFullDay(AppState.customOut)}</span>
                   <span class="text-sub">${ICONS.chevronDown}</span>
@@ -1209,15 +1220,10 @@
           <div>
             <h2 class="text-xl font-extrabold mb-4">検索条件</h2>
 
-            <div class="card p-4 mb-4 shrink-0">
-              <label class="form-label text-sub">検索モード</label>
-              <div class="toggle-group" style="margin-bottom:0;">
-                <button class="toggle-btn ${AppState.pricingMode === 'api' ? 'active' : ''}" onclick="AppActions.setPricingMode('api')">${ICONS.sparkles} 楽天APIでリアル料金</button>
-                <button class="toggle-btn ${AppState.pricingMode === 'simple' ? 'active' : ''}" onclick="AppActions.setPricingMode('simple')">簡易(APIなし)</button>
-              </div>
-              ${AppState.pricingMode === 'simple' ? `<p class="disclaimer" style="text-align:left; padding-top:8px;">※簡易モードは通信・レート制限を気にせず宿の一覧だけサッと見たい時用です。料金は取得しません。</p>` : ''}
-            </div>
-            
+            <button class="btn btn-primary w-full mb-4 shrink-0" style="padding:16px;" onclick="AppActions.executeSearch()">
+              ${ICONS.search} 料金シミュレーションを実行
+            </button>
+
             <div class="card p-4 mb-4 shrink-0">
               <label class="form-label text-sub">絞り込み対象</label>
               <div class="toggle-group mb-4">
@@ -1270,10 +1276,6 @@
               </div>
             </div>
           </div>
-          
-          <button class="btn btn-primary w-full mt-4 shrink-0" style="padding:16px;" onclick="AppActions.executeSearch()">
-            ${ICONS.search} 料金シミュレーションを実行
-          </button>
 
           <div class="card p-4 mt-4 shrink-0">
             <button onclick="AppActions.toggleApiSettings()" class="flex justify-between items-center w-full" style="min-height:36px;">
