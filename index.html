@@ -1565,7 +1565,15 @@
             <div class="price-section">
               <div class="flex justify-between items-end mb-2">
                 <span class="text-xs font-bold text-sub">${AppState.searchParams.nights}泊合計${hotel.hasUnavailable ? '(取得分のみ)' : ''}</span>
-                <span class="text-2xl font-extrabold text-pink leading-none">¥${hotel.totalPrice.toLocaleString()}</span>
+                <div class="flex items-end gap-2">
+                  ${(() => {
+                    const availNights = hotel.dailyPrices.filter(p => p != null).length;
+                    if (availNights === 0) return '';
+                    const avg = Math.round(hotel.totalPrice / availNights);
+                    return `<span class="text-xs text-sub leading-none">平均 ¥${avg.toLocaleString()}/泊</span>`;
+                  })()}
+                  <span class="text-2xl font-extrabold text-pink leading-none">¥${hotel.totalPrice.toLocaleString()}</span>
+                </div>
               </div>
               
               <div class="daily-grid">
@@ -1624,10 +1632,18 @@
           `;
         }
         
+        const availNights = comboObj.combo.reduce((sum, b) => sum + b.nights, 0);
+        const avgPrice = availNights > 0 ? Math.round(comboObj.total / availNights) : 0;
         let colHtml = `
-          <div class="text-center mb-3">
-            <div class="text-[10px] font-bold text-sub mb-0.5">合計金額</div>
-            <div class="text-xl font-extrabold text-main leading-none">¥${comboObj.total.toLocaleString()}</div>
+          <div class="flex justify-between items-end mb-3">
+            <div>
+              <div class="text-[10px] font-bold text-sub mb-0.5">合計金額</div>
+              <div class="text-xl font-extrabold text-main leading-none">¥${comboObj.total.toLocaleString()}</div>
+            </div>
+            <div class="text-right">
+              <div class="text-[10px] font-bold text-sub mb-0.5">平均/泊</div>
+              <div class="text-sm font-bold text-sub leading-none">¥${avgPrice.toLocaleString()}</div>
+            </div>
           </div>
           <div class="flex-col gap-2 mb-3">
         `;
