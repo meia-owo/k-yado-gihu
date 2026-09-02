@@ -104,21 +104,21 @@
     /* 宿の一覧をグリッド表示に切替（横に複数枚並べる）。
        実際の画面幅が十分ある場合のみ有効化（スマホでPCモードを強制した際の崩れ対策） */
     @media (min-width: 960px) {
-      #app[data-view-mode="pc"] #results-list,
-      #app[data-view-mode="auto"] #results-list {
+      /* #results-list 自体は「高さ固定+overflow-y:auto」のスクロール専用コンテナのまま維持し、
+         グリッド化は内側の .results-grid だけに適用する。
+         スクロールコンテナ自身をgridにすると、行の高さがコンテナの高さに収まるよう
+         圧縮されカードが重なる（過去の不具合）。逆にコンテナ側をheight:autoにすると
+         今度はスクロールする余地が無くなり、はみ出た分が見えなくなる。
+         役割（スクロール／グリッド）を別要素に分離することで両方を解決する。 */
+      #app[data-view-mode="pc"] #results-list .results-grid,
+      #app[data-view-mode="auto"] #results-list .results-grid {
         display: grid; grid-template-columns: repeat(auto-fill, minmax(440px, 1fr)); gap: 16px; align-content: start; align-items: start;
-        /* .scroll-y の height:100% がそのまま残ると、グリッドの行トラックが
-           コンテナの高さに収まるよう圧縮され、カード本来の高さ(自動計算値)より
-           行が低くなって縦にカードが重なってしまう。
-           height:auto + min-height:100% にして行を内容に応じた高さで計算させ、
-           はみ出た分は従来通り overflow-y:auto でスクロールさせる。 */
-        height: auto; min-height: 100%;
       }
       /* グリッドアイテムはデフォルトmin-width:autoのため、長い宿名などで枠が広がり金額がはみ出て隠れる問題への対策 */
-      #app[data-view-mode="pc"] #results-list > .card,
-      #app[data-view-mode="auto"] #results-list > .card { min-width: 0; }
-      #app[data-view-mode="pc"] #results-list .list-full-row,
-      #app[data-view-mode="auto"] #results-list .list-full-row { grid-column: 1 / -1; }
+      #app[data-view-mode="pc"] #results-list .results-grid > .card,
+      #app[data-view-mode="auto"] #results-list .results-grid > .card { min-width: 0; }
+      #app[data-view-mode="pc"] #results-list .results-grid .list-full-row,
+      #app[data-view-mode="auto"] #results-list .results-grid .list-full-row { grid-column: 1 / -1; }
     }
     #app[data-view-mode="pc"] .split-view,
     #app[data-view-mode="auto"] .split-view { max-width: 900px; margin: 0 auto; }
@@ -1480,7 +1480,8 @@
           return a.name.localeCompare(b.name, 'ja');
         });
         let simpleHtml = `
-          <div class="scroll-y flex-col gap-4" id="results-list">
+          <div class="scroll-y" id="results-list">
+            <div class="flex-col gap-4 results-grid">
             <div class="flex justify-between items-center text-sm mb-1 px-1 shrink-0 list-full-row">
               <span class="font-bold flex items-center gap-2">${ICONS.calendar} 簡易モード（料金なし）</span>
               <span class="text-xs text-sub">${sortedSimple.length}件</span>
@@ -1506,12 +1507,13 @@
             </div>
           `;
         });
-        simpleHtml += `<p class="disclaimer list-full-row">※簡易モードは楽天APIを使わず宿の一覧のみ表示しています。料金・空室状況は各リンク先でご確認ください。</p></div>`;
+        simpleHtml += `<p class="disclaimer list-full-row">※簡易モードは楽天APIを使わず宿の一覧のみ表示しています。料金・空室状況は各リンク先でご確認ください。</p></div></div>`;
         return simpleHtml;
       }
       
       let html = `
-        <div class="scroll-y flex-col gap-4" id="results-list">
+        <div class="scroll-y" id="results-list">
+          <div class="flex-col gap-4 results-grid">
           <div class="flex justify-between items-center text-sm mb-1 px-1 shrink-0 list-full-row">
             <span class="font-bold flex items-center gap-2">
               ${ICONS.calendar} ${formatDay(AppState.searchParams.start)} 〜 ${AppState.searchParams.nights}泊
@@ -1589,7 +1591,7 @@
           </div>
         `;
       });
-      html += `<p class="disclaimer list-full-row">※料金は楽天トラベル空室検索APIから取得したリアルタイム情報です。「楽天で予約」は宿のページに遷移します。チェックイン日・泊数はページ内で選び直してください（自動入力ではありません）。</p></div>`;
+      html += `<p class="disclaimer list-full-row">※料金は楽天トラベル空室検索APIから取得したリアルタイム情報です。「楽天で予約」は宿のページに遷移します。チェックイン日・泊数はページ内で選び直してください（自動入力ではありません）。</p></div></div>`;
       return html;
     };
 
