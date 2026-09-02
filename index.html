@@ -958,42 +958,60 @@
           AppState.results = [];
         } else {
           const newResults = [];
+          AppState.results = []; // 前回検索結果が残って「件数と表示が食い違って見える」のを防ぐため先にクリア
           for (const h of targetHotels) {
-            const dailyPrices = [];
-            let totalPrice = 0;
-            let reserveUrl = null;
-            let hasUnavailable = false;
-            let hasError = false;
-            let firstErrorMsg = null;
+            try {
+              const dailyPrices = [];
+              let totalPrice = 0;
+              let reserveUrl = null;
+              let hasUnavailable = false;
+              let hasError = false;
+              let firstErrorMsg = null;
 
-            for (let i = 0; i < nights; i++) {
-              const dateStr = addDays(inStr, i);
-              const result = await fetchOneNightPrice(h.rakutenHotelNo, dateStr, AppState.rakutenAppId, AppState.rakutenAccessKey);
-              if (result.available) {
-                dailyPrices.push(result.price);
-                totalPrice += result.price;
-                if (!reserveUrl && result.reserveUrl) reserveUrl = result.reserveUrl;
-              } else {
-                dailyPrices.push(null);
-                hasUnavailable = true;
-                if (result.error) {
-                  hasError = true;
-                  if (!firstErrorMsg) firstErrorMsg = result.error;
+              for (let i = 0; i < nights; i++) {
+                const dateStr = addDays(inStr, i);
+                const result = await fetchOneNightPrice(h.rakutenHotelNo, dateStr, AppState.rakutenAppId, AppState.rakutenAccessKey);
+                if (result.available) {
+                  dailyPrices.push(result.price);
+                  totalPrice += result.price;
+                  if (!reserveUrl && result.reserveUrl) reserveUrl = result.reserveUrl;
+                } else {
+                  dailyPrices.push(null);
+                  hasUnavailable = true;
+                  if (result.error) {
+                    hasError = true;
+                    if (!firstErrorMsg) firstErrorMsg = result.error;
+                  }
                 }
+                AppState.loadingProgress.done++;
+                render();
+                await sleep(RAKUTEN_CALL_DELAY_MS);
               }
-              AppState.loadingProgress.done++;
-              render();
-              await sleep(RAKUTEN_CALL_DELAY_MS);
-            }
 
-            newResults.push({ ...h, dailyPrices, totalPrice, hasUnavailable, hasError, firstErrorMsg, reserveUrl });
+              newResults.push({ ...h, dailyPrices, totalPrice, hasUnavailable, hasError, firstErrorMsg, reserveUrl });
+            } catch (e) {
+              // 1件の処理で予期せぬ例外が起きても、それだけを「取得エラー」として記録し
+              // 残りの宿の検索を続行する（ここで丸ごと止まると、それまでの結果も
+              // 画面に反映されず「件数より表示が少ない」ように見えてしまうため）
+              newResults.push({
+                ...h,
+                dailyPrices: Array(nights).fill(null),
+                totalPrice: 0,
+                hasUnavailable: true,
+                hasError: true,
+                firstErrorMsg: '予期せぬエラー: ' + (e && e.message ? e.message : String(e)),
+                reserveUrl: null,
+              });
+              AppState.loadingProgress.done = Math.min(AppState.loadingProgress.total, AppState.loadingProgress.done + nights);
+            }
+            // 1件処理し終えるたびに結果へ反映。途中で処理が止まっても
+            // それまで取得できた分は必ず画面（結果タブの件数・カード）に残る。
+            AppState.results = [...newResults].sort((a, b) => {
+              if (a.hasUnavailable !== b.hasUnavailable) return a.hasUnavailable ? 1 : -1;
+              return a.totalPrice - b.totalPrice;
+            });
+            render();
           }
-          // 全日程で空室が取れた宿を優先し、合計金額の安い順に並べる
-          newResults.sort((a, b) => {
-            if (a.hasUnavailable !== b.hasUnavailable) return a.hasUnavailable ? 1 : -1;
-            return a.totalPrice - b.totalPrice;
-          });
-          AppState.results = newResults;
         }
         
         AppActions.calcCombos();
