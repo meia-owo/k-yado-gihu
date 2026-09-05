@@ -1233,6 +1233,15 @@
       document.documentElement.setAttribute('data-theme', AppState.theme);
       const appEl = document.getElementById('app');
       appEl.setAttribute('data-view-mode', AppState.viewMode);
+
+      // ボタン操作のたびにinnerHTMLを丸ごと作り直す実装のため、何もしないと
+      // スクロール可能な領域が毎回先頭に戻ってしまう（例：除外する宿を連続でタップすると
+      // その都度リストが上に戻って選びにくい）。[data-scroll-id]の付いた要素は
+      // scrollTopを記録→再描画後に復元することで、その場に留まれるようにする。
+      const scrollPositions = {};
+      appEl.querySelectorAll('[data-scroll-id]').forEach(el => {
+        scrollPositions[el.getAttribute('data-scroll-id')] = el.scrollTop;
+      });
       
       let viewContent = '';
       if (AppState.activeTab === 'search') viewContent = renderSearchTab();
@@ -1284,6 +1293,12 @@
           ` : ''}
         </div>
       `;
+
+      // 記録しておいたスクロール位置を、再描画後の新しい要素へ復元する
+      appEl.querySelectorAll('[data-scroll-id]').forEach(el => {
+        const id = el.getAttribute('data-scroll-id');
+        if (scrollPositions[id] != null) el.scrollTop = scrollPositions[id];
+      });
 
       if (AppState.activeTab === 'map') {
         // innerHTML置換で地図コンテナが毎回新しいDOM要素になるため、
@@ -1389,7 +1404,7 @@
       }
       
       return `
-        <div class="scroll-y flex-col justify-between" style="padding-bottom:24px;">
+        <div class="scroll-y flex-col justify-between" data-scroll-id="search-main" style="padding-bottom:24px;">
           <div>
             <h2 class="text-xl font-extrabold mb-4">検索条件</h2>
 
@@ -1418,7 +1433,7 @@
                 <label class="form-label text-sub" style="margin-bottom:0;">お気に入り銘柄</label>
                 <span class="text-xs font-bold text-pink">${AppState.favorites.length}件選択中</span>
               </div>
-              <div class="flex-col gap-2" style="max-height:180px; overflow-y:auto;">
+              <div class="flex-col gap-2" data-scroll-id="fav-list" style="max-height:180px; overflow-y:auto;">
                 ${AppState.hotels.map(h => {
                   const isFav = AppState.favorites.includes(h.id);
                   return `
@@ -1436,7 +1451,7 @@
                 <span class="text-xs font-bold" style="color:#b91c1c;">${AppState.excludedHotelIds.length}件除外中</span>
               </div>
               <p class="text-xs text-sub mb-2">タップした宿は検索対象から一時的に外れます（マスターからは削除されません）</p>
-              <div class="flex-col gap-2" style="max-height:180px; overflow-y:auto;">
+              <div class="flex-col gap-2" data-scroll-id="exclude-list" style="max-height:180px; overflow-y:auto;">
                 ${AppState.hotels.map(h => {
                   const isExcluded = AppState.excludedHotelIds.includes(h.id);
                   return `
@@ -1562,7 +1577,7 @@
             </div>
           ` : ''}
 
-          <div class="flex-col gap-2 mb-3" style="max-height:340px; overflow-y:auto;">
+          <div class="flex-col gap-2 mb-3" data-scroll-id="hotel-master-list" style="max-height:340px; overflow-y:auto;">
             ${rows}
           </div>
 
@@ -1635,7 +1650,7 @@
           return a.name.localeCompare(b.name, 'ja');
         });
         let simpleHtml = `
-          <div class="scroll-y" id="results-list">
+          <div class="scroll-y" id="results-list" data-scroll-id="results-list">
             <div class="flex-col gap-4 results-grid">
             <div class="flex justify-between items-center text-sm mb-1 px-1 shrink-0 list-full-row">
               <span class="font-bold flex items-center gap-2">${ICONS.calendar} 簡易モード（料金なし）</span>
@@ -1667,7 +1682,7 @@
       }
       
       let html = `
-        <div class="scroll-y" id="results-list">
+        <div class="scroll-y" id="results-list" data-scroll-id="results-list">
           <div class="flex-col gap-4 results-grid">
           <div class="flex justify-between items-center text-sm mb-1 px-1 shrink-0 list-full-row">
             <span class="font-bold flex items-center gap-2">
@@ -1913,7 +1928,7 @@
       };
 
       return `
-        <div class="scroll-y">
+        <div class="scroll-y" data-scroll-id="sim-main">
           <div class="flex justify-between items-center mb-3 px-1 shrink-0">
              <h3 class="font-extrabold flex items-center gap-1.5 text-base"><span class="text-yellow">${ICONS.sparkles}</span> プラン比較</h3>
              <span class="text-[10px] text-sub font-bold border px-2 py-1 rounded-full">横並びで見比べられます</span>
