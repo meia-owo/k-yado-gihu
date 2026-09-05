@@ -267,7 +267,27 @@
     [data-theme="dark"] .loading-overlay { background-color: rgba(17,24,39,0.8); }
     .spinner { width: 40px; height: 40px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Map tab (地図タブ) */
+    #map-container { position: absolute; inset: 0; }
+    #map-canvas { width: 100%; height: 100%; }
+    .map-legend {
+      position: absolute; left: 10px; bottom: 10px; z-index: 500;
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px;
+      padding: 8px 12px; font-size: 11px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .map-legend div { display: flex; align-items: center; gap: 6px; margin: 2px 0; }
+    .map-legend .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink:0; }
+    .map-popup-title { font-weight: 800; font-size: 13px; margin-bottom: 2px; }
+    .map-popup-sub { font-size: 11px; color: var(--text-sub); margin-bottom: 6px; }
+    .map-popup-actions { display: flex; gap: 6px; }
+    .map-popup-actions a {
+      flex: 1; text-align: center; font-size: 11px; font-weight: 700; padding: 5px 6px;
+      border-radius: 6px; text-decoration: none; white-space: nowrap;
+    }
   </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 </head>
 <body>
 
@@ -297,16 +317,65 @@
 
     // === 2. Data Definition ===
     // 宿マスターの初期シードデータ（コード直書き）。編集はlocalStorage側で行い、このシードは基準点として残す
+    // zone: '30'=岐阜車体から車30分圏内 / '50'=30〜50分圏内（リサーチ結果に基づく目安）
+    // category: 'business'|'city'|'onsen'|'ryokan'|'minpaku'|'hostel'
+    // lat/lng: 地図タブ表示用の概算座標（同一エリアの宿は近接クラスタとして配置。厳密な現地座標ではない目安）
     const HOTELS_DEFAULT = [
-      { id: 1, name: 'ABホテル犬山', distance: '4.0km', time: '10分', area: '愛知県犬山市', color: 'blue', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/197708/197708.html' },
-      { id: 2, name: 'ホテルミュースタイル犬山', distance: '3.5km', time: '10分', area: '愛知県犬山市', color: 'indigo', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/182415/182415.html' },
-      { id: 3, name: 'ホテルルートイン各務原', distance: '6.5km', time: '15分', area: '岐阜県各務原市', color: 'teal', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/1162/1162.html' },
-      { id: 5, name: '犬山セントラルホテル', distance: '4.5km', time: '12分', area: '愛知県犬山市', color: 'purple', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/108717/108717.html' },
-      { id: 8, name: '犬山館', distance: '3.2km', time: '9分', area: '愛知県犬山市', color: 'indigo', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/52894/52894.html' },
-      { id: 10, name: 'サンパーク犬山', distance: '5.0km', time: '13分', area: '愛知県犬山市', color: 'orange', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/108725/108725.html' },
-      { id: 11, name: '犬山ミヤコホテル', distance: '4.2km', time: '11分', area: '愛知県犬山市', color: 'purple', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/5169/5169.html' },
-      { id: 14, name: 'HOTEL R9 The Yard 美濃加茂', distance: '16.3km', time: '40分', area: '岐阜県美濃加茂市', color: 'teal', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/184080/184080.html' }
+      { id: 1, name: 'ABホテル犬山', distance: '4.0km', time: '10分', area: '愛知県犬山市', color: 'blue', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/197708/197708.html', zone: '30', category: 'business', lat: 35.3782, lng: 136.9398 },
+      { id: 2, name: 'ホテルミュースタイル犬山', distance: '3.5km', time: '10分', area: '愛知県犬山市', color: 'indigo', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/182415/182415.html', zone: '30', category: 'business', lat: 35.3776, lng: 136.9405 },
+      { id: 3, name: 'ホテルルートイン各務原', distance: '6.5km', time: '15分', area: '岐阜県各務原市', color: 'teal', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/1162/1162.html', zone: '30', category: 'business', lat: 35.3838, lng: 136.8791 },
+      { id: 5, name: '犬山セントラルホテル', distance: '4.5km', time: '12分', area: '愛知県犬山市', color: 'purple', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/108717/108717.html', zone: '30', category: 'business', lat: 35.3792, lng: 136.9412 },
+      { id: 8, name: '犬山館', distance: '3.2km', time: '9分', area: '愛知県犬山市', color: 'indigo', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/52894/52894.html', zone: '30', category: 'ryokan', lat: 35.3799, lng: 136.9388 },
+      { id: 10, name: 'サンパーク犬山', distance: '5.0km', time: '13分', area: '愛知県犬山市', color: 'orange', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/108725/108725.html', zone: '30', category: 'business', lat: 35.3765, lng: 136.9432 },
+      { id: 11, name: '犬山ミヤコホテル', distance: '4.2km', time: '11分', area: '愛知県犬山市', color: 'purple', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/5169/5169.html', zone: '30', category: 'business', lat: 35.3805, lng: 136.9420 },
+      { id: 14, name: 'HOTEL R9 The Yard 美濃加茂', distance: '16.3km', time: '40分', area: '岐阜県美濃加茂市', color: 'teal', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/184080/184080.html', zone: '50', category: 'business', lat: 35.4392, lng: 137.0135 },
+
+      // --- ここから追加分（車30分圏・リサーチ結果） ---
+      { id: 15, name: '犬山温泉 旬樹庵 八勝閣みづのを', distance: '3.0km', time: '8分', area: '岐阜県各務原市鵜沼南町', color: 'teal', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/5306/5306.html', zone: '30', category: 'onsen', lat: 35.3934, lng: 136.9122 },
+      { id: 16, name: 'ビジネスホテル ニューたじま', distance: '6.0km', time: '12分', area: '岐阜県各務原市蘇原三柿野町', color: 'blue', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/188318/188318.html', zone: '30', category: 'business', lat: 35.4041, lng: 136.8615 },
+      { id: 17, name: 'ＡＢホテル各務原', distance: '6.5km', time: '14分', area: '岐阜県各務原市小佐野町', color: 'blue', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/162909/162909.html', zone: '30', category: 'business', lat: 35.4008, lng: 136.8650 },
+      { id: 18, name: 'ビジネスホテル観月', distance: '7.0km', time: '14分', area: '岐阜県各務原市那加門前町', color: 'indigo', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/8697/8697.html', zone: '30', category: 'business', lat: 35.3838, lng: 136.8780 },
+      { id: 19, name: 'ビジネスホテル スワロー', distance: '7.0km', time: '14分', area: '岐阜県各務原市那加織田町', color: 'indigo', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/15184/15184.html', zone: '30', category: 'business', lat: 35.3841, lng: 136.8795 },
+      { id: 20, name: '旅館吉野', distance: '7.0km', time: '14分', area: '岐阜県各務原市那加元町', color: 'purple', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/29347/29347.html', zone: '30', category: 'ryokan', lat: 35.3852, lng: 136.8772 },
+      { id: 21, name: 'ウィークリー翔ホテル各務原', distance: '7.0km', time: '14分', area: '岐阜県各務原市那加新那加町', color: 'orange', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/147757/147757.html', zone: '30', category: 'business', lat: 35.3861, lng: 136.8788 },
+      { id: 22, name: 'ホテルインディゴ犬山有楽苑 by IHG', distance: '8.0km', time: '16分', area: '愛知県犬山市犬山北古券', color: 'pink', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/183344/183344.html', zone: '30', category: 'city', lat: 35.3810, lng: 136.9435 },
+      { id: 23, name: '灯屋 迎帆楼', distance: '8.0km', time: '16分', area: '愛知県犬山市犬山北古券', color: 'purple', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/162755/162755.html', zone: '30', category: 'ryokan', lat: 35.3814, lng: 136.9441 },
+      { id: 24, name: '犬山温泉 臨江館', distance: '8.0km', time: '16分', area: '愛知県犬山市犬山西大門先', color: 'teal', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/15091/15091.html', zone: '30', category: 'onsen', lat: 35.3785, lng: 136.9378 },
+      { id: 25, name: '宿−SHUKU−', distance: '8.0km', time: '16分', area: '愛知県犬山市犬山東古券', color: 'indigo', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/196428/196428.html', zone: '30', category: 'ryokan', lat: 35.3793, lng: 136.9425 },
+      { id: 26, name: '犬山シティホテル', distance: '8.0km', time: '16分', area: '愛知県犬山市東古券', color: 'blue', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/106077/106077.html', zone: '30', category: 'city', lat: 35.3788, lng: 136.9428 },
+      { id: 27, name: '犬山モダンルーム', distance: '8.0km', time: '15分', area: '愛知県犬山市犬山東古券', color: 'orange', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/169420/169420.html', zone: '30', category: 'minpaku', lat: 35.3796, lng: 136.9430 },
+      { id: 28, name: 'ヴィラ犬山', distance: '8.0km', time: '15分', area: '愛知県犬山市犬山東古券', color: 'orange', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/171811/171811.html', zone: '30', category: 'minpaku', lat: 35.3798, lng: 136.9433 },
+      { id: 29, name: '游月庵', distance: '8.0km', time: '15分', area: '愛知県犬山市犬山西古券', color: 'orange', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/194210/194210.html', zone: '30', category: 'minpaku', lat: 35.3779, lng: 136.9395 },
+      { id: 30, name: '犬山城下町一棟貸しの宿 結美いぬやま', distance: '8.0km', time: '16分', area: '愛知県犬山市犬山南古券', color: 'orange', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/187297/187297.html', zone: '30', category: 'minpaku', lat: 35.3771, lng: 136.9402 },
+      { id: 31, name: '犬山国際ユースホステル', distance: '6.0km', time: '13分', area: '愛知県犬山市継鹿尾氷室', color: 'teal', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/52163/52163.html', zone: '30', category: 'hostel', lat: 35.3651, lng: 136.9502 },
+      { id: 32, name: 'すいとぴあ江南', distance: '10.0km', time: '20分', area: '愛知県江南市草井町西', color: 'blue', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/63147/63147.html', zone: '30', category: 'city', lat: 35.3271, lng: 136.8742 },
+      { id: 33, name: '松里旅館', distance: '12.0km', time: '23分', area: '愛知県江南市古知野町', color: 'purple', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/44364/44364.html', zone: '30', category: 'ryokan', lat: 35.3339, lng: 136.8657 },
+      { id: 34, name: 'ホテルルートイン岐南－国道２１号－', distance: '12.0km', time: '24分', area: '岐阜県羽島郡岐南町', color: 'indigo', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/192975/192975.html', zone: '30', category: 'business', lat: 35.3864, lng: 136.7894 },
+      { id: 35, name: 'ＡＢホテル関', distance: '14.0km', time: '28分', area: '岐阜県関市平和通', color: 'blue', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/187432/187432.html', zone: '30', category: 'business', lat: 35.4951, lng: 136.9169 },
+
+      // --- ここから追加分（車30〜50分圏・リサーチ結果） ---
+      { id: 36, name: 'ＡＢホテル可児', distance: '20.0km', time: '33分', area: '岐阜県可児市広見', color: 'blue', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/181294/181294.html', zone: '50', category: 'business', lat: 35.4167, lng: 137.0561 },
+      { id: 37, name: 'ホテルルートイン可児', distance: '22.0km', time: '35分', area: '岐阜県可児市', color: 'indigo', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/15971/15971.html', zone: '50', category: 'business', lat: 35.4180, lng: 137.0580 },
+      { id: 38, name: 'パークホテル可児', distance: '22.0km', time: '35分', area: '岐阜県可児市', color: 'purple', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/14140/14140.html', zone: '50', category: 'city', lat: 35.4150, lng: 137.0540 },
+      { id: 39, name: 'ホテルシンセリティ可児', distance: '22.0km', time: '35分', area: '岐阜県可児市', color: 'teal', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/10754/10754.html', zone: '50', category: 'business', lat: 35.4172, lng: 137.0570 },
+      { id: 40, name: 'ホテルルートイン美濃加茂', distance: '18.0km', time: '30分', area: '岐阜県美濃加茂市', color: 'indigo', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/1234/1234.html', zone: '50', category: 'business', lat: 35.4386, lng: 137.0128 },
+      { id: 41, name: 'フェアフィールド・バイ・マリオット・岐阜清流里山公園', distance: '20.0km', time: '32分', area: '岐阜県美濃加茂市山之上町', color: 'pink', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/180632/180632.html', zone: '50', category: 'city', lat: 35.4740, lng: 137.0360 },
+      { id: 42, name: 'シティホテル美濃加茂', distance: '18.0km', time: '32分', area: '岐阜県美濃加茂市', color: 'blue', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/5249/5249.html', zone: '50', category: 'city', lat: 35.4395, lng: 137.0140 },
+      { id: 43, name: '天然温泉 金華の湯 ドーミーイン岐阜駅前', distance: '17.0km', time: '32分', area: '岐阜県岐阜市吉野町', color: 'teal', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/139796/139796.html', zone: '50', category: 'onsen', lat: 35.4067, lng: 136.7606 },
+      { id: 44, name: 'ダイワロイネットホテル岐阜', distance: '17.0km', time: '32分', area: '岐阜県岐阜市', color: 'indigo', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/52250/52250.html', zone: '50', category: 'city', lat: 35.4073, lng: 136.7614 },
+      { id: 45, name: 'ＡＢホテル岐阜', distance: '17.0km', time: '32分', area: '岐阜県岐阜市', color: 'blue', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/161010/161010.html', zone: '50', category: 'business', lat: 35.4080, lng: 136.7600 },
+      { id: 46, name: 'コンフォートホテル岐阜', distance: '17.0km', time: '32分', area: '岐阜県岐阜市', color: 'orange', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/20562/20562.html', zone: '50', category: 'business', lat: 35.4062, lng: 136.7590 },
+      { id: 47, name: '岐阜ワシントンホテルプラザ', distance: '17.0km', time: '32分', area: '岐阜県岐阜市', color: 'purple', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/422/422.html', zone: '50', category: 'city', lat: 35.4050, lng: 136.7580 },
+      { id: 48, name: '長良川温泉 十八楼', distance: '20.0km', time: '37分', area: '岐阜県岐阜市長良', color: 'teal', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/2979/2979.html', zone: '50', category: 'onsen', lat: 35.4370, lng: 136.7660 },
+      { id: 49, name: '長良川温泉 岐阜グランドホテル', distance: '20.0km', time: '37分', area: '岐阜県岐阜市長良', color: 'teal', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/8385/8385.html', zone: '50', category: 'onsen', lat: 35.4380, lng: 136.7670 },
+      { id: 50, name: '都ホテル 岐阜長良川', distance: '20.0km', time: '37分', area: '岐阜県岐阜市長良', color: 'purple', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/9483/9483.html', zone: '50', category: 'city', lat: 35.4360, lng: 136.7650 },
+      { id: 51, name: 'ホテル ルートイン関', distance: '16.0km', time: '30分', area: '岐阜県関市', color: 'indigo', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/84784/84784.html', zone: '50', category: 'business', lat: 35.4955, lng: 136.9175 },
+      { id: 52, name: 'シティーホテル セキ', distance: '18.0km', time: '33分', area: '岐阜県関市', color: 'blue', rakutenUrl: 'https://travel.rakuten.co.jp/HOTEL/38981/38981.html', zone: '50', category: 'city', lat: 35.4940, lng: 136.9160 }
     ];
+    // 新規デフォルト宿を追加した際はこのバージョンを1つ上げる（既存ユーザーへのマージ判定に使用）
+    const DEFAULT_HOTELS_VERSION = 2;
+    // 新規インストール時のID開始値（マスターに存在する最大ID+1）
+    const DEFAULT_NEXT_ID = Math.max(...HOTELS_DEFAULT.map(h => h.id)) + 1;
 
     // 宿オブジェクトに派生フィールド(mapLink・rakutenHotelNo)を付与
     const enrichHotel = (h) => ({
@@ -315,6 +384,15 @@
       // 楽天URLの /HOTEL/xxxxx/ から施設番号(hotelNo)を直接抽出
       rakutenHotelNo: (h.rakutenUrl.match(/\/HOTEL\/(\d+)\//) || [])[1] || null
     });
+
+    const CATEGORY_LABELS = {
+      business: 'ビジネスホテル', city: 'シティホテル', onsen: '温泉旅館',
+      ryokan: '旅館', minpaku: '民泊・一棟貸', hostel: 'ユースホステル'
+    };
+    // deleteHotel()で「デフォルト宿かどうか」を判定するためのhotelNo集合
+    const DEFAULT_HOTEL_NOS = new Set(
+      HOTELS_DEFAULT.map(h => (h.rakutenUrl.match(/\/HOTEL\/(\d+)\//) || [])[1]).filter(Boolean)
+    );
 
     // 距離計算の起点（岐阜車体・固定値）
     const ORIGIN_ADDRESS = '35.3973787, 136.8966483';
@@ -386,7 +464,7 @@
       favorites: Storage.get('app_favs_v2', []),
       excludedHotelIds: Storage.get('excluded_hotels_v1', []), // 検索から一時的に除外する宿
       hotels: Storage.get('hotel_master_v1', HOTELS_DEFAULT).map(enrichHotel),
-      nextHotelId: Storage.get('hotel_master_next_id_v1', 15),
+      nextHotelId: Storage.get('hotel_master_next_id_v1', DEFAULT_NEXT_ID),
       hotelMasterExpanded: false,
       hotelEditingId: null, // 現在編集中の宿id（nullなら編集フォーム非表示）
       hotelEditDraft: null,
@@ -411,11 +489,42 @@
       loadingProgress: { done: 0, total: 0 },
       apiSettingsExpanded: false, // 未設定時のみ後で自動展開
       results: [],
+      resultsZoneFilter: 'all', // 'all' | '30' | '50'
+      resultsCategoryFilter: 'all', // 'all' | 'business' | 'city' | 'onsen' | 'ryokan' | 'minpaku' | 'hostel'
+      resultsSortKey: 'price', // 'price' | 'time' | 'priority'
+      mapShowMode: 'all', // 'all'=登録宿すべて / 'results'=検索結果のみ
       searchParams: null, 
       combos: { fav: null, best: null }
     };
     // 未設定の場合のみ最初から展開しておく
     AppState.apiSettingsExpanded = !(AppState.rakutenAppId && AppState.rakutenAccessKey);
+
+    // === 宿マスターへのデフォルト宿マージ（既存ユーザー向け） ===
+    // ローカルで独自に宿を追加/削除しているユーザーがいるため、HOTELS_DEFAULTを直接上書きせず、
+    // 「まだ持っていない新規デフォルト宿だけ」を差分追加する。削除済みの宿は再追加しない。
+    (function mergeNewDefaultHotels() {
+      const storedVersion = Storage.get('default_hotels_version_v1', 0);
+      if (storedVersion >= DEFAULT_HOTELS_VERSION) return; // 既に最新までマージ済み
+      const deletedNos = new Set(Storage.get('deleted_default_hotelnos_v1', []));
+      const existingNos = new Set(AppState.hotels.map(h => h.rakutenHotelNo).filter(Boolean));
+      let added = 0;
+      HOTELS_DEFAULT.map(enrichHotel).forEach(dh => {
+        if (!dh.rakutenHotelNo) return;
+        if (existingNos.has(dh.rakutenHotelNo)) return; // 既に同じ宿(hotelNo一致)を保持済み
+        if (deletedNos.has(dh.rakutenHotelNo)) return; // ユーザーが過去に削除済み→復活させない
+        // 既存ユーザーの手動追加分とID衝突しないよう、IDはその場で採番し直す
+        AppState.hotels.push({ ...dh, id: AppState.nextHotelId });
+        AppState.nextHotelId++;
+        existingNos.add(dh.rakutenHotelNo);
+        added++;
+      });
+      if (added > 0) {
+        Storage.set('hotel_master_next_id_v1', AppState.nextHotelId);
+        const raw = AppState.hotels.map(({ mapLink, rakutenHotelNo, ...rest }) => rest);
+        Storage.set('hotel_master_v1', raw);
+      }
+      Storage.set('default_hotels_version_v1', DEFAULT_HOTELS_VERSION);
+    })();
 
     // === 4.5 Rakuten Travel API (空室検索API) 連携 ===
     const RAKUTEN_ENDPOINT = 'https://openapi.rakuten.co.jp/engine/api/Travel/VacantHotelSearch/20170426';
@@ -761,6 +870,15 @@
         const h = AppState.hotels.find(x => x.id === id);
         if (!h) return;
         if (!confirm(`「${h.name}」を宿マスターから削除しますか？\n（お気に入り登録も一緒に解除されます）`)) return;
+        // デフォルト宿(hotelNoがHOTELS_DEFAULTに含まれる)を削除した場合は、
+        // 次回起動時のマージ処理で復活しないよう「削除済みhotelNo」として記録しておく
+        if (h.rakutenHotelNo && DEFAULT_HOTEL_NOS.has(h.rakutenHotelNo)) {
+          const deletedNos = Storage.get('deleted_default_hotelnos_v1', []);
+          if (!deletedNos.includes(h.rakutenHotelNo)) {
+            deletedNos.push(h.rakutenHotelNo);
+            Storage.set('deleted_default_hotelnos_v1', deletedNos);
+          }
+        }
         AppState.hotels = AppState.hotels.filter(x => x.id !== id);
         AppState.favorites = AppState.favorites.filter(fid => fid !== id);
         delete AppState.hotelVerifyResults[id];
@@ -771,9 +889,10 @@
       resetHotelsToDefault() {
         if (!confirm('宿マスターを初期データにリセットします。追加・編集した内容は失われます。よろしいですか？')) return;
         AppState.hotels = HOTELS_DEFAULT.map(enrichHotel);
-        AppState.nextHotelId = 15;
+        AppState.nextHotelId = DEFAULT_NEXT_ID;
         AppState.hotelVerifyResults = {};
-        Storage.set('hotel_master_next_id_v1', 15);
+        Storage.set('hotel_master_next_id_v1', DEFAULT_NEXT_ID);
+        Storage.set('deleted_default_hotelnos_v1', []); // リセット時は削除記録もクリアし、全デフォルト宿を復活させる
         saveHotelMaster();
         render();
       },
@@ -1070,6 +1189,11 @@
         AppState.combos = { best: bestCombo, fav: favCombo };
       },
       
+      setResultsZoneFilter(val) { AppState.resultsZoneFilter = val; render(); },
+      setResultsCategoryFilter(val) { AppState.resultsCategoryFilter = val; render(); },
+      setResultsSortKey(val) { AppState.resultsSortKey = val; render(); },
+      setMapShowMode(val) { AppState.mapShowMode = val; render(); },
+
       shareLine(type) {
         const data = type === 'fav' ? AppState.combos.fav : AppState.combos.best;
         if(!data) return;
@@ -1087,6 +1211,10 @@
     };
 
     // === 6. View Renderers ===
+    let leafletMapInstance = null; // 地図タブ用Leafletインスタンス（innerHTML再描画のたびに作り直す）
+    // 30分圏・50分圏の目安半径（直線距離ベースの概算。実際の道路距離・所要時間とは異なる）
+    const ZONE_RADIUS_KM = { '30': 15, '50': 25 };
+
     const render = () => {
       document.documentElement.setAttribute('data-theme', AppState.theme);
       const appEl = document.getElementById('app');
@@ -1096,6 +1224,7 @@
       if (AppState.activeTab === 'search') viewContent = renderSearchTab();
       else if (AppState.activeTab === 'results') viewContent = renderResultsTab();
       else if (AppState.activeTab === 'simulation') viewContent = renderSimTab();
+      else if (AppState.activeTab === 'map') viewContent = renderMapTab();
 
       appEl.innerHTML = `
         <div class="header">
@@ -1125,6 +1254,9 @@
           <button class="tab-btn ${AppState.activeTab === 'simulation' ? 'active' : ''}" onclick="AppActions.setTab('simulation')">
             ${ICONS.sparkles} 組合せ
           </button>
+          <button class="tab-btn ${AppState.activeTab === 'map' ? 'active' : ''}" onclick="AppActions.setTab('map')">
+            ${ICONS.mapPin} 地図
+          </button>
         </div>
         
         <div class="content-area">
@@ -1138,6 +1270,15 @@
           ` : ''}
         </div>
       `;
+
+      if (AppState.activeTab === 'map') {
+        // innerHTML置換で地図コンテナが毎回新しいDOM要素になるため、
+        // 前回のLeafletインスタンスを確実に破棄してから作り直す
+        requestAnimationFrame(() => initMapTab());
+      } else if (leafletMapInstance) {
+        try { leafletMapInstance.remove(); } catch(e) {}
+        leafletMapInstance = null;
+      }
     };
 
     const renderSearchTab = () => {
@@ -1520,17 +1661,67 @@
             </span>
             <span class="text-xs text-sub">大人1名1室 ・ 楽天トラベル実料金</span>
           </div>
+
+          <div class="flex-col gap-2 mb-1 list-full-row" style="background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:10px 12px;">
+            <div class="flex items-center gap-2" style="flex-wrap:wrap;">
+              <span class="text-xs font-bold text-sub" style="white-space:nowrap;">${ICONS.mapPin} 距離:</span>
+              <div class="toggle-group" style="margin-bottom:0; flex:1; min-width:180px;">
+                <button class="toggle-btn ${AppState.resultsZoneFilter === 'all' ? 'active' : ''}" style="padding:6px 8px; font-size:12px;" onclick="AppActions.setResultsZoneFilter('all')">すべて</button>
+                <button class="toggle-btn ${AppState.resultsZoneFilter === '30' ? 'active' : ''}" style="padding:6px 8px; font-size:12px;" onclick="AppActions.setResultsZoneFilter('30')">30分圏内</button>
+                <button class="toggle-btn ${AppState.resultsZoneFilter === '50' ? 'active' : ''}" style="padding:6px 8px; font-size:12px;" onclick="AppActions.setResultsZoneFilter('50')">30〜50分圏</button>
+              </div>
+            </div>
+            <div class="flex items-center gap-2" style="flex-wrap:wrap;">
+              <span class="text-xs font-bold text-sub" style="white-space:nowrap;">${ICONS.building} 種別:</span>
+              <select onchange="AppActions.setResultsCategoryFilter(this.value)" style="flex:1; min-width:140px; font-size:12px; padding:6px 8px; border-radius:8px; border:1px solid var(--border); background:var(--bg-main); color:var(--text-main);">
+                <option value="all" ${AppState.resultsCategoryFilter === 'all' ? 'selected' : ''}>すべて</option>
+                ${Object.entries(CATEGORY_LABELS).map(([k,v]) => `<option value="${k}" ${AppState.resultsCategoryFilter === k ? 'selected' : ''}>${v}</option>`).join('')}
+              </select>
+              <span class="text-xs font-bold text-sub" style="white-space:nowrap; margin-left:4px;">並び替え:</span>
+              <select onchange="AppActions.setResultsSortKey(this.value)" style="flex:1; min-width:120px; font-size:12px; padding:6px 8px; border-radius:8px; border:1px solid var(--border); background:var(--bg-main); color:var(--text-main);">
+                <option value="price" ${AppState.resultsSortKey === 'price' ? 'selected' : ''}>料金が安い順</option>
+                <option value="time" ${AppState.resultsSortKey === 'time' ? 'selected' : ''}>車移動が近い順</option>
+                <option value="priority" ${AppState.resultsSortKey === 'priority' ? 'selected' : ''}>おすすめ順(30分圏優先)</option>
+              </select>
+            </div>
+          </div>
       `;
+
+      // === 距離圏・種別フィルタ ===
+      let filteredResults = [...AppState.results];
+      if (AppState.resultsZoneFilter !== 'all') {
+        filteredResults = filteredResults.filter(h => h.zone === AppState.resultsZoneFilter);
+      }
+      if (AppState.resultsCategoryFilter !== 'all') {
+        filteredResults = filteredResults.filter(h => h.category === AppState.resultsCategoryFilter);
+      }
+
+      if (filteredResults.length === 0) {
+        html += `<div class="flex-col items-center justify-center gap-2 text-sub p-6 text-center list-full-row" style="min-height:160px;">
+          <p class="font-bold">フィルタ条件に一致する宿がありません。</p>
+          <p class="text-xs">「距離」「種別」の絞り込みを変更してください。</p>
+        </div></div></div>`;
+        return html;
+      }
       
-      const sorted = [...AppState.results].sort((a,b) => {
+      // === 優先ロジック：お気に入り最優先 → 空室ありを優先 → 選択中の並び替えキー ===
+      const timeVal = (h) => parseInt(h.time, 10) || 999;
+      const zoneRank = (h) => h.zone === '30' ? 0 : (h.zone === '50' ? 1 : 2);
+      const sorted = filteredResults.sort((a,b) => {
         const aFav = AppState.favorites.includes(a.id);
         const bFav = AppState.favorites.includes(b.id);
-        if(aFav && !bFav) return -1;
-        if(!aFav && bFav) return 1;
-        return 0; // 価格順は既にソート済み
+        if(aFav !== bFav) return aFav ? -1 : 1;
+        if(a.hasUnavailable !== b.hasUnavailable) return a.hasUnavailable ? 1 : -1;
+        if (AppState.resultsSortKey === 'time') return timeVal(a) - timeVal(b);
+        if (AppState.resultsSortKey === 'priority') {
+          const za = zoneRank(a), zb = zoneRank(b);
+          if (za !== zb) return za - zb;
+          return a.totalPrice - b.totalPrice;
+        }
+        return a.totalPrice - b.totalPrice; // 'price'（デフォルト）
       });
 
-      const fullyAvailable = AppState.results.filter(r => !r.hasUnavailable);
+      const fullyAvailable = filteredResults.filter(r => !r.hasUnavailable);
       const cheapestPrice = fullyAvailable.length > 0 ? Math.min(...fullyAvailable.map(r => r.totalPrice)) : null;
 
       sorted.forEach(hotel => {
@@ -1549,6 +1740,8 @@
             
             <div class="flex gap-2 mb-2" style="flex-wrap:wrap;">
               ${isCheapest ? `<span class="badge badge-yellow">🏆最安値</span>` : ''}
+              ${hotel.zone ? `<span class="badge" style="background:${hotel.zone === '30' ? '#dbeafe' : '#fef3c7'}; color:${hotel.zone === '30' ? '#1d4ed8' : '#b45309'};">${hotel.zone === '30' ? '車30分圏' : '車30〜50分圏'}</span>` : ''}
+              ${hotel.category && CATEGORY_LABELS[hotel.category] ? `<span class="badge" style="background:var(--bg-hover); color:var(--text-sub);">${CATEGORY_LABELS[hotel.category]}</span>` : ''}
               ${hotel.hasUnavailable ? `<span class="badge" style="background:#fef3c7; color:#b45309;">一部日程 空室なし</span>` : ''}
               ${hotel.hasError ? `<span class="badge" style="background:#fee2e2; color:#b91c1c;">エラー: ${hotel.firstErrorMsg || '不明'}</span>` : ''}
               <span class="badge ${isFav ? 'badge-pink' : 'badge-primary'}">${hotel.area}</span>
@@ -1564,194 +1757,4 @@
             <!-- 上部: 料金比較と日々の内訳（常時表示） -->
             <div class="price-section">
               <div class="flex justify-between items-end mb-2">
-                <span class="text-xs font-bold text-sub">${AppState.searchParams.nights}泊合計${hotel.hasUnavailable ? '(取得分のみ)' : ''}</span>
-                <div class="flex items-end gap-2">
-                  ${(() => {
-                    const availNights = hotel.dailyPrices.filter(p => p != null).length;
-                    if (availNights === 0) return '';
-                    const avg = Math.round(hotel.totalPrice / availNights);
-                    return `<span class="text-xs text-sub leading-none">平均 ¥${avg.toLocaleString()}/泊</span>`;
-                  })()}
-                  <span class="text-2xl font-extrabold text-pink leading-none">¥${hotel.totalPrice.toLocaleString()}</span>
-                </div>
-              </div>
-              
-              <div class="daily-grid">
-                ${hotel.dailyPrices.map((price, i) => `
-                  <div class="daily-chip" ${price == null ? 'style="opacity:0.5;"' : ''}>
-                    <div class="d-label">${formatDay(addDays(AppState.searchParams.start, i))}</div>
-                    <div class="d-price">${price != null ? '¥' + price.toLocaleString() : '空室なし'}</div>
-                  </div>
-                `).join('')}
-              </div>
-            </div>
-
-            <!-- 下部: MAPと予約 -->
-            <div class="action-grid">
-              <button class="btn-action btn-map" onclick="window.open('${getDirectionsLink(hotel)}', '_blank')">
-                ${ICONS.mapPin}
-                <span>MAPで見る</span>
-              </button>
-              <button class="btn-action btn-rakuten" onclick="window.open('${reserveLink}', '_blank')">
-                <span>楽天で予約</span>
-              </button>
-            </div>
-          </div>
-        `;
-      });
-      html += `<p class="disclaimer list-full-row">※料金は楽天トラベル空室検索APIから取得したリアルタイム情報です。「楽天で予約」は宿のページに遷移します。チェックイン日・泊数はページ内で選び直してください（自動入力ではありません）。</p></div></div>`;
-      return html;
-    };
-
-    const renderSimTab = () => {
-      if (AppState.pricingMode === 'simple') {
-        return `
-          <div class="flex-col items-center justify-center h-full gap-3 text-sub text-center p-6">
-            <div style="background:var(--bg-hover);padding:16px;border-radius:50%;">${ICONS.sparkles}</div>
-            <p class="font-bold">組合せ機能はAPIモードでのみ利用可能です</p>
-            <p class="text-xs">検索タブで「APIモード」に切り替えてください</p>
-          </div>
-        `;
-      }
-      if(AppState.results.length === 0 || !AppState.searchParams || AppState.searchParams.nights < 2) {
-        return `
-          <div class="flex-col items-center justify-center h-full gap-3 text-sub text-center p-6">
-            <div style="background:var(--bg-hover);padding:16px;border-radius:50%;">${ICONS.sparkles}</div>
-            <p class="font-bold">2泊以上で検索を実行すると<br>組合せシミュレーションが表示されます</p>
-          </div>
-        `;
-      }
-      
-      const renderColumn = (comboObj, typeStr, accentColor) => {
-        if(!comboObj) {
-          return `
-            <div class="flex-col items-center justify-center h-full text-sub text-xs p-4 border rounded-lg border-dashed text-center" style="background:var(--bg-card);">
-              <span class="mb-2">${ICONS.heart}</span>
-              結果タブでお気に入り登録してください
-            </div>
-          `;
-        }
-        
-        const availNights = comboObj.combo.reduce((sum, b) => sum + b.nights, 0);
-        const avgPrice = availNights > 0 ? Math.round(comboObj.total / availNights) : 0;
-        let colHtml = `
-          <div class="flex justify-between items-end mb-3">
-            <div>
-              <div class="text-[10px] font-bold text-sub mb-0.5">合計金額</div>
-              <div class="text-xl font-extrabold text-main leading-none">¥${comboObj.total.toLocaleString()}</div>
-            </div>
-            <div class="text-right">
-              <div class="text-[10px] font-bold text-sub mb-0.5">平均/泊</div>
-              <div class="text-sm font-bold text-sub leading-none">¥${avgPrice.toLocaleString()}</div>
-            </div>
-          </div>
-          <div class="flex-col gap-2 mb-3">
-        `;
-        
-        // 圧縮された連泊ブロックを描画
-        comboObj.combo.forEach((block, idx) => {
-          const startDateStr = formatDay(addDays(AppState.searchParams.start, block.startDayIndex));
-          const isLast = idx === comboObj.combo.length - 1;
-          const sameNext = !isLast && comboObj.combo[idx+1].id === block.id; // 基本はブロック化されるため発火しないが念のため
-          const isFav = AppState.favorites.includes(block.id);
-          const reserveLink = block.rakutenUrl; // 1泊分APIのURLではなく、日程を選び直せる宿ページに統一
-          
-          colHtml += `
-            <div class="timeline-item" style="padding-left:14px; padding-bottom:8px;">
-              ${!isLast ? `<div class="timeline-line" style="left:7px; top:12px; bottom:-8px; width:2px; ${sameNext ? `background-color: var(--primary);` : ''}"></div>` : ''}
-              <div class="timeline-dot color-${block.color}" style="left:4px; top:12px; width:8px; height:8px;"></div>
-              
-              <div class="card p-2 border shrink-0 flex-col gap-1.5" style="background-color:var(--bg-card); border-color:var(--border); box-shadow:none;">
-                <div class="flex justify-between items-center px-0.5">
-                  <span class="text-[10px] font-bold text-color-${block.color}">${startDateStr}〜 (${block.nights}泊)</span>
-                  <div class="font-extrabold text-xs text-main font-mono">¥${block.blockPrice.toLocaleString()}</div>
-                </div>
-                
-                <div class="flex justify-between items-start gap-1 px-0.5 mt-1 mb-1">
-                  <div class="font-bold text-[11px] leading-tight" style="white-space:normal;">${block.name}</div>
-                  <button onclick="AppActions.toggleFav(${block.id})" class="shrink-0 mini-fav ${isFav ? 'is-fav' : ''} ${isFav ? '' : 'text-sub'}" style="padding:6px; min-width:32px; min-height:32px;">
-                    <span style="display:inline-flex;">${ICONS.heart}</span>
-                  </button>
-                </div>
-
-                ${block.nights > 1 ? `
-                  <div class="flex flex-col gap-1 px-0.5 mb-1" style="border-top:1px dashed var(--border); padding-top:6px;">
-                    ${block.nightlyPrices.map((p, i) => `
-                      <div class="flex justify-between items-center">
-                        <span class="text-[10px] text-sub font-bold">${formatDay(addDays(AppState.searchParams.start, block.startDayIndex + i))}</span>
-                        <span class="text-[10px] font-mono font-bold">¥${p.toLocaleString()}</span>
-                      </div>
-                    `).join('')}
-                  </div>
-                ` : ''}
-                
-                <div class="flex flex-col gap-1.5 mt-1">
-                  <button onclick="window.open('${getDirectionsLink(block)}', '_blank')" class="flex justify-center items-center text-main text-[11px] font-bold rounded border" style="background:var(--bg-input); min-height:40px;">
-                    ${ICONS.mapPin} MAP
-                  </button>
-                  ${reserveLink ? `
-                    <button onclick="window.open('${reserveLink}', '_blank')" class="flex justify-center items-center text-white text-[11px] font-bold rounded" style="background:var(--rakuten); min-height:40px;">
-                      楽天で予約
-                    </button>
-                  ` : `
-                    <div class="flex justify-center items-center text-sub text-[10px] font-bold rounded" style="background:var(--bg-hover); min-height:36px;">予約リンクなし</div>
-                  `}
-                </div>
-              </div>
-            </div>
-          `;
-        });
-        colHtml += `</div>`;
-        return colHtml;
-      };
-
-      return `
-        <div class="scroll-y">
-          <div class="flex justify-between items-center mb-3 px-1 shrink-0">
-             <h3 class="font-extrabold flex items-center gap-1.5 text-base"><span class="text-yellow">${ICONS.sparkles}</span> プラン比較</h3>
-             <span class="text-[10px] text-sub font-bold border px-2 py-1 rounded-full">横並びで見比べられます</span>
-          </div>
-          
-          <div class="split-view">
-            <!-- 左カラム：お気に入り -->
-            <div class="split-col">
-              <div class="text-center text-[11px] font-bold text-pink mb-2 flex items-center justify-center gap-1">
-                ${ICONS.heart} お気に入り
-              </div>
-              <div class="card p-2 border shrink-0" style="background:var(--pink-light); border-color:var(--pink);">
-                ${renderColumn(AppState.combos.fav, 'お気に入り', 'var(--pink)')}
-                ${AppState.combos.fav ? `
-                  <button class="btn w-full text-[11px] p-2 mt-1" style="background:#06C755; color:white;" onclick="AppActions.shareLine('fav')">
-                    ${ICONS.share} LINE (ライン) 共有
-                  </button>
-                ` : ''}
-              </div>
-            </div>
-            
-            <!-- 右カラム：最安 -->
-            <div class="split-col">
-              <div class="text-center text-[11px] font-bold text-primary mb-2 flex items-center justify-center gap-1">
-                ${ICONS.search} とにかく最安
-              </div>
-              <div class="card p-2 border shrink-0" style="background:var(--primary-light); border-color:var(--primary);">
-                ${renderColumn(AppState.combos.best, '最安', 'var(--primary)')}
-                <button class="btn w-full text-[11px] p-2 mt-1" style="background:#06C755; color:white;" onclick="AppActions.shareLine('best')">
-                  ${ICONS.share} LINE (ライン) 共有
-                </button>
-              </div>
-            </div>
-          </div>
-          
-          <p class="disclaimer mt-4">
-            ※プラン比較機能は連泊時の最安シミュレーションです。ブロック単位で表示される予約ボタンから各サイトへ遷移し、日程を指定して予約を行ってください。
-          </p>
-        </div>
-      `;
-    };
-
-    // === 7. Initialization ===
-    render();
-
-  </script>
-</body>
-</html>
+   
