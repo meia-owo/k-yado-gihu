@@ -3,6 +3,20 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+  <script>
+    // 開発者ツールが使えない環境でも原因が分かるよう、JSエラー発生時は画面に直接表示する（デバッグ用の一時的な仕組み）
+    window.addEventListener('error', function(e) {
+      var pre = document.createElement('pre');
+      pre.style.cssText = 'white-space:pre-wrap; word-break:break-all; color:#b91c1c; background:#fff; padding:16px; font-size:12px; line-height:1.6; position:fixed; inset:0; z-index:99999; overflow:auto; margin:0;';
+      pre.textContent = 'JSエラーが発生しました。このメッセージ全体をコピーして送ってください。\n\n'
+        + 'message: ' + e.message + '\n'
+        + 'file: ' + e.filename + '\n'
+        + 'line: ' + e.lineno + ', col: ' + e.colno + '\n\n'
+        + (e.error && e.error.stack ? 'stack:\n' + e.error.stack : '(スタック情報なし)');
+      document.body.innerHTML = '';
+      document.body.appendChild(pre);
+    });
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>岐阜車体周辺ホテル検索</title>
@@ -1757,4 +1771,277 @@
             <!-- 上部: 料金比較と日々の内訳（常時表示） -->
             <div class="price-section">
               <div class="flex justify-between items-end mb-2">
-   
+                <span class="text-xs font-bold text-sub">${AppState.searchParams.nights}泊合計${hotel.hasUnavailable ? '(取得分のみ)' : ''}</span>
+                <div class="flex items-end gap-2">
+                  ${(() => {
+                    const availNights = hotel.dailyPrices.filter(p => p != null).length;
+                    if (availNights === 0) return '';
+                    const avg = Math.round(hotel.totalPrice / availNights);
+                    return `<span class="text-xs text-sub leading-none">平均 ¥${avg.toLocaleString()}/泊</span>`;
+                  })()}
+                  <span class="text-2xl font-extrabold text-pink leading-none">¥${hotel.totalPrice.toLocaleString()}</span>
+                </div>
+              </div>
+              
+              <div class="daily-grid">
+                ${hotel.dailyPrices.map((price, i) => `
+                  <div class="daily-chip" ${price == null ? 'style="opacity:0.5;"' : ''}>
+                    <div class="d-label">${formatDay(addDays(AppState.searchParams.start, i))}</div>
+                    <div class="d-price">${price != null ? '¥' + price.toLocaleString() : '空室なし'}</div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+
+            <!-- 下部: MAPと予約 -->
+            <div class="action-grid">
+              <button class="btn-action btn-map" onclick="window.open('${getDirectionsLink(hotel)}', '_blank')">
+                ${ICONS.mapPin}
+                <span>MAPで見る</span>
+              </button>
+              <button class="btn-action btn-rakuten" onclick="window.open('${reserveLink}', '_blank')">
+                <span>楽天で予約</span>
+              </button>
+            </div>
+          </div>
+        `;
+      });
+      html += `<p class="disclaimer list-full-row">※料金は楽天トラベル空室検索APIから取得したリアルタイム情報です。「楽天で予約」は宿のページに遷移します。チェックイン日・泊数はページ内で選び直してください（自動入力ではありません）。</p></div></div>`;
+      return html;
+    };
+
+    const renderSimTab = () => {
+      if (AppState.pricingMode === 'simple') {
+        return `
+          <div class="flex-col items-center justify-center h-full gap-3 text-sub text-center p-6">
+            <div style="background:var(--bg-hover);padding:16px;border-radius:50%;">${ICONS.sparkles}</div>
+            <p class="font-bold">組合せ機能はAPIモードでのみ利用可能です</p>
+            <p class="text-xs">検索タブで「APIモード」に切り替えてください</p>
+          </div>
+        `;
+      }
+      if(AppState.results.length === 0 || !AppState.searchParams || AppState.searchParams.nights < 2) {
+        return `
+          <div class="flex-col items-center justify-center h-full gap-3 text-sub text-center p-6">
+            <div style="background:var(--bg-hover);padding:16px;border-radius:50%;">${ICONS.sparkles}</div>
+            <p class="font-bold">2泊以上で検索を実行すると<br>組合せシミュレーションが表示されます</p>
+          </div>
+        `;
+      }
+      
+      const renderColumn = (comboObj, typeStr, accentColor) => {
+        if(!comboObj) {
+          return `
+            <div class="flex-col items-center justify-center h-full text-sub text-xs p-4 border rounded-lg border-dashed text-center" style="background:var(--bg-card);">
+              <span class="mb-2">${ICONS.heart}</span>
+              結果タブでお気に入り登録してください
+            </div>
+          `;
+        }
+        
+        const availNights = comboObj.combo.reduce((sum, b) => sum + b.nights, 0);
+        const avgPrice = availNights > 0 ? Math.round(comboObj.total / availNights) : 0;
+        let colHtml = `
+          <div class="flex justify-between items-end mb-3">
+            <div>
+              <div class="text-[10px] font-bold text-sub mb-0.5">合計金額</div>
+              <div class="text-xl font-extrabold text-main leading-none">¥${comboObj.total.toLocaleString()}</div>
+            </div>
+            <div class="text-right">
+              <div class="text-[10px] font-bold text-sub mb-0.5">平均/泊</div>
+              <div class="text-sm font-bold text-sub leading-none">¥${avgPrice.toLocaleString()}</div>
+            </div>
+          </div>
+          <div class="flex-col gap-2 mb-3">
+        `;
+        
+        // 圧縮された連泊ブロックを描画
+        comboObj.combo.forEach((block, idx) => {
+          const startDateStr = formatDay(addDays(AppState.searchParams.start, block.startDayIndex));
+          const isLast = idx === comboObj.combo.length - 1;
+          const sameNext = !isLast && comboObj.combo[idx+1].id === block.id; // 基本はブロック化されるため発火しないが念のため
+          const isFav = AppState.favorites.includes(block.id);
+          const reserveLink = block.rakutenUrl; // 1泊分APIのURLではなく、日程を選び直せる宿ページに統一
+          
+          colHtml += `
+            <div class="timeline-item" style="padding-left:14px; padding-bottom:8px;">
+              ${!isLast ? `<div class="timeline-line" style="left:7px; top:12px; bottom:-8px; width:2px; ${sameNext ? `background-color: var(--primary);` : ''}"></div>` : ''}
+              <div class="timeline-dot color-${block.color}" style="left:4px; top:12px; width:8px; height:8px;"></div>
+              
+              <div class="card p-2 border shrink-0 flex-col gap-1.5" style="background-color:var(--bg-card); border-color:var(--border); box-shadow:none;">
+                <div class="flex justify-between items-center px-0.5">
+                  <span class="text-[10px] font-bold text-color-${block.color}">${startDateStr}〜 (${block.nights}泊)</span>
+                  <div class="font-extrabold text-xs text-main font-mono">¥${block.blockPrice.toLocaleString()}</div>
+                </div>
+                
+                <div class="flex justify-between items-start gap-1 px-0.5 mt-1 mb-1">
+                  <div class="font-bold text-[11px] leading-tight" style="white-space:normal;">${block.name}</div>
+                  <button onclick="AppActions.toggleFav(${block.id})" class="shrink-0 mini-fav ${isFav ? 'is-fav' : ''} ${isFav ? '' : 'text-sub'}" style="padding:6px; min-width:32px; min-height:32px;">
+                    <span style="display:inline-flex;">${ICONS.heart}</span>
+                  </button>
+                </div>
+
+                ${block.nights > 1 ? `
+                  <div class="flex flex-col gap-1 px-0.5 mb-1" style="border-top:1px dashed var(--border); padding-top:6px;">
+                    ${block.nightlyPrices.map((p, i) => `
+                      <div class="flex justify-between items-center">
+                        <span class="text-[10px] text-sub font-bold">${formatDay(addDays(AppState.searchParams.start, block.startDayIndex + i))}</span>
+                        <span class="text-[10px] font-mono font-bold">¥${p.toLocaleString()}</span>
+                      </div>
+                    `).join('')}
+                  </div>
+                ` : ''}
+                
+                <div class="flex flex-col gap-1.5 mt-1">
+                  <button onclick="window.open('${getDirectionsLink(block)}', '_blank')" class="flex justify-center items-center text-main text-[11px] font-bold rounded border" style="background:var(--bg-input); min-height:40px;">
+                    ${ICONS.mapPin} MAP
+                  </button>
+                  ${reserveLink ? `
+                    <button onclick="window.open('${reserveLink}', '_blank')" class="flex justify-center items-center text-white text-[11px] font-bold rounded" style="background:var(--rakuten); min-height:40px;">
+                      楽天で予約
+                    </button>
+                  ` : `
+                    <div class="flex justify-center items-center text-sub text-[10px] font-bold rounded" style="background:var(--bg-hover); min-height:36px;">予約リンクなし</div>
+                  `}
+                </div>
+              </div>
+            </div>
+          `;
+        });
+        colHtml += `</div>`;
+        return colHtml;
+      };
+
+      return `
+        <div class="scroll-y">
+          <div class="flex justify-between items-center mb-3 px-1 shrink-0">
+             <h3 class="font-extrabold flex items-center gap-1.5 text-base"><span class="text-yellow">${ICONS.sparkles}</span> プラン比較</h3>
+             <span class="text-[10px] text-sub font-bold border px-2 py-1 rounded-full">横並びで見比べられます</span>
+          </div>
+          
+          <div class="split-view">
+            <!-- 左カラム：お気に入り -->
+            <div class="split-col">
+              <div class="text-center text-[11px] font-bold text-pink mb-2 flex items-center justify-center gap-1">
+                ${ICONS.heart} お気に入り
+              </div>
+              <div class="card p-2 border shrink-0" style="background:var(--pink-light); border-color:var(--pink);">
+                ${renderColumn(AppState.combos.fav, 'お気に入り', 'var(--pink)')}
+                ${AppState.combos.fav ? `
+                  <button class="btn w-full text-[11px] p-2 mt-1" style="background:#06C755; color:white;" onclick="AppActions.shareLine('fav')">
+                    ${ICONS.share} LINE (ライン) 共有
+                  </button>
+                ` : ''}
+              </div>
+            </div>
+            
+            <!-- 右カラム：最安 -->
+            <div class="split-col">
+              <div class="text-center text-[11px] font-bold text-primary mb-2 flex items-center justify-center gap-1">
+                ${ICONS.search} とにかく最安
+              </div>
+              <div class="card p-2 border shrink-0" style="background:var(--primary-light); border-color:var(--primary);">
+                ${renderColumn(AppState.combos.best, '最安', 'var(--primary)')}
+                <button class="btn w-full text-[11px] p-2 mt-1" style="background:#06C755; color:white;" onclick="AppActions.shareLine('best')">
+                  ${ICONS.share} LINE (ライン) 共有
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <p class="disclaimer mt-4">
+            ※プラン比較機能は連泊時の最安シミュレーションです。ブロック単位で表示される予約ボタンから各サイトへ遷移し、日程を指定して予約を行ってください。
+          </p>
+        </div>
+      `;
+    };
+
+    // === 地図タブ（岐阜車体を起点に30分/50分圏の目安円とピンを表示） ===
+    const renderMapTab = () => {
+      return `
+        <div id="map-container">
+          <div id="map-canvas"></div>
+          <div class="map-legend">
+            <div><span class="dot" style="background:#2563eb;"></span>車30分圏内</div>
+            <div><span class="dot" style="background:#f59e0b;"></span>車30〜50分圏</div>
+            <div><span class="dot" style="background:#dc2626;"></span>岐阜車体（起点）</div>
+            <div style="margin-top:4px; color:var(--text-sub); max-width:180px;">円は直線距離ベースの目安です（実際の道路事情とは異なります）</div>
+          </div>
+        </div>
+        <div style="position:absolute; top:8px; left:8px; z-index:500;">
+          <div class="toggle-group" style="margin-bottom:0; background:var(--bg-card); box-shadow:0 2px 8px rgba(0,0,0,0.15);">
+            <button class="toggle-btn ${AppState.mapShowMode === 'all' ? 'active' : ''}" style="padding:6px 10px; font-size:12px;" onclick="AppActions.setMapShowMode('all')">登録宿すべて(${AppState.hotels.length})</button>
+            <button class="toggle-btn ${AppState.mapShowMode === 'results' ? 'active' : ''}" style="padding:6px 10px; font-size:12px;" onclick="AppActions.setMapShowMode('results')">検索結果${AppState.results.length ? '('+AppState.results.length+')' : ''}</button>
+          </div>
+        </div>
+      `;
+    };
+
+    // renderMapTab()がinnerHTMLに反映された直後に呼び出し、Leaflet地図を実際に構築する。
+    // innerHTML置換で#map-canvasは毎回新しいDOM要素になるため、地図タブを開くたびに作り直す。
+    const initMapTab = () => {
+      const canvas = document.getElementById('map-canvas');
+      if (!canvas || typeof L === 'undefined') return; // オフライン等でLeafletが読み込めない場合は何もしない
+      if (leafletMapInstance) { try { leafletMapInstance.remove(); } catch(e) {} leafletMapInstance = null; }
+
+      const [originLat, originLng] = ORIGIN_ADDRESS.split(',').map(s => parseFloat(s.trim()));
+      const map = L.map(canvas, { zoomControl: true }).setView([originLat, originLng], 11);
+      leafletMapInstance = map;
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map);
+
+      const originIcon = L.divIcon({
+        className: '',
+        html: '<div style="background:#dc2626; width:16px; height:16px; border-radius:50%; border:3px solid white; box-shadow:0 0 4px rgba(0,0,0,0.5);"></div>',
+        iconSize: [16, 16], iconAnchor: [8, 8]
+      });
+      L.marker([originLat, originLng], { icon: originIcon }).addTo(map).bindPopup('<b>岐阜車体（起点）</b>');
+
+      // 30分圏・50分圏の目安円（直線距離。実際の道路距離・所要時間とは異なる概算値）
+      L.circle([originLat, originLng], { radius: ZONE_RADIUS_KM['30'] * 1000, color: '#2563eb', weight: 2, fillOpacity: 0.05, dashArray: '5 5' }).addTo(map);
+      L.circle([originLat, originLng], { radius: ZONE_RADIUS_KM['50'] * 1000, color: '#f59e0b', weight: 2, fillOpacity: 0.03, dashArray: '5 5' }).addTo(map);
+
+      const source = (AppState.mapShowMode === 'results' && AppState.results.length > 0) ? AppState.results : AppState.hotels;
+      const bounds = [[originLat, originLng]];
+
+      source.forEach(h => {
+        if (h.lat == null || h.lng == null) return;
+        const isFav = AppState.favorites.includes(h.id);
+        const color = h.zone === '30' ? '#2563eb' : (h.zone === '50' ? '#f59e0b' : '#6b7280');
+        const size = isFav ? 18 : 12;
+        const icon = L.divIcon({
+          className: '',
+          html: `<div style="background:${color}; width:${size}px; height:${size}px; border-radius:50%; border:2px solid white; box-shadow:0 0 3px rgba(0,0,0,0.5);"></div>`,
+          iconSize: [size, size], iconAnchor: [size/2, size/2]
+        });
+        const priceLine = h.totalPrice != null
+          ? `<div class="map-popup-sub">合計 ¥${h.totalPrice.toLocaleString()}${h.hasUnavailable ? '（取得分のみ）' : ''}</div>`
+          : '';
+        const popupHtml = `
+          <div class="map-popup-title">${h.name}</div>
+          <div class="map-popup-sub">${h.area || ''} ・ 車${h.time || '-'} / ${h.distance || '-'}</div>
+          ${priceLine}
+          <div class="map-popup-actions">
+            <a href="${getDirectionsLink(h)}" target="_blank" rel="noopener" style="background:var(--bg-hover); color:var(--text-main);">MAP</a>
+            <a href="${h.rakutenUrl}" target="_blank" rel="noopener" style="background:#bf0000; color:#fff;">楽天</a>
+          </div>
+        `;
+        L.marker([h.lat, h.lng], { icon }).addTo(map).bindPopup(popupHtml);
+        bounds.push([h.lat, h.lng]);
+      });
+
+      if (bounds.length > 1) {
+        try { map.fitBounds(bounds, { padding: [30, 30] }); } catch(e) {}
+      }
+      setTimeout(() => { try { map.invalidateSize(); } catch(e) {} }, 60);
+    };
+
+    // === 7. Initialization ===
+    render();
+
+  </script>
+</body>
+</html>
