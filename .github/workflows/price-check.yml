@@ -1,0 +1,67 @@
+name: price-check
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+    inputs:
+      checkin:
+        description: "チェックイン YYYY-MM-DD（空なら明日）"
+        required: false
+        type: string
+      checkout:
+        description: "チェックアウト YYYY-MM-DD（空なら checkin+1）"
+        required: false
+        type: string
+      nights:
+        description: "泊数（checkout未指定時。デフォルト1）"
+        required: false
+        type: string
+        default: "1"
+      zone:
+        description: "圏内フィルタ all / 30 / 50"
+        required: false
+        type: choice
+        options:
+          - all
+          - "30"
+          - "50"
+        default: all
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Fetch prices
+        env:
+          RAKUTEN_APPLICATION_ID: ${{ secrets.RAKUTEN_APPLICATION_ID }}
+          RAKUTEN_ACCESS_KEY: ${{ secrets.RAKUTEN_ACCESS_KEY }}
+          RAKUTEN_REFERER: https://meia-owo.github.io/k-yado-gihu/
+          CHECKIN: ${{ inputs.checkin }}
+          CHECKOUT: ${{ inputs.checkout }}
+          NIGHTS: ${{ inputs.nights }}
+          ZONE: ${{ inputs.zone }}
+        run: node scripts/fetch-prices.mjs
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: price-latest
+          path: data/latest.json
+      - name: Commit latest.json
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/latest.json
+          if git diff --staged --quiet; then
+            echo "No price changes"
+            exit 0
+          fi
+          git commit -m "chore: update lodging prices $(date -u +%Y-%m-%dT%H:%MZ)"
+          git push
