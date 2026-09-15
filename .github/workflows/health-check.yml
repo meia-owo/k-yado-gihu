@@ -1,0 +1,48 @@
+name: health-check
+
+on:
+  schedule:
+    - cron: "0 1 * * 1"
+  workflow_dispatch:
+    inputs:
+      checkin:
+        description: "サンプル開始日 YYYY-MM-DD（空なら今日+7）"
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Health check
+        env:
+          RAKUTEN_APPLICATION_ID: ${{ secrets.RAKUTEN_APPLICATION_ID }}
+          RAKUTEN_ACCESS_KEY: ${{ secrets.RAKUTEN_ACCESS_KEY }}
+          RAKUTEN_REFERER: https://meia-owo.github.io/k-yado-gihu/
+          CHECKIN: ${{ inputs.checkin }}
+        run: node scripts/health-check.mjs
+      - name: Upload report
+        uses: actions/upload-artifact@v4
+        with:
+          name: cleanup-candidates
+          path: |
+            data/cleanup-candidates.json
+            data/cleanup-candidates.md
+      - name: Commit report
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/cleanup-candidates.json data/cleanup-candidates.md
+          if git diff --staged --quiet; then
+            echo "No report changes"
+            exit 0
+          fi
+          git commit -m "chore: hotel master health check $(date -u +%Y-%m-%d)"
+          git push
