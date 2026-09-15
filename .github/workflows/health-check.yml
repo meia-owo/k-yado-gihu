@@ -45,4 +45,5 @@ jobs:
             exit 0
           fi
           git commit -m "chore: hotel master health check $(date -u +%Y-%m-%d)"
+          git pull --rebase origin main
           git push
