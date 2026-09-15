@@ -64,4 +64,5 @@ jobs:
             exit 0
           fi
           git commit -m "chore: update lodging prices $(date -u +%Y-%m-%dT%H:%MZ)"
+          git pull --rebase origin main
           git push
