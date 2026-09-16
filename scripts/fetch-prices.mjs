@@ -140,8 +140,9 @@ function nightsBetween(checkin, checkout) {
 }
 async function main() {
   const { checkin, checkout, zone } = parseArgs(process.argv);
+  const hotelsFile = process.env.HOTELS_FILE || 'data/hotels.json';
   const hotels = JSON.parse(
-    fs.readFileSync(path.join(ROOT, 'data', 'hotels.json'), 'utf8')
+    fs.readFileSync(path.join(ROOT, hotelsFile), 'utf8')
   ).filter((h) => (zone === 'all' || !zone ? true : String(h.zone) === String(zone)));
   const nightCount = nightsBetween(checkin, checkout);
   const dates = Array.from({ length: nightCount }, (_, i) => addDays(checkin, i));
@@ -188,6 +189,23 @@ async function main() {
     results,
   };
   fs.writeFileSync(path.join(ROOT, 'data', 'latest.json'), JSON.stringify(payload, null, 2));
+  const histDir = path.join(ROOT, 'data', 'history');
+  fs.mkdirSync(histDir, { recursive: true });
+  const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+  fs.writeFileSync(path.join(histDir, `${stamp}.json`), JSON.stringify(payload, null, 2));
+  const lean = {
+    generatedAt: payload.generatedAt,
+    checkin: payload.checkin,
+    checkout: payload.checkout,
+    results: payload.results.map((r) => ({
+      id: r.id,
+      name: r.name,
+      hotelNo: r.hotelNo,
+      total: r.total,
+      availableAllNights: r.availableAllNights,
+    })),
+  };
+  fs.appendFileSync(path.join(ROOT, 'data', 'price-history.jsonl'), JSON.stringify(lean) + '\n');
   console.log(
     `wrote latest.json available ${payload.availableCount}/${payload.count}; cheapest=${results.find((r) => r.total != null)?.name || 'none'} ${results.find((r) => r.total != null)?.total ?? '-'}`
   );

@@ -1,0 +1,112 @@
+[
+  {
+    "id": 1,
+    "name": "ABホテル犬山",
+    "area": "愛知県犬山市",
+    "distance": "4.0km",
+    "time": "10分",
+    "zone": "30",
+    "category": "business",
+    "rakutenUrl": "https://travel.rakuten.co.jp/HOTEL/197708/197708.html",
+    "hotelNo": "197708"
+  },
+  {
+    "id": 3,
+    "name": "ホテルルートイン各務原",
+    "area": "岐阜県各務原市",
+    "distance": "6.5km",
+    "time": "15分",
+    "zone": "30",
+    "category": "business",
+    "rakutenUrl": "https://travel.rakuten.co.jp/HOTEL/1162/1162.html",
+    "hotelNo": "1162"
+  },
+  {
+    "id": 17,
+    "name": "ＡＢホテル各務原",
+    "area": "岐阜県各務原市小佐野町",
+    "distance": "6.5km",
+    "time": "14分",
+    "zone": "30",
+    "category": "business",
+    "rakutenUrl": "https://travel.rakuten.co.jp/HOTEL/162909/162909.html",
+    "hotelNo": "162909"
+  },
+  {
+    "id": 34,
+    "name": "ホテルルートイン岐南－国道２１号－",
+    "area": "岐阜県羽島郡岐南町",
+    "distance": "12.0km",
+    "time": "24分",
+    "zone": "30",
+    "category": "business",
+    "rakutenUrl": "https://travel.rakuten.co.jp/HOTEL/192975/192975.html",
+    "hotelNo": "192975"
+  },
+  {
+    "id": 35,
+    "name": "ＡＢホテル関",
+    "area": "岐阜県関市平和通",
+    "distance": "14.0km",
+    "time": "28分",
+    "zone": "30",
+    "category": "business",
+    "rakutenUrl": "https://travel.rakuten.co.jp/HOTEL/187432/187432.html",
+    "hotelNo": "187432"
+  },
+  {
+    "id": 36,
+    "name": "ＡＢホテル可児",
+    "area": "岐阜県可児市広見",
+    "distance": "20.0km",
+    "time": "33分",
+    "zone": "50",
+    "category": "business",
+    "rakutenUrl": "https://travel.rakuten.co.jp/HOTEL/181294/181294.html",
+    "hotelNo": "181294"
+  },
+  {
+    "id": 37,
+    "name": "ホテルルートイン可児",
+    "area": "岐阜県可児市",
+    "distance": "22.0km",
+    "time": "35分",
+    "zone": "50",
+    "category": "business",
+    "rakutenUrl": "https://travel.rakuten.co.jp/HOTEL/15971/15971.html",
+    "hotelNo": "15971"
+  },
+  {
+    "id": 40,
+    "name": "ホテルルートイン美濃加茂",
+    "area": "岐阜県美濃加茂市",
+    "distance": "18.0km",
+    "time": "30分",
+    "zone": "50",
+    "category": "business",
+    "rakutenUrl": "https://travel.rakuten.co.jp/HOTEL/1234/1234.html",
+    "hotelNo": "1234"
+  },
+  {
+    "id": 45,
+    "name": "ＡＢホテル岐阜",
+    "area": "岐阜県岐阜市",
+    "distance": "17.0km",
+    "time": "32分",
+    "zone": "50",
+    "category": "business",
+    "rakutenUrl": "https://travel.rakuten.co.jp/HOTEL/161010/161010.html",
+    "hotelNo": "161010"
+  },
+  {
+    "id": 51,
+    "name": "ホテル ルートイン関",
+    "area": "岐阜県関市",
+    "distance": "16.0km",
+    "time": "30分",
+    "zone": "50",
+    "category": "business",
+    "rakutenUrl": "https://travel.rakuten.co.jp/HOTEL/84784/84784.html",
+    "hotelNo": "84784"
+  }
+]
