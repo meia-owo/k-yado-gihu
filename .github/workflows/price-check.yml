@@ -1,8 +1,9 @@
 name: price-check
 
 on:
+  # 4時間ごと（UTC）。JSTでは 9/13/17/21/1/5 時前後
   schedule:
-    - cron: "0 0 * * *"
+    - cron: "0 */4 * * *"
   workflow_dispatch:
     inputs:
       checkin:
@@ -27,6 +28,11 @@ on:
           - "30"
           - "50"
         default: all
+      hotels_file:
+        description: "宿リスト data/hotels-priority.json または data/hotels.json"
+        required: false
+        type: string
+        default: data/hotels-priority.json
 
 permissions:
   contents: write
@@ -39,26 +45,40 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
+      - name: Resolve dates from calendar watch defaults
+        id: dates
+        run: |
+          CHECKIN="${{ inputs.checkin }}"
+          CHECKOUT="${{ inputs.checkout }}"
+          if [ -z "$CHECKIN" ] && [ -f data/watch.json ]; then
+            CHECKIN=$(node -pe 'JSON.parse(require("fs").readFileSync("data/watch.json","utf8")).checkin||""')
+            CHECKOUT=$(node -pe 'JSON.parse(require("fs").readFileSync("data/watch.json","utf8")).checkout||""')
+          fi
+          echo "checkin=$CHECKIN" >> "$GITHUB_OUTPUT"
+          echo "checkout=$CHECKOUT" >> "$GITHUB_OUTPUT"
       - name: Fetch prices
         env:
           RAKUTEN_APPLICATION_ID: ${{ secrets.RAKUTEN_APPLICATION_ID }}
           RAKUTEN_ACCESS_KEY: ${{ secrets.RAKUTEN_ACCESS_KEY }}
           RAKUTEN_REFERER: https://meia-owo.github.io/k-yado-gihu/
-          CHECKIN: ${{ inputs.checkin }}
-          CHECKOUT: ${{ inputs.checkout }}
+          CHECKIN: ${{ steps.dates.outputs.checkin || inputs.checkin }}
+          CHECKOUT: ${{ steps.dates.outputs.checkout || inputs.checkout }}
           NIGHTS: ${{ inputs.nights }}
           ZONE: ${{ inputs.zone }}
+          HOTELS_FILE: ${{ inputs.hotels_file || 'data/hotels-priority.json' }}
         run: node scripts/fetch-prices.mjs
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: price-latest
-          path: data/latest.json
-      - name: Commit latest.json
+          path: |
+            data/latest.json
+            data/price-history.jsonl
+      - name: Commit results
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/latest.json
+          git add data/latest.json data/price-history.jsonl data/history || true
           if git diff --staged --quiet; then
             echo "No price changes"
             exit 0
