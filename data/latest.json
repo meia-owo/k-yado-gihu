@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-16T04:26:14.093Z",
+  "generatedAt": "2026-09-16T13:25:30.837Z",
   "timezone": "Asia/Tokyo",
   "checkin": "2026-09-27",
   "checkout": "2026-09-30",
@@ -79,13 +79,13 @@
         {
           "date": "2026-09-27",
           "available": true,
-          "price": 6745,
+          "price": 6935,
           "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=10754&f_syu=smksingle&f_hi1=2026-09-27&f_hi2=2026-09-28&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=6579584"
         },
         {
           "date": "2026-09-28",
           "available": true,
-          "price": 8550,
+          "price": 8645,
           "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=10754&f_syu=ns&f_hi1=2026-09-28&f_hi2=2026-09-29&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=6579584"
         },
         {
@@ -95,7 +95,7 @@
           "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=10754&f_syu=ns&f_hi1=2026-09-29&f_hi2=2026-09-30&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=6579584"
         }
       ],
-      "total": 24320,
+      "total": 24605,
       "availableAllNights": true
     },
     {
@@ -139,23 +139,23 @@
         {
           "date": "2026-09-27",
           "available": true,
-          "price": 8500,
+          "price": 8800,
           "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=15971&f_syu=nsa&f_hi1=2026-09-27&f_hi2=2026-09-28&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=2108767"
         },
         {
           "date": "2026-09-28",
           "available": true,
-          "price": 9150,
+          "price": 9500,
           "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=15971&f_syu=sb&f_hi1=2026-09-28&f_hi2=2026-09-29&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=2108767"
         },
         {
           "date": "2026-09-29",
           "available": true,
-          "price": 9150,
-          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=15971&f_syu=sb&f_hi1=2026-09-29&f_hi2=2026-09-30&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=2108767"
+          "price": 9500,
+          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=15971&f_syu=nsb&f_hi1=2026-09-29&f_hi2=2026-09-30&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=2108767"
         }
       ],
-      "total": 26800,
+      "total": 27800,
       "availableAllNights": true
     },
     {
@@ -175,17 +175,17 @@
         {
           "date": "2026-09-28",
           "available": true,
-          "price": 9400,
-          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=84784&f_syu=gns&f_hi1=2026-09-28&f_hi2=2026-09-29&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=5651562"
+          "price": 9800,
+          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=84784&f_syu=gnw&f_hi1=2026-09-28&f_hi2=2026-09-29&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=5040940"
         },
         {
           "date": "2026-09-29",
           "available": true,
-          "price": 10300,
-          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=84784&f_syu=czd&f_hi1=2026-09-29&f_hi2=2026-09-30&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=4595290"
+          "price": 11300,
+          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=84784&f_syu=gnt&f_hi1=2026-09-29&f_hi2=2026-09-30&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=5040940"
         }
       ],
-      "total": 27500,
+      "total": 28900,
       "availableAllNights": true
     },
     {
@@ -211,71 +211,11 @@
         {
           "date": "2026-09-29",
           "available": true,
-          "price": 15400,
-          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=181294&f_syu=sna&f_hi1=2026-09-29&f_hi2=2026-09-30&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=4882429"
+          "price": 19000,
+          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=181294&f_syu=sna&f_hi1=2026-09-29&f_hi2=2026-09-30&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=4882404"
         }
       ],
-      "total": 29400,
-      "availableAllNights": true
-    },
-    {
-      "id": 35,
-      "name": "ＡＢホテル関",
-      "area": "岐阜県関市平和通",
-      "zone": "30",
-      "hotelNo": "187432",
-      "rakutenUrl": "https://travel.rakuten.co.jp/HOTEL/187432/187432.html",
-      "nights": [
-        {
-          "date": "2026-09-27",
-          "available": true,
-          "price": 7000,
-          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=187432&f_syu=sna&f_hi1=2026-09-27&f_hi2=2026-09-28&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=5707623"
-        },
-        {
-          "date": "2026-09-28",
-          "available": true,
-          "price": 9000,
-          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=187432&f_syu=sna&f_hi1=2026-09-28&f_hi2=2026-09-29&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=5707623"
-        },
-        {
-          "date": "2026-09-29",
-          "available": true,
-          "price": 15000,
-          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=187432&f_syu=sna&f_hi1=2026-09-29&f_hi2=2026-09-30&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=5707623"
-        }
-      ],
-      "total": 31000,
-      "availableAllNights": true
-    },
-    {
-      "id": 17,
-      "name": "ＡＢホテル各務原",
-      "area": "岐阜県各務原市小佐野町",
-      "zone": "30",
-      "hotelNo": "162909",
-      "rakutenUrl": "https://travel.rakuten.co.jp/HOTEL/162909/162909.html",
-      "nights": [
-        {
-          "date": "2026-09-27",
-          "available": true,
-          "price": 7600,
-          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=162909&f_syu=dsan&f_hi1=2026-09-27&f_hi2=2026-09-28&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=4571414"
-        },
-        {
-          "date": "2026-09-28",
-          "available": true,
-          "price": 11400,
-          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=162909&f_syu=dsbn&f_hi1=2026-09-28&f_hi2=2026-09-29&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=4571414"
-        },
-        {
-          "date": "2026-09-29",
-          "available": true,
-          "price": 13400,
-          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=162909&f_syu=dsan&f_hi1=2026-09-29&f_hi2=2026-09-30&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=4571414"
-        }
-      ],
-      "total": 32400,
+      "total": 33000,
       "availableAllNights": true
     },
     {
@@ -309,6 +249,66 @@
       "availableAllNights": true
     },
     {
+      "id": 35,
+      "name": "ＡＢホテル関",
+      "area": "岐阜県関市平和通",
+      "zone": "30",
+      "hotelNo": "187432",
+      "rakutenUrl": "https://travel.rakuten.co.jp/HOTEL/187432/187432.html",
+      "nights": [
+        {
+          "date": "2026-09-27",
+          "available": true,
+          "price": 5600,
+          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=187432&f_syu=sna&f_hi1=2026-09-27&f_hi2=2026-09-28&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=5707623"
+        },
+        {
+          "date": "2026-09-28",
+          "available": true,
+          "price": 15800,
+          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=187432&f_syu=sna&f_hi1=2026-09-28&f_hi2=2026-09-29&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=5707623"
+        },
+        {
+          "date": "2026-09-29",
+          "available": true,
+          "price": 15800,
+          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=187432&f_syu=sna&f_hi1=2026-09-29&f_hi2=2026-09-30&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=5707623"
+        }
+      ],
+      "total": 37200,
+      "availableAllNights": true
+    },
+    {
+      "id": 17,
+      "name": "ＡＢホテル各務原",
+      "area": "岐阜県各務原市小佐野町",
+      "zone": "30",
+      "hotelNo": "162909",
+      "rakutenUrl": "https://travel.rakuten.co.jp/HOTEL/162909/162909.html",
+      "nights": [
+        {
+          "date": "2026-09-27",
+          "available": true,
+          "price": 7600,
+          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=162909&f_syu=dsan&f_hi1=2026-09-27&f_hi2=2026-09-28&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=4571414"
+        },
+        {
+          "date": "2026-09-28",
+          "available": true,
+          "price": 16600,
+          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=162909&f_syu=twn&f_hi1=2026-09-28&f_hi2=2026-09-29&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=4571460"
+        },
+        {
+          "date": "2026-09-29",
+          "available": true,
+          "price": 13400,
+          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=162909&f_syu=dsan&f_hi1=2026-09-29&f_hi2=2026-09-30&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=4571414"
+        }
+      ],
+      "total": 37600,
+      "availableAllNights": true
+    },
+    {
       "id": 34,
       "name": "ホテルルートイン岐南－国道２１号－",
       "area": "岐阜県羽島郡岐南町",
@@ -339,66 +339,6 @@
       "availableAllNights": true
     },
     {
-      "id": 5,
-      "name": "犬山セントラルホテル",
-      "area": "愛知県犬山市",
-      "zone": "30",
-      "hotelNo": "108717",
-      "rakutenUrl": "https://travel.rakuten.co.jp/HOTEL/108717/108717.html",
-      "nights": [
-        {
-          "date": "2026-09-27",
-          "available": true,
-          "price": 15000,
-          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=108717&f_syu=single&f_hi1=2026-09-27&f_hi2=2026-09-28&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=3623544"
-        },
-        {
-          "date": "2026-09-28",
-          "available": true,
-          "price": 15000,
-          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=108717&f_syu=singlekin&f_hi1=2026-09-28&f_hi2=2026-09-29&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=3623544"
-        },
-        {
-          "date": "2026-09-29",
-          "available": true,
-          "price": 15000,
-          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=108717&f_syu=single&f_hi1=2026-09-29&f_hi2=2026-09-30&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=3623544"
-        }
-      ],
-      "total": 45000,
-      "availableAllNights": true
-    },
-    {
-      "id": 46,
-      "name": "コンフォートホテル岐阜",
-      "area": "岐阜県岐阜市",
-      "zone": "50",
-      "hotelNo": "20562",
-      "rakutenUrl": "https://travel.rakuten.co.jp/HOTEL/20562/20562.html",
-      "nights": [
-        {
-          "date": "2026-09-27",
-          "available": true,
-          "price": 12500,
-          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=20562&f_syu=nsh&f_hi1=2026-09-27&f_hi2=2026-09-28&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=5430790"
-        },
-        {
-          "date": "2026-09-28",
-          "available": true,
-          "price": 19800,
-          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=20562&f_syu=nte&f_hi1=2026-09-28&f_hi2=2026-09-29&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=4586783"
-        },
-        {
-          "date": "2026-09-29",
-          "available": true,
-          "price": 15500,
-          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=20562&f_syu=nsh&f_hi1=2026-09-29&f_hi2=2026-09-30&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=5430790"
-        }
-      ],
-      "total": 47800,
-      "availableAllNights": true
-    },
-    {
       "id": 41,
       "name": "フェアフィールド・バイ・マリオット・岐阜清流里山公園",
       "area": "岐阜県美濃加茂市山之上町",
@@ -410,19 +350,19 @@
           "date": "2026-09-27",
           "available": true,
           "price": 16335,
-          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=180632&f_syu=satoking&f_hi1=2026-09-27&f_hi2=2026-09-28&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=6569083"
+          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=180632&f_syu=satotwin&f_hi1=2026-09-27&f_hi2=2026-09-28&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=6569083"
         },
         {
           "date": "2026-09-28",
           "available": true,
           "price": 16335,
-          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=180632&f_syu=satoking&f_hi1=2026-09-28&f_hi2=2026-09-29&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=6569083"
+          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=180632&f_syu=satotwin&f_hi1=2026-09-28&f_hi2=2026-09-29&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=6569083"
         },
         {
           "date": "2026-09-29",
           "available": true,
           "price": 16335,
-          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=180632&f_syu=satoking&f_hi1=2026-09-29&f_hi2=2026-09-30&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=6569083"
+          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=180632&f_syu=satotwin&f_hi1=2026-09-29&f_hi2=2026-09-30&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=6569083"
         }
       ],
       "total": 49005,
@@ -451,41 +391,71 @@
         {
           "date": "2026-09-29",
           "available": true,
-          "price": 18500,
-          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=9483&f_syu=oma&f_hi1=2026-09-29&f_hi2=2026-09-30&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=6097235"
+          "price": 17100,
+          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=9483&f_syu=twcv-ns&f_hi1=2026-09-29&f_hi2=2026-09-30&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=6585350"
         }
       ],
-      "total": 52700,
+      "total": 51300,
       "availableAllNights": true
     },
     {
-      "id": 1,
-      "name": "ABホテル犬山",
-      "area": "愛知県犬山市",
-      "zone": "30",
-      "hotelNo": "197708",
-      "rakutenUrl": "https://travel.rakuten.co.jp/HOTEL/197708/197708.html",
+      "id": 46,
+      "name": "コンフォートホテル岐阜",
+      "area": "岐阜県岐阜市",
+      "zone": "50",
+      "hotelNo": "20562",
+      "rakutenUrl": "https://travel.rakuten.co.jp/HOTEL/20562/20562.html",
       "nights": [
         {
           "date": "2026-09-27",
           "available": true,
-          "price": 25400,
-          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=197708&f_syu=snm&f_hi1=2026-09-27&f_hi2=2026-09-28&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=6344920"
+          "price": 12500,
+          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=20562&f_syu=nsh&f_hi1=2026-09-27&f_hi2=2026-09-28&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=5430790"
         },
         {
           "date": "2026-09-28",
           "available": true,
-          "price": 14000,
-          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=197708&f_syu=snm&f_hi1=2026-09-28&f_hi2=2026-09-29&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=6344920"
+          "price": 19800,
+          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=20562&f_syu=nte&f_hi1=2026-09-28&f_hi2=2026-09-29&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=4586783"
         },
         {
           "date": "2026-09-29",
           "available": true,
-          "price": 14000,
-          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=197708&f_syu=snm&f_hi1=2026-09-29&f_hi2=2026-09-30&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=6344920"
+          "price": 19800,
+          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=20562&f_syu=nte&f_hi1=2026-09-29&f_hi2=2026-09-30&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=4586783"
         }
       ],
-      "total": 53400,
+      "total": 52100,
+      "availableAllNights": true
+    },
+    {
+      "id": 5,
+      "name": "犬山セントラルホテル",
+      "area": "愛知県犬山市",
+      "zone": "30",
+      "hotelNo": "108717",
+      "rakutenUrl": "https://travel.rakuten.co.jp/HOTEL/108717/108717.html",
+      "nights": [
+        {
+          "date": "2026-09-27",
+          "available": true,
+          "price": 23000,
+          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=108717&f_syu=wkin&f_hi1=2026-09-27&f_hi2=2026-09-28&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=3848344"
+        },
+        {
+          "date": "2026-09-28",
+          "available": true,
+          "price": 15000,
+          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=108717&f_syu=singlekin&f_hi1=2026-09-28&f_hi2=2026-09-29&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=3623544"
+        },
+        {
+          "date": "2026-09-29",
+          "available": true,
+          "price": 15000,
+          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=108717&f_syu=singlekin&f_hi1=2026-09-29&f_hi2=2026-09-30&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=3623544"
+        }
+      ],
+      "total": 53000,
       "availableAllNights": true
     },
     {
@@ -499,23 +469,23 @@
         {
           "date": "2026-09-27",
           "available": true,
-          "price": 18600,
+          "price": 19000,
           "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=161010&f_syu=sna&f_hi1=2026-09-27&f_hi2=2026-09-28&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=4571248"
         },
         {
           "date": "2026-09-28",
           "available": true,
-          "price": 18600,
+          "price": 19000,
           "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=161010&f_syu=sna&f_hi1=2026-09-28&f_hi2=2026-09-29&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=4571248"
         },
         {
           "date": "2026-09-29",
           "available": true,
-          "price": 18600,
-          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=161010&f_syu=sna&f_hi1=2026-09-29&f_hi2=2026-09-30&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=4571248"
+          "price": 15400,
+          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=161010&f_syu=dtw&f_hi1=2026-09-29&f_hi2=2026-09-30&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=4571296"
         }
       ],
-      "total": 55800,
+      "total": 53400,
       "availableAllNights": true
     },
     {
@@ -576,6 +546,36 @@
         }
       ],
       "total": 62150,
+      "availableAllNights": true
+    },
+    {
+      "id": 1,
+      "name": "ABホテル犬山",
+      "area": "愛知県犬山市",
+      "zone": "30",
+      "hotelNo": "197708",
+      "rakutenUrl": "https://travel.rakuten.co.jp/HOTEL/197708/197708.html",
+      "nights": [
+        {
+          "date": "2026-09-27",
+          "available": true,
+          "price": 29600,
+          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=197708&f_syu=snm&f_hi1=2026-09-27&f_hi2=2026-09-28&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=6344920"
+        },
+        {
+          "date": "2026-09-28",
+          "available": true,
+          "price": 20200,
+          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=197708&f_syu=sns1&f_hi1=2026-09-28&f_hi2=2026-09-29&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=6344920"
+        },
+        {
+          "date": "2026-09-29",
+          "available": true,
+          "price": 17200,
+          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=197708&f_syu=sns1&f_hi1=2026-09-29&f_hi2=2026-09-30&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=6344920"
+        }
+      ],
+      "total": 67000,
       "availableAllNights": true
     },
     {
@@ -716,9 +716,7 @@
       "nights": [
         {
           "date": "2026-09-27",
-          "available": true,
-          "price": 10100,
-          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=5169&f_syu=ns_stsgl&f_hi1=2026-09-27&f_hi2=2026-09-28&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=5900623"
+          "available": false
         },
         {
           "date": "2026-09-28",
@@ -872,15 +870,11 @@
         },
         {
           "date": "2026-09-28",
-          "available": true,
-          "price": 92000,
-          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=183344&f_syu=tlon&f_hi1=2026-09-28&f_hi2=2026-09-29&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=6434835"
+          "available": false
         },
         {
           "date": "2026-09-29",
-          "available": true,
-          "price": 89000,
-          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=183344&f_syu=klon&f_hi1=2026-09-29&f_hi2=2026-09-30&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=6434835"
+          "available": false
         }
       ],
       "total": null,
@@ -946,9 +940,7 @@
       "nights": [
         {
           "date": "2026-09-27",
-          "available": true,
-          "price": 11800,
-          "reserveUrl": "https://img.travel.rakuten.co.jp/image/tr/api/re/IdsCY/?f_no=106077&f_syu=sb&f_hi1=2026-09-27&f_hi2=2026-09-28&f_heya_su=1&f_otona_su=1&f_s1=0&f_s2=0&f_y1=0&f_y2=0&f_y3=0&f_y4=0&f_camp_id=5186581"
+          "available": false
         },
         {
           "date": "2026-09-28",
