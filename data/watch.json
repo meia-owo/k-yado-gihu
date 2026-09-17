@@ -1,7 +1,8 @@
 {
   "checkin": "2026-09-27",
-  "checkout": "2026-09-30",
+  "checkout": "2026-10-01",
   "hotelsFile": "data/hotels-priority.json",
-  "note": "宿探す予定（確定までは値段ウォッチのみ）",
-  "updatedAt": "2026-09-16T13:00:00+09:00"
+  "note": "宿探す予定（確定までは値段ウォッチのみ）。カレンダー更新でcheckout 10/01（4泊）",
+  "updatedAt": "2026-09-17T20:21:00+09:00"
 }
+
