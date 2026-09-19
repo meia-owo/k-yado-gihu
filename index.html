@@ -465,7 +465,7 @@
       theme: Storage.get('app_theme_v2', 'light'),
       viewMode: Storage.get('view_mode_v1', 'auto'), // 'auto' | 'mobile' | 'pc'
       activeTab: 'search',
-      searchTarget: 'all', // 'all' or 'favorites'
+      searchTarget: Storage.get('search_target_v1', 'all'), // 'all' | 'favorites' | 'ab_ri'
       periodType: 'custom', // 'preset' or 'custom'（デフォルトはカレンダー指定）
       presetMode: 'monday', // 'tomorrow' or 'monday'
       mondayWeekOffset: 0, // 0=来週, 1=再来週, 2=翌々週
@@ -692,6 +692,13 @@
       Storage.set('hotel_master_v1', raw);
     };
 
+
+    // ABホテル または ルートイン（名前OR判定）
+    const isAbOrRouteInnHotel = (h) => {
+      const n = String(h && h.name || '').replace(/[\s　]/g, '');
+      return /ABホテル|ＡＢホテル|ルートイン/.test(n);
+    };
+
     // === 5. Actions ===
     const AppActions = {
       toggleTheme() {
@@ -705,7 +712,11 @@
         render();
       },
       setTab(tab) { AppState.activeTab = tab; render(); },
-      setSearchTarget(target) { AppState.searchTarget = target; render(); },
+      setSearchTarget(target) {
+        AppState.searchTarget = target;
+        Storage.set('search_target_v1', target);
+        render();
+      },
       setPeriodType(type) { AppState.periodType = type; render(); },
       setPresetMode(mode) { AppState.presetMode = mode; render(); },
       setMondayWeekOffset(val) { AppState.mondayWeekOffset = parseInt(val, 10); render(); },
@@ -1055,8 +1066,11 @@
         }
 
         let targetHotels = AppState.hotels;
-        if(AppState.searchTarget === 'favorites') {
+        if (AppState.searchTarget === 'favorites') {
           targetHotels = AppState.hotels.filter(h => AppState.favorites.includes(h.id));
+        } else if (AppState.searchTarget === 'ab_ri') {
+          // ABホテル と ルートイン の両方（OR）
+          targetHotels = AppState.hotels.filter(isAbOrRouteInnHotel);
         }
         // 除外指定された宿はどちらのモードでも検索対象から外す
         targetHotels = targetHotels.filter(h => !AppState.excludedHotelIds.includes(h.id));
@@ -1312,6 +1326,7 @@
     const renderSearchTab = () => {
       const isAll = AppState.searchTarget === 'all' ? 'active' : '';
       const isFav = AppState.searchTarget === 'favorites' ? 'active' : '';
+      const isAbRi = AppState.searchTarget === 'ab_ri' ? 'active' : '';
       const isPreset = AppState.periodType === 'preset' ? 'active' : '';
       const isCustom = AppState.periodType === 'custom' ? 'active' : '';
       
@@ -1413,9 +1428,10 @@
 
             <div class="card p-4 mb-4 shrink-0">
               <label class="form-label text-sub">絞り込み対象</label>
-              <div class="toggle-group mb-4">
-                <button class="toggle-btn ${isAll}" onclick="AppActions.setSearchTarget('all')">すべての宿</button>
-                <button class="toggle-btn ${isFav}" onclick="AppActions.setSearchTarget('favorites')">お気に入り銘柄</button>
+              <div class="toggle-group mb-4" style="flex-wrap:wrap; gap:4px;">
+                <button class="toggle-btn ${isAll}" style="min-width:30%;" onclick="AppActions.setSearchTarget('all')">すべての宿</button>
+                <button class="toggle-btn ${isFav}" style="min-width:30%;" onclick="AppActions.setSearchTarget('favorites')">お気に入り</button>
+                <button class="toggle-btn ${isAbRi}" style="min-width:30%;" onclick="AppActions.setSearchTarget('ab_ri')">AB＋RI</button>
               </div>
               
               <label class="form-label text-sub">宿泊スケジュール</label>
