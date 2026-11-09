@@ -1,16 +1,16 @@
 {
-  "generatedAt": "2026-11-02T07:01:51.197Z",
+  "generatedAt": "2026-11-09T07:31:38.897Z",
   "sampleDates": [
-    "2026-11-09",
-    "2026-11-12"
+    "2026-11-16",
+    "2026-11-19"
   ],
-  "medianPrice": 8350,
+  "medianPrice": 8250,
   "summary": {
     "total": 45,
-    "healthy": 37,
-    "review": 8,
+    "healthy": 33,
+    "review": 12,
     "remove": 0,
-    "anyAvailability": 39
+    "anyAvailability": 36
   },
   "removeCandidates": [],
   "reviewCandidates": [
@@ -78,8 +78,8 @@
       "liveName": "ホテルインディゴ犬山有楽苑　ｂｙ　ＩＨＧ",
       "availableCount": 2,
       "sampleCount": 2,
-      "minPrice": 38000,
-      "avgPrice": 45000,
+      "minPrice": 55000,
+      "avgPrice": 55500,
       "flags": [
         "高額(1泊3万円以上)",
         "異常高(中央値×3超)"
@@ -106,12 +106,12 @@
       "reviewCandidate": true
     },
     {
-      "id": 29,
-      "name": "游月庵",
-      "hotelNo": "194210",
+      "id": 27,
+      "name": "犬山モダンルーム",
+      "hotelNo": "169420",
       "zone": "30",
       "category": "minpaku",
-      "rakutenUrl": "https://travel.rakuten.co.jp/HOTEL/194210/194210.html",
+      "rakutenUrl": "https://travel.rakuten.co.jp/HOTEL/169420/169420.html",
       "liveName": null,
       "availableCount": 0,
       "sampleCount": 2,
@@ -119,6 +119,42 @@
       "avgPrice": null,
       "flags": [
         "サンプル全日で空室なし"
+      ],
+      "removeCandidate": false,
+      "reviewCandidate": true
+    },
+    {
+      "id": 28,
+      "name": "ヴィラ犬山",
+      "hotelNo": "171811",
+      "zone": "30",
+      "category": "minpaku",
+      "rakutenUrl": "https://travel.rakuten.co.jp/HOTEL/171811/171811.html",
+      "liveName": null,
+      "availableCount": 0,
+      "sampleCount": 2,
+      "minPrice": null,
+      "avgPrice": null,
+      "flags": [
+        "サンプル全日で空室なし"
+      ],
+      "removeCandidate": false,
+      "reviewCandidate": true
+    },
+    {
+      "id": 29,
+      "name": "游月庵",
+      "hotelNo": "194210",
+      "zone": "30",
+      "category": "minpaku",
+      "rakutenUrl": "https://travel.rakuten.co.jp/HOTEL/194210/194210.html",
+      "liveName": "游月庵／民泊",
+      "availableCount": 1,
+      "sampleCount": 2,
+      "minPrice": 29000,
+      "avgPrice": 29000,
+      "flags": [
+        "異常高(中央値×3超)"
       ],
       "removeCandidate": false,
       "reviewCandidate": true
@@ -143,12 +179,48 @@
       "reviewCandidate": true
     },
     {
+      "id": 31,
+      "name": "犬山国際ユースホステル",
+      "hotelNo": "52163",
+      "zone": "30",
+      "category": "hostel",
+      "rakutenUrl": "https://travel.rakuten.co.jp/HOTEL/52163/52163.html",
+      "liveName": null,
+      "availableCount": 0,
+      "sampleCount": 2,
+      "minPrice": null,
+      "avgPrice": null,
+      "flags": [
+        "サンプル全日で空室なし"
+      ],
+      "removeCandidate": false,
+      "reviewCandidate": true
+    },
+    {
       "id": 33,
       "name": "松里旅館",
       "hotelNo": "44364",
       "zone": "30",
       "category": "ryokan",
       "rakutenUrl": "https://travel.rakuten.co.jp/HOTEL/44364/44364.html",
+      "liveName": null,
+      "availableCount": 0,
+      "sampleCount": 2,
+      "minPrice": null,
+      "avgPrice": null,
+      "flags": [
+        "サンプル全日で空室なし"
+      ],
+      "removeCandidate": false,
+      "reviewCandidate": true
+    },
+    {
+      "id": 52,
+      "name": "シティーホテル セキ",
+      "hotelNo": "38981",
+      "zone": "50",
+      "category": "city",
+      "rakutenUrl": "https://travel.rakuten.co.jp/HOTEL/38981/38981.html",
       "liveName": null,
       "availableCount": 0,
       "sampleCount": 2,
@@ -172,8 +244,8 @@
       "liveName": "ＡＢホテル犬山",
       "availableCount": 2,
       "sampleCount": 2,
-      "minPrice": 11000,
-      "avgPrice": 11500,
+      "minPrice": 8200,
+      "avgPrice": 9800,
       "flags": [],
       "removeCandidate": false,
       "reviewCandidate": false
@@ -188,8 +260,8 @@
       "liveName": "ホテルミュースタイル犬山エクスペリエンス",
       "availableCount": 2,
       "sampleCount": 2,
-      "minPrice": 21000,
-      "avgPrice": 21250,
+      "minPrice": 16000,
+      "avgPrice": 16000,
       "flags": [],
       "removeCandidate": false,
       "reviewCandidate": false
@@ -221,7 +293,7 @@
       "availableCount": 2,
       "sampleCount": 2,
       "minPrice": 8400,
-      "avgPrice": 8400,
+      "avgPrice": 9150,
       "flags": [],
       "removeCandidate": false,
       "reviewCandidate": false
@@ -252,8 +324,8 @@
       "liveName": "犬山ミヤコホテル",
       "availableCount": 1,
       "sampleCount": 2,
-      "minPrice": 9500,
-      "avgPrice": 9500,
+      "minPrice": 8300,
+      "avgPrice": 8300,
       "flags": [],
       "removeCandidate": false,
       "reviewCandidate": false
@@ -268,8 +340,8 @@
       "liveName": "ＨＯＴＥＬ　Ｒ９　Ｔｈｅ　Ｙａｒｄ　美濃加茂",
       "availableCount": 2,
       "sampleCount": 2,
-      "minPrice": 7700,
-      "avgPrice": 8050,
+      "minPrice": 7000,
+      "avgPrice": 8100,
       "flags": [],
       "removeCandidate": false,
       "reviewCandidate": false
@@ -282,7 +354,7 @@
       "category": "onsen",
       "rakutenUrl": "https://travel.rakuten.co.jp/HOTEL/5306/5306.html",
       "liveName": "犬山温泉　旬樹庵　八勝閣みづのを",
-      "availableCount": 2,
+      "availableCount": 1,
       "sampleCount": 2,
       "minPrice": 23650,
       "avgPrice": 23650,
@@ -298,7 +370,7 @@
       "category": "business",
       "rakutenUrl": "https://travel.rakuten.co.jp/HOTEL/188318/188318.html",
       "liveName": "ビジネスホテル　ニューたじま",
-      "availableCount": 2,
+      "availableCount": 1,
       "sampleCount": 2,
       "minPrice": 5900,
       "avgPrice": 5900,
@@ -316,8 +388,8 @@
       "liveName": "ＡＢホテル各務原",
       "availableCount": 2,
       "sampleCount": 2,
-      "minPrice": 7600,
-      "avgPrice": 9300,
+      "minPrice": 9000,
+      "avgPrice": 9800,
       "flags": [],
       "removeCandidate": false,
       "reviewCandidate": false
@@ -348,8 +420,8 @@
       "liveName": "ウィークリー翔ホテル各務原",
       "availableCount": 2,
       "sampleCount": 2,
-      "minPrice": 2700,
-      "avgPrice": 2700,
+      "minPrice": 3500,
+      "avgPrice": 3500,
       "flags": [],
       "removeCandidate": false,
       "reviewCandidate": false
@@ -380,56 +452,8 @@
       "liveName": "犬山シティホテル",
       "availableCount": 1,
       "sampleCount": 2,
-      "minPrice": 8800,
-      "avgPrice": 8800,
-      "flags": [],
-      "removeCandidate": false,
-      "reviewCandidate": false
-    },
-    {
-      "id": 27,
-      "name": "犬山モダンルーム",
-      "hotelNo": "169420",
-      "zone": "30",
-      "category": "minpaku",
-      "rakutenUrl": "https://travel.rakuten.co.jp/HOTEL/169420/169420.html",
-      "liveName": "犬山モダンルーム　＾",
-      "availableCount": 2,
-      "sampleCount": 2,
-      "minPrice": 6937,
-      "avgPrice": 6937,
-      "flags": [],
-      "removeCandidate": false,
-      "reviewCandidate": false
-    },
-    {
-      "id": 28,
-      "name": "ヴィラ犬山",
-      "hotelNo": "171811",
-      "zone": "30",
-      "category": "minpaku",
-      "rakutenUrl": "https://travel.rakuten.co.jp/HOTEL/171811/171811.html",
-      "liveName": "ヴィラ犬山　　＾",
-      "availableCount": 2,
-      "sampleCount": 2,
-      "minPrice": 6960,
-      "avgPrice": 6960,
-      "flags": [],
-      "removeCandidate": false,
-      "reviewCandidate": false
-    },
-    {
-      "id": 31,
-      "name": "犬山国際ユースホステル",
-      "hotelNo": "52163",
-      "zone": "30",
-      "category": "hostel",
-      "rakutenUrl": "https://travel.rakuten.co.jp/HOTEL/52163/52163.html",
-      "liveName": "犬山国際ユースホステル",
-      "availableCount": 2,
-      "sampleCount": 2,
-      "minPrice": 4900,
-      "avgPrice": 4900,
+      "minPrice": 7800,
+      "avgPrice": 7800,
       "flags": [],
       "removeCandidate": false,
       "reviewCandidate": false
@@ -476,8 +500,8 @@
       "liveName": "ＡＢホテル関",
       "availableCount": 2,
       "sampleCount": 2,
-      "minPrice": 7600,
-      "avgPrice": 10100,
+      "minPrice": 7200,
+      "avgPrice": 10500,
       "flags": [],
       "removeCandidate": false,
       "reviewCandidate": false
@@ -492,8 +516,8 @@
       "liveName": "ＡＢホテル可児",
       "availableCount": 2,
       "sampleCount": 2,
-      "minPrice": 10600,
-      "avgPrice": 10800,
+      "minPrice": 7400,
+      "avgPrice": 8300,
       "flags": [],
       "removeCandidate": false,
       "reviewCandidate": false
@@ -509,7 +533,7 @@
       "availableCount": 2,
       "sampleCount": 2,
       "minPrice": 8800,
-      "avgPrice": 9550,
+      "avgPrice": 9150,
       "flags": [],
       "removeCandidate": false,
       "reviewCandidate": false
@@ -524,8 +548,8 @@
       "liveName": "パークホテル可児",
       "availableCount": 2,
       "sampleCount": 2,
-      "minPrice": 6704,
-      "avgPrice": 7582,
+      "minPrice": 6375,
+      "avgPrice": 6649,
       "flags": [],
       "removeCandidate": false,
       "reviewCandidate": false
@@ -541,7 +565,7 @@
       "availableCount": 2,
       "sampleCount": 2,
       "minPrice": 6500,
-      "avgPrice": 6950,
+      "avgPrice": 6500,
       "flags": [],
       "removeCandidate": false,
       "reviewCandidate": false
@@ -573,7 +597,7 @@
       "availableCount": 2,
       "sampleCount": 2,
       "minPrice": 14157,
-      "avgPrice": 14157,
+      "avgPrice": 15246,
       "flags": [],
       "removeCandidate": false,
       "reviewCandidate": false
@@ -588,8 +612,8 @@
       "liveName": "シティホテル美濃加茂",
       "availableCount": 2,
       "sampleCount": 2,
-      "minPrice": 7128,
-      "avgPrice": 8019,
+      "minPrice": 6248,
+      "avgPrice": 6248,
       "flags": [],
       "removeCandidate": false,
       "reviewCandidate": false
@@ -604,8 +628,8 @@
       "liveName": "天然温泉　金華の湯　ドーミーイン岐阜駅前（ドーミーイン・御宿野乃　ホテルズグループ）",
       "availableCount": 2,
       "sampleCount": 2,
-      "minPrice": 12500,
-      "avgPrice": 14500,
+      "minPrice": 11500,
+      "avgPrice": 12000,
       "flags": [],
       "removeCandidate": false,
       "reviewCandidate": false
@@ -620,8 +644,8 @@
       "liveName": "ダイワロイネットホテル岐阜",
       "availableCount": 2,
       "sampleCount": 2,
-      "minPrice": 15000,
-      "avgPrice": 15750,
+      "minPrice": 10000,
+      "avgPrice": 11750,
       "flags": [],
       "removeCandidate": false,
       "reviewCandidate": false
@@ -636,8 +660,8 @@
       "liveName": "ＡＢホテル岐阜",
       "availableCount": 2,
       "sampleCount": 2,
-      "minPrice": 8600,
-      "avgPrice": 10700,
+      "minPrice": 8400,
+      "avgPrice": 9200,
       "flags": [],
       "removeCandidate": false,
       "reviewCandidate": false
@@ -649,11 +673,11 @@
       "zone": "50",
       "category": "business",
       "rakutenUrl": "https://travel.rakuten.co.jp/HOTEL/20562/20562.html",
-      "liveName": "コンフォートホテル岐阜（２０２６年３月３１日　リニューアル）",
-      "availableCount": 1,
+      "liveName": "コンフォートホテル岐阜",
+      "availableCount": 2,
       "sampleCount": 2,
-      "minPrice": 13800,
-      "avgPrice": 13800,
+      "minPrice": 8200,
+      "avgPrice": 10350,
       "flags": [],
       "removeCandidate": false,
       "reviewCandidate": false
@@ -668,8 +692,8 @@
       "liveName": "岐阜ワシントンホテルプラザ",
       "availableCount": 2,
       "sampleCount": 2,
-      "minPrice": 7600,
-      "avgPrice": 8300,
+      "minPrice": 6800,
+      "avgPrice": 7100,
       "flags": [],
       "removeCandidate": false,
       "reviewCandidate": false
@@ -700,8 +724,8 @@
       "liveName": "長良川温泉　岐阜グランドホテル",
       "availableCount": 2,
       "sampleCount": 2,
-      "minPrice": 8250,
-      "avgPrice": 14025,
+      "minPrice": 7700,
+      "avgPrice": 7700,
       "flags": [],
       "removeCandidate": false,
       "reviewCandidate": false
@@ -716,8 +740,8 @@
       "liveName": "都ホテル　岐阜長良川",
       "availableCount": 2,
       "sampleCount": 2,
-      "minPrice": 18500,
-      "avgPrice": 18500,
+      "minPrice": 14000,
+      "avgPrice": 14000,
       "flags": [],
       "removeCandidate": false,
       "reviewCandidate": false
@@ -733,23 +757,7 @@
       "availableCount": 2,
       "sampleCount": 2,
       "minPrice": 8350,
-      "avgPrice": 8350,
-      "flags": [],
-      "removeCandidate": false,
-      "reviewCandidate": false
-    },
-    {
-      "id": 52,
-      "name": "シティーホテル セキ",
-      "hotelNo": "38981",
-      "zone": "50",
-      "category": "city",
-      "rakutenUrl": "https://travel.rakuten.co.jp/HOTEL/38981/38981.html",
-      "liveName": "シティーホテル　セキ",
-      "availableCount": 1,
-      "sampleCount": 2,
-      "minPrice": 7000,
-      "avgPrice": 7000,
+      "avgPrice": 8600,
       "flags": [],
       "removeCandidate": false,
       "reviewCandidate": false
